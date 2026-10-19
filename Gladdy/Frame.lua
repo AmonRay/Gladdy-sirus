@@ -39,6 +39,7 @@ Gladdy.BUTTON_DEFAULTS = {
 }
 
 function Gladdy:CreateFrame()
+    if InCombatLockdown() then return end
     self.frame = CreateFrame("Frame", "GladdyFrame", UIParent)
 
     self.frame.background = CreateFrame("Frame", nil, self.frame, BackdropTemplateMixin and "BackdropTemplate")
@@ -263,20 +264,34 @@ function Gladdy:UpdateFrame()
 end
 
 function Gladdy:HideFrame()
+    self.showFrame = nil
+    self.startTest = nil
+    if InCombatLockdown() then
+        self.hideFrame = true
+        return
+    end
+    self.hideFrame = nil
     if (self.frame) then
-        if InCombatLockdown() then
-            self.startTest = nil
-            self.hideFrame = true
-        else
-            self:Reset()
-            self.frame:Hide()
-        end
-
+        self:Reset()
+        self.frame:Hide()
         self.frame.testing = nil
     end
 end
 
 function Gladdy:ToggleFrame(i)
+    if InCombatLockdown() then
+        if self.startTest and self.curBracket == i then
+            self:HideFrame()
+        else
+            self.curBracket = i
+            self.showFrame = true
+            self.startTest = true
+            self.hideFrame = nil
+            self:Print("Gladdy frames show as soon as you leave combat")
+        end
+        return
+    end
+    self.hideFrame = nil
     self:Reset()
     if (self.frame and self.frame:IsShown() and i == self.curBracket) then
         self.frame.testing = nil
@@ -309,7 +324,23 @@ function Gladdy:ToggleFrame(i)
     end
 end
 
+function Gladdy:EnsureButtons(count)
+    if InCombatLockdown() then
+        self.pendingButtonCount = math.max(self.pendingButtonCount or 0, count)
+        return false
+    end
+    for i = 1, count do
+        if not self.buttons["arena" .. i] then self:CreateButton(i) end
+    end
+    return true
+end
+
 function Gladdy:CreateButton(i)
+    if self.buttons["arena" .. i] then return self.buttons["arena" .. i] end
+    if InCombatLockdown() then
+        self.pendingButtonCount = math.max(self.pendingButtonCount or 0, i)
+        return
+    end
     if (not self.frame) then
         self:CreateFrame()
     end

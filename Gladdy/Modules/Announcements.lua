@@ -46,11 +46,11 @@ function Announcements:Initialize()
     self.throttled = {}
 
     self.DRINK_AURA = GetSpellInfo(46755)
-    self.RES_SPELLS = {
-        [GetSpellInfo(20770)] = true,
-        [GetSpellInfo(20773)] = true,
-        [GetSpellInfo(20777)] = true,
-    }
+    self.RES_SPELLS = Gladdy:FilterSpellTable({
+        [Gladdy:SpellKey(20770)] = true,
+        [Gladdy:SpellKey(20773)] = true,
+        [Gladdy:SpellKey(20777)] = true,
+    })
 
     self:RegisterMessage("JOINED_ARENA")
     self:RegisterMessage("CAST_START")

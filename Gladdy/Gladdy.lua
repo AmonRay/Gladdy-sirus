@@ -70,7 +70,7 @@ local Gladdy = LibStub:NewLibrary(MAJOR, MINOR)
 local L = {}
 Gladdy.L = L
 Gladdy.version_major_num = 2
-Gladdy.version_minor_num = 0.42
+Gladdy.version_minor_num = 0.43
 Gladdy.version_num = Gladdy.version_major_num + Gladdy.version_minor_num
 Gladdy.version_releaseType = RELEASE_TYPES.release
 Gladdy.version = PREFIX .. string.format("%.2f", Gladdy.version_num) .. "-" .. Gladdy.version_releaseType
@@ -95,6 +95,31 @@ setmetatable(Gladdy, {
 		return MAJOR
 	end
 })
+
+local missingSpellKey = {}
+Gladdy.missingSpellIDs = {}
+
+function Gladdy:SpellName(id, suffix, additionalID)
+    local name = GetSpellInfo(id)
+    if not name then self.missingSpellIDs[id] = true end
+    if additionalID then
+        local additional = GetSpellInfo(additionalID)
+        if not additional then self.missingSpellIDs[additionalID] = true end
+        if not name or not additional then return nil end
+        return name .. (suffix or " ") .. additional
+    end
+    if not name then return nil end
+    return suffix and (name .. suffix) or name
+end
+
+function Gladdy:SpellKey(id, suffix, additionalID)
+    return self:SpellName(id, suffix, additionalID) or missingSpellKey
+end
+
+function Gladdy:FilterSpellTable(tbl)
+    tbl[missingSpellKey] = nil
+    return tbl
+end
 
 function Gladdy:Print(...)
 	local text = "|cff0384fcGladdy|r:"
@@ -494,22 +519,17 @@ function Gladdy:OnProfileChanged()
 end
 
 function Gladdy:OnEnable()
+    local missing = {}
+    for id in pairs(self.missingSpellIDs) do missing[#missing + 1] = id end
+    if #missing > 0 then
+        table.sort(missing)
+        self:Warn("Unavailable spell data; skipped spell IDs:", table.concat(missing, ", "))
+    end
 	self:RegisterEvent("UPDATE_BATTLEFIELD_STATUS")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 
-	if (IsAddOnLoaded("Clique")) then
-		for i = 1, 5 do
-			self:CreateButton(i)
-		end
-
-		ClickCastFrames = ClickCastFrames or {}
-		ClickCastFrames[self.buttons.arena1.secure] = true
-		ClickCastFrames[self.buttons.arena2.secure] = true
-		ClickCastFrames[self.buttons.arena3.secure] = true
-		ClickCastFrames[self.buttons.arena4.secure] = true
-		ClickCastFrames[self.buttons.arena5.secure] = true
-	end
+    if IsAddOnLoaded("Clique") then self:RegisterCliqueFrames() end
 
 	if (not self.db.locked and self.db.x == 0 and self.db.y == 0) then
 		self:Print(L["Welcome to Gladdy!"])
@@ -539,7 +559,22 @@ function Gladdy:GetIconStyles()
 	}
 end
 
+function Gladdy:RegisterCliqueFrames()
+    self.pendingClique = true
+    if not self:EnsureButtons(5) then return end
+    ClickCastFrames = ClickCastFrames or {}
+    for i = 1, 5 do ClickCastFrames[self.buttons["arena" .. i].secure] = true end
+    self.pendingClique = nil
+end
+
 function Gladdy:Test()
+    if InCombatLockdown() then
+        self.hideFrame = nil
+        self.showFrame = true
+        self.startTest = true
+        return
+    end
+    self:EnsureButtons(self.curBracket or 0)
 	self.frame.testing = true
 	if self.curBracket then
 		for i = 1, self.curBracket do
@@ -570,7 +605,8 @@ function Gladdy:PLAYER_ENTERING_WORLD()
 		LibStub("AceConfigDialog-3.0"):Open("Gladdy", nil, LibStub("AceConfigDialog-3.0"):SelectGroup("Gladdy", "XiconProfiles"))
 		self.showConfig = nil
 	end
-	if ((self.frame and self.frame:IsVisible()) or self.curBracket == 0) then
+	if ((self.frame and self.frame:IsVisible()) or self.curBracket == 0
+        or (self.showFrame and not self.startTest and select(2, IsInInstance()) ~= "arena")) then
 		self:Reset()
 		self:HideFrame()
 	end
@@ -590,24 +626,35 @@ function Gladdy:UPDATE_BATTLEFIELD_STATUS(_, index)
 end
 
 function Gladdy:PLAYER_REGEN_ENABLED()
-	if self.showFrame then
-		self:UpdateFrame()
-		if self.startTest then
-			self:Test()
-			self.startTest = nil
-		end
-		self.frame:Show()
-		self:SendMessage("JOINED_ARENA")
-		self.showFrame = nil
-	end
+    if InCombatLockdown() then return end
+    local count = self.pendingButtonCount
+    self.pendingButtonCount = nil
+    if count then self:EnsureButtons(count) end
+    if self.pendingClique then self:RegisterCliqueFrames() end
+	if self.showFrame and not self.hideFrame then
+        if self.startTest then
+            self:EnsureButtons(self.curBracket or 0)
+            self:UpdateFrame()
+            self:Test()
+            self.startTest = nil
+            self.frame:Show()
+            self:SendMessage("JOINED_ARENA")
+        else
+            self:JoinedArena()
+        end
+        self.showFrame = nil
+    end
 	if self.hideFrame then
 		self:Reset()
-		self.frame:Hide()
+		if self.frame then self.frame:Hide() end
 		self.hideFrame = nil
 	end
 end
 
 function Gladdy:Reset()
+    self.showFrame = nil
+    self.startTest = nil
+    if not self.pendingClique then self.pendingButtonCount = nil end
 	if type(self.guids) == "table" then
 		for k,_ in pairs(self.guids) do
 			self.guids[k] = nil
@@ -668,21 +715,24 @@ function Gladdy:JoinedArena()
         self.curBracket = 2
     end
 
+    if InCombatLockdown() then
+        self.showFrame = true
+        self.startTest = nil
+        self.hideFrame = nil
+        return
+    end
+    self.hideFrame = nil
+
     for i = 1, self.curBracket do
         if not self.buttons["arena" .. i] then
             self:CreateButton(i)
         end
     end
 
-    if InCombatLockdown() then
-        Gladdy:Debug("INFO", "JoinedArena", "In combat, delaying frame show")
-        self.showFrame = true
-    else
-        Gladdy:Debug("INFO", "JoinedArena", "Showing frames immediately")
-        self:UpdateFrame()
-        self.frame:Show()
-		self:SendMessage("JOINED_ARENA")
-    end
+    Gladdy:Debug("INFO", "JoinedArena", "Showing frames immediately")
+    self:UpdateFrame()
+    self.frame:Show()
+    self:SendMessage("JOINED_ARENA")
 
     for i = 1, self.curBracket do
         local button = self.buttons["arena" .. i]

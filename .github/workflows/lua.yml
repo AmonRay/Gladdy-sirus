@@ -23,5 +23,11 @@ jobs:
         run: lua5.1 tests/ace_core_spec.lua
       - name: Check shared AceGUI reuse and ElvUI refresh in both load orders
         run: lua5.1 tests/ace_ui_spec.lua before && lua5.1 tests/ace_ui_spec.lua after
+      - name: Run import boundary and lazy-window tests
+        run: lua5.1 tests/import_spec.lua
+      - name: Run combat lifecycle and nameplate tests
+        run: lua5.1 tests/lifecycle_spec.lua
+      - name: Run available and missing spell-data tests
+        run: lua5.1 tests/spells_spec.lua available && lua5.1 tests/spells_spec.lua mixed && lua5.1 tests/spells_spec.lua missing
       - name: Run synthetic operation-count checks
         run: lua5.1 tests/bench_dispatch.lua && lua5.1 tests/bench_pets.lua

@@ -11,157 +11,157 @@ Gladdy.expansion = "Wrath"
 Gladdy.CLASSES = { "MAGE", "PRIEST", "DRUID", "SHAMAN", "PALADIN", "WARLOCK", "WARRIOR", "HUNTER", "ROGUE", "DEATHKNIGHT" }
 tbl_sort(Gladdy.CLASSES)
 
-local specBuffs = {
-	[GetSpellInfo(56638)] = L["Arms"], -- Taste for Blood
-	[GetSpellInfo(64976)] = L["Arms"], -- Juggernaut
-	[GetSpellInfo(57522)] = L["Arms"], -- Enrage
-	[GetSpellInfo(52437)] = L["Arms"], -- Sudden Death
-	[GetSpellInfo(46857)] = L["Arms"], -- Trauma
-	[GetSpellInfo(56112)] = L["Fury"], -- Furious Attacks
-	[GetSpellInfo(29801)] = L["Fury"], -- Rampage
-	[GetSpellInfo(46916)] = L["Fury"], -- Slam!
-	[GetSpellInfo(50227)] = L["Protection"], -- Sword and Board
-	[GetSpellInfo(50720)] = L["Protection"], -- Vigilance
-	[GetSpellInfo(74347)] = L["Protection"], -- Silenced - Gag Order
-	[GetSpellInfo(20375)] = L["Retribution"], -- Seal of Command
-	[GetSpellInfo(59578)] = L["Retribution"], -- The Art of War
-	[GetSpellInfo(31836)] = L["Holy"], -- Light's Grace
-	[GetSpellInfo(53563)] = L["Holy"], -- Beacon of Light
-	[GetSpellInfo(54149)] = L["Holy"], -- Infusion of Light
-	[GetSpellInfo(63529)] = L["Protection"], -- Silenced - Shield of the Templar
-	[GetSpellInfo(36554)] = L["Subtlety"], -- Shadowstep
-	[GetSpellInfo(44373)] = L["Subtlety"], -- Shadowstep Speed
-	[GetSpellInfo(36563)] = L["Subtlety"], -- Shadowstep DMG
-	[GetSpellInfo(51713)] = L["Subtlety"], -- Shadow Dance
-	[GetSpellInfo(31665)] = L["Subtlety"], -- Master of Subtlety
-	[GetSpellInfo(14278)] = L["Subtlety"], -- Ghostly Strike
-	[GetSpellInfo(51690)] = L["Combat"], -- Killing Spree
-	[GetSpellInfo(13877)] = L["Combat"], -- Blade Flurry
-	[GetSpellInfo(13750)] = L["Combat"], -- Adrenaline Rush
-	[GetSpellInfo(14177)] = L["Assassination"], -- Cold Blood
-	[GetSpellInfo(47788)] = L["Holy"], -- Guardian Spirit
-	[GetSpellInfo(52800)] = L["Discipline"], -- Borrowed Time
-	[GetSpellInfo(63944)] = L["Discipline"], -- Renewed Hope
-	[GetSpellInfo(15473)] = L["Shadow"], -- Shadowform
-	[GetSpellInfo(15286)] = L["Shadow"], -- Vampiric Embrace
-	[GetSpellInfo(49222)] = L["Unholy"], -- Bone Shield
-	[GetSpellInfo(49016)] = L["Blood"], -- Hysteria
-	[GetSpellInfo(53138)] = L["Blood"], -- Abomination's Might
-	[GetSpellInfo(55610)] = L["Frost"], -- Imp. Icy Talons
-	[GetSpellInfo(43039)] = L["Frost"], -- Ice Barrier
-	[GetSpellInfo(74396)] = L["Frost"], -- Fingers of Frost
-	[GetSpellInfo(57761)] = L["Frost"], -- Fireball!
-	[GetSpellInfo(11129)] = L["Fire"], -- Combustion
-	[GetSpellInfo(64346)] = L["Fire"], -- Fiery Payback
-	[GetSpellInfo(48108)] = L["Fire"], -- Hot Streak
-	[GetSpellInfo(54741)] = L["Fire"], -- Firestarter
-	[GetSpellInfo(55360)] = L["Fire"], -- Living Bomb
-	[GetSpellInfo(31583)] = L["Arcane"], -- Arcane Empowerment
-	[GetSpellInfo(44413)] = L["Arcane"], -- Incanter's Absorption
-	[GetSpellInfo(30302)] = L["Destruction"], -- Nether Protection
-	[GetSpellInfo(63244)] = L["Destruction"], -- Pyroclasm
-	[GetSpellInfo(54277)] = L["Destruction"], -- Backdraft
-	[GetSpellInfo(47283)] = L["Destruction"], -- Empowered Imp
-	[GetSpellInfo(34936)] = L["Destruction"], -- Backlash
-	[GetSpellInfo(47193)] = L["Demonology"], -- Demonic Empowerment
-	[GetSpellInfo(64371)] = L["Affliction"], -- Eradication
-	[GetSpellInfo(57663)] = L["Elemental"], -- Totem of Wrath
-	[GetSpellInfo(65264)] = L["Elemental"], -- Lava Flows
-	[GetSpellInfo(51470)] = L["Elemental"], -- Elemental Oath
-	[GetSpellInfo(52179)] = L["Elemental"], -- Astral Shift
-	[GetSpellInfo(49284)] = L["Restoration"], -- Earth Shield
-	[GetSpellInfo(53390)] = L["Restoration"], -- Tidal Waves
-	[GetSpellInfo(30809)] = L["Enhancement"], -- Unleashed Rage
-	[GetSpellInfo(53817)] = L["Enhancement"], -- Maelstrom Weapon
-	[GetSpellInfo(63685)] = L["Enhancement"], -- Freeze (Frozen Power)
-	[GetSpellInfo(20895)] = L["Beast Mastery"], -- Spirit Bond
-	[GetSpellInfo(34471)] = L["Beast Mastery"], -- The Beast Within
-	[GetSpellInfo(75447)] = L["Beast Mastery"], -- Ferocious Inspiration
-	[GetSpellInfo(19506)] = L["Marksmanship"], -- Trueshot Aura
-	[GetSpellInfo(64420)] = L["Survival"], -- Sniper Training
-	[GetSpellInfo(24932)] = L["Feral"], -- Leader of the Pack
-	[GetSpellInfo(16975)] = L["Feral"], -- Predatory Strikes
-	[GetSpellInfo(50334) .. " Feral"] = L["Feral"], -- Berserk
-	[GetSpellInfo(24907)] = L["Balance"], -- Moonkin Aura
-	[GetSpellInfo(24858)] = L["Balance"], -- Moonkin Form
-	[GetSpellInfo(48504)] = L["Restoration"], -- Living Seed
-	[GetSpellInfo(45283)] = L["Restoration"], -- Natural Perfection
-	[GetSpellInfo(53251)] = L["Restoration"], -- Wild Growth
-	[GetSpellInfo(16188)] = L["Restoration"], -- Nature's Swiftness
-	[GetSpellInfo(33891)] = L["Restoration"], -- Tree of Life
-}
+local specBuffs = Gladdy:FilterSpellTable({
+	[Gladdy:SpellKey(56638)] = L["Arms"], -- Taste for Blood
+	[Gladdy:SpellKey(64976)] = L["Arms"], -- Juggernaut
+	[Gladdy:SpellKey(57522)] = L["Arms"], -- Enrage
+	[Gladdy:SpellKey(52437)] = L["Arms"], -- Sudden Death
+	[Gladdy:SpellKey(46857)] = L["Arms"], -- Trauma
+	[Gladdy:SpellKey(56112)] = L["Fury"], -- Furious Attacks
+	[Gladdy:SpellKey(29801)] = L["Fury"], -- Rampage
+	[Gladdy:SpellKey(46916)] = L["Fury"], -- Slam!
+	[Gladdy:SpellKey(50227)] = L["Protection"], -- Sword and Board
+	[Gladdy:SpellKey(50720)] = L["Protection"], -- Vigilance
+	[Gladdy:SpellKey(74347)] = L["Protection"], -- Silenced - Gag Order
+	[Gladdy:SpellKey(20375)] = L["Retribution"], -- Seal of Command
+	[Gladdy:SpellKey(59578)] = L["Retribution"], -- The Art of War
+	[Gladdy:SpellKey(31836)] = L["Holy"], -- Light's Grace
+	[Gladdy:SpellKey(53563)] = L["Holy"], -- Beacon of Light
+	[Gladdy:SpellKey(54149)] = L["Holy"], -- Infusion of Light
+	[Gladdy:SpellKey(63529)] = L["Protection"], -- Silenced - Shield of the Templar
+	[Gladdy:SpellKey(36554)] = L["Subtlety"], -- Shadowstep
+	[Gladdy:SpellKey(44373)] = L["Subtlety"], -- Shadowstep Speed
+	[Gladdy:SpellKey(36563)] = L["Subtlety"], -- Shadowstep DMG
+	[Gladdy:SpellKey(51713)] = L["Subtlety"], -- Shadow Dance
+	[Gladdy:SpellKey(31665)] = L["Subtlety"], -- Master of Subtlety
+	[Gladdy:SpellKey(14278)] = L["Subtlety"], -- Ghostly Strike
+	[Gladdy:SpellKey(51690)] = L["Combat"], -- Killing Spree
+	[Gladdy:SpellKey(13877)] = L["Combat"], -- Blade Flurry
+	[Gladdy:SpellKey(13750)] = L["Combat"], -- Adrenaline Rush
+	[Gladdy:SpellKey(14177)] = L["Assassination"], -- Cold Blood
+	[Gladdy:SpellKey(47788)] = L["Holy"], -- Guardian Spirit
+	[Gladdy:SpellKey(52800)] = L["Discipline"], -- Borrowed Time
+	[Gladdy:SpellKey(63944)] = L["Discipline"], -- Renewed Hope
+	[Gladdy:SpellKey(15473)] = L["Shadow"], -- Shadowform
+	[Gladdy:SpellKey(15286)] = L["Shadow"], -- Vampiric Embrace
+	[Gladdy:SpellKey(49222)] = L["Unholy"], -- Bone Shield
+	[Gladdy:SpellKey(49016)] = L["Blood"], -- Hysteria
+	[Gladdy:SpellKey(53138)] = L["Blood"], -- Abomination's Might
+	[Gladdy:SpellKey(55610)] = L["Frost"], -- Imp. Icy Talons
+	[Gladdy:SpellKey(43039)] = L["Frost"], -- Ice Barrier
+	[Gladdy:SpellKey(74396)] = L["Frost"], -- Fingers of Frost
+	[Gladdy:SpellKey(57761)] = L["Frost"], -- Fireball!
+	[Gladdy:SpellKey(11129)] = L["Fire"], -- Combustion
+	[Gladdy:SpellKey(64346)] = L["Fire"], -- Fiery Payback
+	[Gladdy:SpellKey(48108)] = L["Fire"], -- Hot Streak
+	[Gladdy:SpellKey(54741)] = L["Fire"], -- Firestarter
+	[Gladdy:SpellKey(55360)] = L["Fire"], -- Living Bomb
+	[Gladdy:SpellKey(31583)] = L["Arcane"], -- Arcane Empowerment
+	[Gladdy:SpellKey(44413)] = L["Arcane"], -- Incanter's Absorption
+	[Gladdy:SpellKey(30302)] = L["Destruction"], -- Nether Protection
+	[Gladdy:SpellKey(63244)] = L["Destruction"], -- Pyroclasm
+	[Gladdy:SpellKey(54277)] = L["Destruction"], -- Backdraft
+	[Gladdy:SpellKey(47283)] = L["Destruction"], -- Empowered Imp
+	[Gladdy:SpellKey(34936)] = L["Destruction"], -- Backlash
+	[Gladdy:SpellKey(47193)] = L["Demonology"], -- Demonic Empowerment
+	[Gladdy:SpellKey(64371)] = L["Affliction"], -- Eradication
+	[Gladdy:SpellKey(57663)] = L["Elemental"], -- Totem of Wrath
+	[Gladdy:SpellKey(65264)] = L["Elemental"], -- Lava Flows
+	[Gladdy:SpellKey(51470)] = L["Elemental"], -- Elemental Oath
+	[Gladdy:SpellKey(52179)] = L["Elemental"], -- Astral Shift
+	[Gladdy:SpellKey(49284)] = L["Restoration"], -- Earth Shield
+	[Gladdy:SpellKey(53390)] = L["Restoration"], -- Tidal Waves
+	[Gladdy:SpellKey(30809)] = L["Enhancement"], -- Unleashed Rage
+	[Gladdy:SpellKey(53817)] = L["Enhancement"], -- Maelstrom Weapon
+	[Gladdy:SpellKey(63685)] = L["Enhancement"], -- Freeze (Frozen Power)
+	[Gladdy:SpellKey(20895)] = L["Beast Mastery"], -- Spirit Bond
+	[Gladdy:SpellKey(34471)] = L["Beast Mastery"], -- The Beast Within
+	[Gladdy:SpellKey(75447)] = L["Beast Mastery"], -- Ferocious Inspiration
+	[Gladdy:SpellKey(19506)] = L["Marksmanship"], -- Trueshot Aura
+	[Gladdy:SpellKey(64420)] = L["Survival"], -- Sniper Training
+	[Gladdy:SpellKey(24932)] = L["Feral"], -- Leader of the Pack
+	[Gladdy:SpellKey(16975)] = L["Feral"], -- Predatory Strikes
+	[Gladdy:SpellKey(50334, " Feral")] = L["Feral"], -- Berserk
+	[Gladdy:SpellKey(24907)] = L["Balance"], -- Moonkin Aura
+	[Gladdy:SpellKey(24858)] = L["Balance"], -- Moonkin Form
+	[Gladdy:SpellKey(48504)] = L["Restoration"], -- Living Seed
+	[Gladdy:SpellKey(45283)] = L["Restoration"], -- Natural Perfection
+	[Gladdy:SpellKey(53251)] = L["Restoration"], -- Wild Growth
+	[Gladdy:SpellKey(16188)] = L["Restoration"], -- Nature's Swiftness
+	[Gladdy:SpellKey(33891)] = L["Restoration"], -- Tree of Life
+})
 function Gladdy:GetSpecBuffs()
 	return specBuffs
 end
 
-local specSpells = {
-	[GetSpellInfo(47486)] = L["Arms"], -- Mortal Strike
-	[GetSpellInfo(46924)] = L["Arms"], -- Bladestorm
-	[GetSpellInfo(23881)] = L["Fury"], -- Bloodthirst
-	[GetSpellInfo(12809)] = L["Protection"], -- Concussion Blow
-	[GetSpellInfo(47498)] = L["Protection"], -- Devastate
-	[GetSpellInfo(46968)] = L["Protection"], -- Shockwave
-	[GetSpellInfo(50720)] = L["Protection"], -- Vigilance
-	[GetSpellInfo(48827)] = L["Protection"], -- Avenger's Shield
-	[GetSpellInfo(48825)] = L["Holy"], -- Holy Shock
-	[GetSpellInfo(53563)] = L["Holy"], -- Beacon of Light
-	[GetSpellInfo(35395)] = L["Retribution"], -- Crusader Strike
-	[GetSpellInfo(66006)] = L["Retribution"], -- Divine Storm
-	[GetSpellInfo(20066)] = L["Retribution"], -- Repentance
-	[GetSpellInfo(48666)] = L["Assassination"], -- Mutilate
-	[GetSpellInfo(14177)] = L["Assassination"], -- Cold Blood
-	[GetSpellInfo(51690)] = L["Combat"], -- Killing Spree
-	[GetSpellInfo(13877)] = L["Combat"], -- Blade Flurry
-	[GetSpellInfo(13750)] = L["Combat"], -- Adrenaline Rush
-	[GetSpellInfo(36554)] = L["Subtlety"], -- Shadowstep
-	[GetSpellInfo(48660)] = L["Subtlety"], -- Hemorrhage
-	[GetSpellInfo(51713)] = L["Subtlety"], -- Shadow Dance
-	[GetSpellInfo(53007)] = L["Discipline"], -- Penance
-	[GetSpellInfo(10060)] = L["Discipline"], -- Power Infusion
-	[GetSpellInfo(33206)] = L["Discipline"], -- Pain Suppression
-	[GetSpellInfo(34861)] = L["Holy"], -- Circle of Healing
-	[GetSpellInfo(15487)] = L["Shadow"], -- Silence
-	[GetSpellInfo(48160)] = L["Shadow"], -- Vampiric Touch
-	[GetSpellInfo(55262)] = L["Blood"], -- Heart Strike
-	[GetSpellInfo(49203)] = L["Frost"], -- Hungering Cold
-	[GetSpellInfo(55268)] = L["Frost"], -- Frost Strike
-	[GetSpellInfo(51411)] = L["Frost"], -- Howling Blast
-	[GetSpellInfo(55271)] = L["Unholy"], -- Scourge Strike
-	[GetSpellInfo(44781)] = L["Arcane"], -- Arcane Barrage
-	[GetSpellInfo(55360)] = L["Fire"], -- Living Bomb
-	[GetSpellInfo(42950)] = L["Fire"], -- Dragon's Breath
-	[GetSpellInfo(42945)] = L["Fire"], -- Blast Wave
-	[GetSpellInfo(44572)] = L["Frost"], -- Deep Freeze
-	[GetSpellInfo(59164)] = L["Affliction"], -- Haunt
-	[GetSpellInfo(47843)] = L["Affliction"], -- Unstable Affliction
-	[GetSpellInfo(59672)] = L["Demonology"], -- Metamorphosis
-	[GetSpellInfo(47193)] = L["Demonology"], -- Demonic Empowerment
-	[GetSpellInfo(47996) .. " Felguard"] = L["Demonology"], -- Intercept Felguard
-	[GetSpellInfo(59172)] = L["Destruction"], -- Chaos Bolt
-	[GetSpellInfo(47847)] = L["Destruction"], -- Shadowfury
-	[GetSpellInfo(59159)] = L["Elemental"], -- Thunderstorm
-	[GetSpellInfo(16166)] = L["Elemental"], -- Elemental Mastery
-	[GetSpellInfo(51533)] = L["Enhancement"], -- Feral Spirit
-	[GetSpellInfo(30823)] = L["Enhancement"], -- Shamanistic Rage
-	[GetSpellInfo(17364)] = L["Enhancement"], -- Stormstrike
-	[GetSpellInfo(61301)] = L["Restoration"], -- Riptide
-	[GetSpellInfo(51886)] = L["Restoration"], -- Cleanse Spirit
-	[GetSpellInfo(19577)] = L["Beast Mastery"], -- Intimidation
-	[GetSpellInfo(34490)] = L["Marksmanship"], -- Silencing Shot
-	[GetSpellInfo(53209)] = L["Marksmanship"], -- Chimera Shot
-	[GetSpellInfo(60053)] = L["Survival"], -- Explosive Shot
-	[GetSpellInfo(49012)] = L["Survival"], -- Wyvern Sting
-	[GetSpellInfo(53201)] = L["Balance"], -- Starfall
-	[GetSpellInfo(61384)] = L["Balance"], -- Typhoon
-	[GetSpellInfo(24858)] = L["Balance"], -- Moonkin Form
-	[GetSpellInfo(48566)] = L["Feral"], -- Mangle (Cat)
-	[GetSpellInfo(48564)] = L["Feral"], -- Mangle (Bear)
-	[GetSpellInfo(50334) .. " Feral"] = L["Feral"], -- Berserk
-	[GetSpellInfo(18562)] = L["Restoration"], -- Swiftmend
-	[GetSpellInfo(17116)] = L["Restoration"], -- Nature's Swiftness
-	[GetSpellInfo(33891)] = L["Restoration"], -- Tree of Life
-	[GetSpellInfo(53251)] = L["Restoration"], -- Wild Growth
-}
+local specSpells = Gladdy:FilterSpellTable({
+	[Gladdy:SpellKey(47486)] = L["Arms"], -- Mortal Strike
+	[Gladdy:SpellKey(46924)] = L["Arms"], -- Bladestorm
+	[Gladdy:SpellKey(23881)] = L["Fury"], -- Bloodthirst
+	[Gladdy:SpellKey(12809)] = L["Protection"], -- Concussion Blow
+	[Gladdy:SpellKey(47498)] = L["Protection"], -- Devastate
+	[Gladdy:SpellKey(46968)] = L["Protection"], -- Shockwave
+	[Gladdy:SpellKey(50720)] = L["Protection"], -- Vigilance
+	[Gladdy:SpellKey(48827)] = L["Protection"], -- Avenger's Shield
+	[Gladdy:SpellKey(48825)] = L["Holy"], -- Holy Shock
+	[Gladdy:SpellKey(53563)] = L["Holy"], -- Beacon of Light
+	[Gladdy:SpellKey(35395)] = L["Retribution"], -- Crusader Strike
+	[Gladdy:SpellKey(66006)] = L["Retribution"], -- Divine Storm
+	[Gladdy:SpellKey(20066)] = L["Retribution"], -- Repentance
+	[Gladdy:SpellKey(48666)] = L["Assassination"], -- Mutilate
+	[Gladdy:SpellKey(14177)] = L["Assassination"], -- Cold Blood
+	[Gladdy:SpellKey(51690)] = L["Combat"], -- Killing Spree
+	[Gladdy:SpellKey(13877)] = L["Combat"], -- Blade Flurry
+	[Gladdy:SpellKey(13750)] = L["Combat"], -- Adrenaline Rush
+	[Gladdy:SpellKey(36554)] = L["Subtlety"], -- Shadowstep
+	[Gladdy:SpellKey(48660)] = L["Subtlety"], -- Hemorrhage
+	[Gladdy:SpellKey(51713)] = L["Subtlety"], -- Shadow Dance
+	[Gladdy:SpellKey(53007)] = L["Discipline"], -- Penance
+	[Gladdy:SpellKey(10060)] = L["Discipline"], -- Power Infusion
+	[Gladdy:SpellKey(33206)] = L["Discipline"], -- Pain Suppression
+	[Gladdy:SpellKey(34861)] = L["Holy"], -- Circle of Healing
+	[Gladdy:SpellKey(15487)] = L["Shadow"], -- Silence
+	[Gladdy:SpellKey(48160)] = L["Shadow"], -- Vampiric Touch
+	[Gladdy:SpellKey(55262)] = L["Blood"], -- Heart Strike
+	[Gladdy:SpellKey(49203)] = L["Frost"], -- Hungering Cold
+	[Gladdy:SpellKey(55268)] = L["Frost"], -- Frost Strike
+	[Gladdy:SpellKey(51411)] = L["Frost"], -- Howling Blast
+	[Gladdy:SpellKey(55271)] = L["Unholy"], -- Scourge Strike
+	[Gladdy:SpellKey(44781)] = L["Arcane"], -- Arcane Barrage
+	[Gladdy:SpellKey(55360)] = L["Fire"], -- Living Bomb
+	[Gladdy:SpellKey(42950)] = L["Fire"], -- Dragon's Breath
+	[Gladdy:SpellKey(42945)] = L["Fire"], -- Blast Wave
+	[Gladdy:SpellKey(44572)] = L["Frost"], -- Deep Freeze
+	[Gladdy:SpellKey(59164)] = L["Affliction"], -- Haunt
+	[Gladdy:SpellKey(47843)] = L["Affliction"], -- Unstable Affliction
+	[Gladdy:SpellKey(59672)] = L["Demonology"], -- Metamorphosis
+	[Gladdy:SpellKey(47193)] = L["Demonology"], -- Demonic Empowerment
+	[Gladdy:SpellKey(47996, " Felguard")] = L["Demonology"], -- Intercept Felguard
+	[Gladdy:SpellKey(59172)] = L["Destruction"], -- Chaos Bolt
+	[Gladdy:SpellKey(47847)] = L["Destruction"], -- Shadowfury
+	[Gladdy:SpellKey(59159)] = L["Elemental"], -- Thunderstorm
+	[Gladdy:SpellKey(16166)] = L["Elemental"], -- Elemental Mastery
+	[Gladdy:SpellKey(51533)] = L["Enhancement"], -- Feral Spirit
+	[Gladdy:SpellKey(30823)] = L["Enhancement"], -- Shamanistic Rage
+	[Gladdy:SpellKey(17364)] = L["Enhancement"], -- Stormstrike
+	[Gladdy:SpellKey(61301)] = L["Restoration"], -- Riptide
+	[Gladdy:SpellKey(51886)] = L["Restoration"], -- Cleanse Spirit
+	[Gladdy:SpellKey(19577)] = L["Beast Mastery"], -- Intimidation
+	[Gladdy:SpellKey(34490)] = L["Marksmanship"], -- Silencing Shot
+	[Gladdy:SpellKey(53209)] = L["Marksmanship"], -- Chimera Shot
+	[Gladdy:SpellKey(60053)] = L["Survival"], -- Explosive Shot
+	[Gladdy:SpellKey(49012)] = L["Survival"], -- Wyvern Sting
+	[Gladdy:SpellKey(53201)] = L["Balance"], -- Starfall
+	[Gladdy:SpellKey(61384)] = L["Balance"], -- Typhoon
+	[Gladdy:SpellKey(24858)] = L["Balance"], -- Moonkin Form
+	[Gladdy:SpellKey(48566)] = L["Feral"], -- Mangle (Cat)
+	[Gladdy:SpellKey(48564)] = L["Feral"], -- Mangle (Bear)
+	[Gladdy:SpellKey(50334, " Feral")] = L["Feral"], -- Berserk
+	[Gladdy:SpellKey(18562)] = L["Restoration"], -- Swiftmend
+	[Gladdy:SpellKey(17116)] = L["Restoration"], -- Nature's Swiftness
+	[Gladdy:SpellKey(33891)] = L["Restoration"], -- Tree of Life
+	[Gladdy:SpellKey(53251)] = L["Restoration"], -- Wild Growth
+})
 function Gladdy:GetSpecSpells()
 	return specSpells
 end
@@ -170,548 +170,548 @@ function Gladdy:SpecEnabled(class, specRequired, unit)
 	return true
 end
 
-local importantAuras = {
-    [GetSpellInfo(33786)] = {  -- Cyclone
+local importantAuras = Gladdy:FilterSpellTable({
+    [Gladdy:SpellKey(33786)] = {  -- Cyclone
         track = AURA_TYPE_DEBUFF,
         priority = 40,
         spellID = 33786,
     },
-	[GetSpellInfo(18658)] = { -- Hibernate
+	[Gladdy:SpellKey(18658)] = { -- Hibernate
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 18658,
 	},
-	[GetSpellInfo(14309)] = { -- Freezing Trap Effect
+	[Gladdy:SpellKey(14309)] = { -- Freezing Trap Effect
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 14309,
 	},
-	[GetSpellInfo(60210)] = { -- Freezing arrow effect
+	[Gladdy:SpellKey(60210)] = { -- Freezing arrow effect
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 60210,
 	},
-	[GetSpellInfo(6770)] = { -- Sap
+	[Gladdy:SpellKey(6770)] = { -- Sap
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 6770,
 	},
-	[GetSpellInfo(2094)] = { -- Blind
+	[Gladdy:SpellKey(2094)] = { -- Blind
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 2094,
 	},
-	[GetSpellInfo(5782)] = { -- Fear
+	[Gladdy:SpellKey(5782)] = { -- Fear
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 5782,
 	},
-	[GetSpellInfo(47860)] = { -- Death Coil Warlock
+	[Gladdy:SpellKey(47860)] = { -- Death Coil Warlock
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 47860,
 	},
-	[GetSpellInfo(6358)] = { -- Seduction
+	[Gladdy:SpellKey(6358)] = { -- Seduction
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 6358,
 	},
-	[GetSpellInfo(5484)] = { -- Howl of Terror
+	[Gladdy:SpellKey(5484)] = { -- Howl of Terror
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 5484,
 	},
-	[GetSpellInfo(5246)] = { -- Intimidating Shout
+	[Gladdy:SpellKey(5246)] = { -- Intimidating Shout
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 5246,
 	},
-	[GetSpellInfo(8122)] = { -- Psychic Scream
+	[Gladdy:SpellKey(8122)] = { -- Psychic Scream
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 8122,
 	},
-	[GetSpellInfo(64044)] = { -- Psychic Horror
+	[Gladdy:SpellKey(64044)] = { -- Psychic Horror
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 64044,
 	},
-	[GetSpellInfo(12826)] = { -- Polymorph
+	[Gladdy:SpellKey(12826)] = { -- Polymorph
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 12826,
 		texture = select(3, GetSpellInfo(12826)),
 	},
-	[GetSpellInfo(51514)] = { -- Hex
+	[Gladdy:SpellKey(51514)] = { -- Hex
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 51514,
 	},
-	[GetSpellInfo(18647)] = { -- Banish
+	[Gladdy:SpellKey(18647)] = { -- Banish
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 18647,
 	},
-	[GetSpellInfo(605)] = { -- Mind Control
+	[Gladdy:SpellKey(605)] = { -- Mind Control
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 605,
 	},
-	[GetSpellInfo(14327)] = { -- Scare Beast
+	[Gladdy:SpellKey(14327)] = { -- Scare Beast
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 14327,
 	},
 
-	[GetSpellInfo(26989)] = {
+	[Gladdy:SpellKey(26989)] = {
 		track = AURA_TYPE_DEBUFF,
 		priority = 30,
 		spellID = 26989,
 	},
-	[select(1, GetSpellInfo(27010)) .. " " .. select(1, GetSpellInfo(16689))] = {
+	[Gladdy:SpellKey(27010, " ", 16689)] = {
 		track = AURA_TYPE_DEBUFF,
 		priority = 30,
 		spellID = 27010,
-		altName = select(1, GetSpellInfo(27010)) .. " " .. select(1, GetSpellInfo(16689)),
+		altName = Gladdy:SpellName(27010, " ", 16689),
 	},
-	[GetSpellInfo(42917)] = { -- Frost Nova
+	[Gladdy:SpellKey(42917)] = { -- Frost Nova
 		track = AURA_TYPE_DEBUFF,
 		priority = 30,
 		spellID = 42917,
 	},
-	[GetSpellInfo(33395)] = { -- Freeze (Water Elemental)
+	[Gladdy:SpellKey(33395)] = { -- Freeze (Water Elemental)
 		track = AURA_TYPE_DEBUFF,
 		priority = 30,
 		spellID = 33395,
 	},
-	[GetSpellInfo(55080)] = { -- Shattered Barrier
+	[Gladdy:SpellKey(55080)] = { -- Shattered Barrier
 		track = AURA_TYPE_DEBUFF,
 		priority = 30,
 		spellID = 55080,
 	},
-	[GetSpellInfo(16979)] = { -- Feral Charge
+	[Gladdy:SpellKey(16979)] = { -- Feral Charge
 		track = AURA_TYPE_DEBUFF,
 		priority = 30,
 		spellID = 16979,
 	},
-	[GetSpellInfo(23694)] = { -- Improved Hamstring
+	[Gladdy:SpellKey(23694)] = { -- Improved Hamstring
 		track = AURA_TYPE_DEBUFF,
 		priority = 30,
 		spellID = 23694,
 	},
-	[GetSpellInfo(4167)] = { -- Web (Hunter Pet)
+	[Gladdy:SpellKey(4167)] = { -- Web (Hunter Pet)
 		track = AURA_TYPE_DEBUFF,
 		priority = 30,
 		spellID = 4167,
 	},
-	[GetSpellInfo(47168)] = { -- Improved Wingclip
+	[Gladdy:SpellKey(47168)] = { -- Improved Wingclip
 		track = AURA_TYPE_DEBUFF,
 		priority = 30,
 		spellID = 47168,
 	},
 
-	[GetSpellInfo(8983)] = { -- Bash
+	[Gladdy:SpellKey(8983)] = { -- Bash
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 8983,
 	},
-	[GetSpellInfo(1833)] = { -- Cheap Shot
+	[Gladdy:SpellKey(1833)] = { -- Cheap Shot
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 1833,
 	},
-	[GetSpellInfo(8643)] = { -- Kidney Shot
+	[Gladdy:SpellKey(8643)] = { -- Kidney Shot
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 8643,
 	},
-	[GetSpellInfo(1776)] = { -- Gouge
+	[Gladdy:SpellKey(1776)] = { -- Gouge
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 1776,
 	},
-	[GetSpellInfo(44572)] = { -- Deep Freeze
+	[Gladdy:SpellKey(44572)] = { -- Deep Freeze
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 44572,
 	},
-	[GetSpellInfo(49012)] = { -- Wyvern Sting
+	[Gladdy:SpellKey(49012)] = { -- Wyvern Sting
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 49012,
 	},
-	[GetSpellInfo(19503)] = { -- Scatter Shot
+	[Gladdy:SpellKey(19503)] = { -- Scatter Shot
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 19503,
 	},
-	[GetSpellInfo(49803)] = { -- Pounce
+	[Gladdy:SpellKey(49803)] = { -- Pounce
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 49803,
 	},
-	[GetSpellInfo(49802)] = { -- Maim
+	[Gladdy:SpellKey(49802)] = { -- Maim
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 49802,
 	},
-	[GetSpellInfo(10308)] = { -- Hammer of Justice
+	[Gladdy:SpellKey(10308)] = { -- Hammer of Justice
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 10308,
 	},
-	[GetSpellInfo(20066)] = { -- Repentance
+	[Gladdy:SpellKey(20066)] = { -- Repentance
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 20066,
 	},
-	[GetSpellInfo(46968)] = { -- Shockwave
+	[Gladdy:SpellKey(46968)] = { -- Shockwave
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 46968,
 	},
-	[GetSpellInfo(49203)] = { -- Hungering Cold
+	[Gladdy:SpellKey(49203)] = { -- Hungering Cold
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 49203,
 	},
-	[GetSpellInfo(47481)] = { -- Gnaw (dk pet stun)
+	[Gladdy:SpellKey(47481)] = { -- Gnaw (dk pet stun)
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 47481,
 	},
-	[GetSpellInfo(47847)] = { -- Shadowfury Stun
+	[Gladdy:SpellKey(47847)] = { -- Shadowfury Stun
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 47847,
 	},
-	[GetSpellInfo(16922)] = { -- Imp Starfire Stun
+	[Gladdy:SpellKey(16922)] = { -- Imp Starfire Stun
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 16922,
 	},
-	[GetSpellInfo(5530)] = { -- Mace Stun Effect
+	[Gladdy:SpellKey(5530)] = { -- Mace Stun Effect
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		texture = select(3, GetSpellInfo(12284)),
 		spellID = 5530,
 	},
-	[GetSpellInfo(20549)] = { -- War Stomp
+	[Gladdy:SpellKey(20549)] = { -- War Stomp
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 20549,
 	},
-	[GetSpellInfo(7922)] = { -- Charge Stun
+	[Gladdy:SpellKey(7922)] = { -- Charge Stun
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 7922,
 		texture = select(3, GetSpellInfo(100))
 	},
-	[GetSpellInfo(25274)] = { -- Intercept Stun
+	[Gladdy:SpellKey(25274)] = { -- Intercept Stun
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 25274,
 		texture = select(3, GetSpellInfo(25272))
 	},
-	[GetSpellInfo(12809)] = { -- Concussion Blow
+	[Gladdy:SpellKey(12809)] = { -- Concussion Blow
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 12809,
 	},
-	[GetSpellInfo(12355)] = { -- Impact
+	[Gladdy:SpellKey(12355)] = { -- Impact
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 12355,
 	},
-	[GetSpellInfo(19577)] = {-- Intimidation
+	[Gladdy:SpellKey(19577)] = {-- Intimidation
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 19577,
 	},
-	[GetSpellInfo(31661)] = { -- Dragon's Breath
+	[Gladdy:SpellKey(31661)] = { -- Dragon's Breath
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 31661,
 	},
-	[GetSpellInfo(10955)] = { -- Shackle Undead
+	[Gladdy:SpellKey(10955)] = { -- Shackle Undead
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
 		spellID = 10955,
 	},
 
-	[GetSpellInfo(18469)] = { -- Improved Counterspell
+	[Gladdy:SpellKey(18469)] = { -- Improved Counterspell
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 18469,
 	},
-	[GetSpellInfo(15487)] = { -- Silence
+	[Gladdy:SpellKey(15487)] = { -- Silence
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 15487,
 	},
-	[GetSpellInfo(34490)] = { -- Silencing Shot
+	[Gladdy:SpellKey(34490)] = { -- Silencing Shot
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 34490,
 	},
-	[GetSpellInfo(18425)] = { -- Improved Kick
+	[Gladdy:SpellKey(18425)] = { -- Improved Kick
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 18425,
 	},
-	[GetSpellInfo(49916)] = { -- Strangulate
+	[Gladdy:SpellKey(49916)] = { -- Strangulate
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 49916,
 	},
-	[GetSpellInfo(74347)] = { -- Silenced - Gag Order
+	[Gladdy:SpellKey(74347)] = { -- Silenced - Gag Order
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 74347,
 	},
-	[GetSpellInfo(63529)] = { -- Silenced - Shield of the Templar
+	[Gladdy:SpellKey(63529)] = { -- Silenced - Shield of the Templar
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 63529,
 	},
-	[select(1, GetSpellInfo(31117)) .. " Silence"] = {
+	[Gladdy:SpellKey(31117, " Silence")] = {
 		track = AURA_TYPE_DEBUFF,
-		altName = select(1, GetSpellInfo(31117)) .. " Silence",
+		altName = Gladdy:SpellName(31117, " Silence"),
 		priority = 20,
 		spellID = 31117,
 	},
-	[GetSpellInfo(24259)] = { -- Spell Lock (Felhunter)
+	[Gladdy:SpellKey(24259)] = { -- Spell Lock (Felhunter)
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 24259,
 	},
 
-	[GetSpellInfo(1330)] = { -- Garrote - Silence
+	[Gladdy:SpellKey(1330)] = { -- Garrote - Silence
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 1330,
 	},
 
-	[GetSpellInfo(676)] = { -- Disarm
+	[Gladdy:SpellKey(676)] = { -- Disarm
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 676,
 	},
-	[GetSpellInfo(51722)] = { -- Dismantle
+	[Gladdy:SpellKey(51722)] = { -- Dismantle
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 51722,
 	},
-	[GetSpellInfo(53359)] = { -- Chimera Shot - Scorpid
+	[Gladdy:SpellKey(53359)] = { -- Chimera Shot - Scorpid
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 53359,
 	},
-	[GetSpellInfo(64058)] = { -- Psychic Horror Disarm
+	[Gladdy:SpellKey(64058)] = { -- Psychic Horror Disarm
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
 		spellID = 64058,
 	},
 
-	[GetSpellInfo(1022)] = { -- Hand of Protection
+	[Gladdy:SpellKey(1022)] = { -- Hand of Protection
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 1022,
 	},
-	[GetSpellInfo(1044)] = { -- Hand of Freedom
+	[Gladdy:SpellKey(1044)] = { -- Hand of Freedom
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 1044,
 	},
-	[GetSpellInfo(6940)] = { -- Hand of Sacrifice
+	[Gladdy:SpellKey(6940)] = { -- Hand of Sacrifice
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 6940,
 	},
-	[GetSpellInfo(64205)] = { -- Divine Sacrifice
+	[Gladdy:SpellKey(64205)] = { -- Divine Sacrifice
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 64205,
 	},
-	[GetSpellInfo(53271)] = {
+	[Gladdy:SpellKey(53271)] = {
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 53271,
 	},
-	[GetSpellInfo(2825)] = { -- Bloodlust
+	[Gladdy:SpellKey(2825)] = { -- Bloodlust
 		track = AURA_TYPE_BUFF,
 		priority = 9,
 		spellID = 2825,
 	},
-	[GetSpellInfo(32182)] = { -- Heroism
+	[Gladdy:SpellKey(32182)] = { -- Heroism
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 32182,
 	},
-	[GetSpellInfo(33206)] = { -- Pain Suppression
+	[Gladdy:SpellKey(33206)] = { -- Pain Suppression
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 33206,
 	},
-	[GetSpellInfo(29166)] = { -- Innervate
+	[Gladdy:SpellKey(29166)] = { -- Innervate
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 29166,
 	},
-	[GetSpellInfo(18708)] = { -- Fel Domination
+	[Gladdy:SpellKey(18708)] = { -- Fel Domination
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 18708,
 	},
-	[GetSpellInfo(54428)] = { -- Divine Plea
+	[Gladdy:SpellKey(54428)] = { -- Divine Plea
 		track = AURA_TYPE_BUFF,
 		priority = 15,
 		spellID = 54428,
 	},
-	[GetSpellInfo(31821)] = { -- Aura mastery
+	[Gladdy:SpellKey(31821)] = { -- Aura mastery
 		track = AURA_TYPE_BUFF,
 		priority = 21,
 		spellID = 31821,
 	},
-	[GetSpellInfo(51713)] = { -- Shadow Dance
+	[Gladdy:SpellKey(51713)] = { -- Shadow Dance
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 51713,
 	},
-	[GetSpellInfo(12292)] = { -- Death Wish
+	[Gladdy:SpellKey(12292)] = { -- Death Wish
 		track = AURA_TYPE_BUFF,
 		priority = 15,
 		spellID = 12292,
 	},
-	[GetSpellInfo(23920)] = { -- Spell Reflection
+	[Gladdy:SpellKey(23920)] = { -- Spell Reflection
 		track = AURA_TYPE_BUFF,
 		priority = 40,
 		spellID = 23920,
 	},
-	[GetSpellInfo(6346)] = {-- Fear Ward
+	[Gladdy:SpellKey(6346)] = {-- Fear Ward
 		track = AURA_TYPE_BUFF,
 		priority = 9,
 		spellID = 6346,
 	},
-	[GetSpellInfo(50334) .. " Feral"] = {-- Berserk
+	[Gladdy:SpellKey(50334, " Feral")] = {-- Berserk
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 50334,
 	},
-	[GetSpellInfo(46924)] = { -- Bladestorm
+	[Gladdy:SpellKey(46924)] = { -- Bladestorm
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 46924,
 	},
 
-	[GetSpellInfo(871)] = { -- Shield Wall
+	[Gladdy:SpellKey(871)] = { -- Shield Wall
 		track = AURA_TYPE_BUFF,
 		priority = 25,
 		spellID = 871,
 	},
-	[GetSpellInfo(48707)] = { -- Anti-Magic Shell
+	[Gladdy:SpellKey(48707)] = { -- Anti-Magic Shell
 		track = AURA_TYPE_BUFF,
 		priority = 25,
 		spellID = 48707,
 	},
-	[GetSpellInfo(31224)] = { -- Cloak of Shadows
+	[Gladdy:SpellKey(31224)] = { -- Cloak of Shadows
 		track = AURA_TYPE_BUFF,
 		priority = 25,
 		spellID = 31224,
 	},
-	[GetSpellInfo(19263)] = { -- Deterrence
+	[Gladdy:SpellKey(19263)] = { -- Deterrence
 		track = AURA_TYPE_BUFF,
 		priority = 25,
 		spellID = 19263,
 	},
-	[GetSpellInfo(26669)] = { -- Evasion
+	[Gladdy:SpellKey(26669)] = { -- Evasion
 		track = AURA_TYPE_BUFF,
 		priority = 10,
 		spellID = 26669,
 	},
 
-	[GetSpellInfo(34471)] = { -- The Beast Within (CC Immune)
+	[Gladdy:SpellKey(34471)] = { -- The Beast Within (CC Immune)
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 34471,
 	},
-	[GetSpellInfo(45438)] = { -- Ice Block
+	[Gladdy:SpellKey(45438)] = { -- Ice Block
 		track = AURA_TYPE_BUFF,
 		priority = 30,
 		spellID = 45438,
 	},
-	[GetSpellInfo(41425)] = { -- Hypothermia (Ice Block Immune
+	[Gladdy:SpellKey(41425)] = { -- Hypothermia (Ice Block Immune
 		track = AURA_TYPE_DEBUFF,
 		priority = 8,
 		spellID = 41425,
 	},
-	[GetSpellInfo(642)] = { -- Divine Shield
+	[Gladdy:SpellKey(642)] = { -- Divine Shield
 		track = AURA_TYPE_BUFF,
 		priority = 30,
 		spellID = 642,
 	},
-	[GetSpellInfo(18499)] = { -- Berserker Rage (Flee Immune)
+	[Gladdy:SpellKey(18499)] = { -- Berserker Rage (Flee Immune)
 		track = AURA_TYPE_BUFF,
 		priority = 30,
 		spellID = 18499,
 	},
-	[GetSpellInfo(1719)] = { -- Recklessness (Flee Immune)
+	[Gladdy:SpellKey(1719)] = { -- Recklessness (Flee Immune)
 		track = AURA_TYPE_BUFF,
 		priority = 30,
 		spellID = 1719,
 	},
-	[GetSpellInfo(48792)] = { -- Icebound Fortitude
+	[Gladdy:SpellKey(48792)] = { -- Icebound Fortitude
 		track = AURA_TYPE_BUFF,
 		priority = 15,
 		spellID = 48792,
 	},
-	[GetSpellInfo(49039)] = { -- Lichborne
+	[Gladdy:SpellKey(49039)] = { -- Lichborne
 		track = AURA_TYPE_BUFF,
 		priority = 15,
 		spellID = 49039,
 	},
 
-	[GetSpellInfo(34709)] = { -- Shadowsight Buff
+	[Gladdy:SpellKey(34709)] = { -- Shadowsight Buff
 		track = AURA_TYPE_DEBUFF,
 		duration = 15,
 		priority = 9,
 		magic = true,
 		spellID = 34709,
 	},
-	[GetSpellInfo(50461)] = { -- ЗОНА АНТИМАГИИ ЫЫЫ
+	[Gladdy:SpellKey(50461)] = { -- ЗОНА АНТИМАГИИ ЫЫЫ
 		track = AURA_TYPE_BUFF,
 		duration = 0,
 		priority = 15,
 		spellID = 50461,
 	},
-	[GetSpellInfo(8178)] = { -- Grounding Totem Effect
+	[Gladdy:SpellKey(8178)] = { -- Grounding Totem Effect
 		track = AURA_TYPE_BUFF,
 		duration = 0,
 		priority = 15,
 		spellID = 8178
 	},
-	[GetSpellInfo(5024)] = { -- Flee (Skull of impending Doom) -- 5024
+	[Gladdy:SpellKey(5024)] = { -- Flee (Skull of impending Doom) -- 5024
 		track = AURA_TYPE_BUFF,
 		priority = 15,
 		spellID = 5024,
-		altName = select(1, GetSpellInfo(5024)) .. " - " .. (select(1, GetItemInfo(4984)) or "Skull of Impending Doom"),
+		altName = Gladdy:SpellName(5024, " - " .. (select(1, GetItemInfo(4984)) or "Skull of Impending Doom")),
 	},
-}
+})
 
 function Gladdy:GetImportantAuras()
 	return importantAuras
 end
 
-local interrupts = {
-	[GetSpellInfo(19675)] = { duration = 4, spellID = 19675, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(19675)), priority = 15 }, -- Feral Charge Effect (Druid)
-	[GetSpellInfo(2139)] = { duration = 8, spellID = 2139, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(2139)), priority = 15 }, -- Counterspell (Mage)
-	[GetSpellInfo(1766)] = { duration = 5, spellID = 1766, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(1766)), priority = 15 }, -- Kick (Rogue)
-	[GetSpellInfo(6552)] = { duration = 4, spellID = 6552, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(6552)), priority = 15 }, -- Pummel (Warrior)
-	[GetSpellInfo(72)] = { duration = 6, spellID = 72, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(72)), priority = 15 }, -- Shield Bash (Warrior)
-	[GetSpellInfo(57994)] = { duration = 2, spellID = 57994, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(57994)), priority = 15 }, -- Wind Shear (Shaman)
-	[GetSpellInfo(19244)] = { duration = 5, spellID = 19244, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(19244)), priority = 15 }, -- Spell Lock (Warlock
-	[GetSpellInfo(47528)] = { duration = 5, spellID = 47528, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(47528)), priority = 15 }, -- Mind Freeze (Deathknight)
-}
+local interrupts = Gladdy:FilterSpellTable({
+	[Gladdy:SpellKey(19675)] = { duration = 4, spellID = 19675, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(19675)), priority = 15 }, -- Feral Charge Effect (Druid)
+	[Gladdy:SpellKey(2139)] = { duration = 8, spellID = 2139, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(2139)), priority = 15 }, -- Counterspell (Mage)
+	[Gladdy:SpellKey(1766)] = { duration = 5, spellID = 1766, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(1766)), priority = 15 }, -- Kick (Rogue)
+	[Gladdy:SpellKey(6552)] = { duration = 4, spellID = 6552, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(6552)), priority = 15 }, -- Pummel (Warrior)
+	[Gladdy:SpellKey(72)] = { duration = 6, spellID = 72, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(72)), priority = 15 }, -- Shield Bash (Warrior)
+	[Gladdy:SpellKey(57994)] = { duration = 2, spellID = 57994, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(57994)), priority = 15 }, -- Wind Shear (Shaman)
+	[Gladdy:SpellKey(19244)] = { duration = 5, spellID = 19244, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(19244)), priority = 15 }, -- Spell Lock (Warlock
+	[Gladdy:SpellKey(47528)] = { duration = 5, spellID = 47528, track = AURA_TYPE_DEBUFF, texture = select(3, GetSpellInfo(47528)), priority = 15 }, -- Mind Freeze (Deathknight)
+})
 function Gladdy:GetInterrupts()
 	return interrupts
 end
@@ -779,7 +779,7 @@ local cooldownList = {
 		[8983] = 60, -- Bash
 		[53312] = 60, -- Natures Grasp
 		[48505] = { cd = 90, spec = L["Balance"], }, -- Starfall
-		[50334] = { cd = 180, spec = L["Feral"], altName = GetSpellInfo(50334) .. " Feral" }, -- Berserk
+		[50334] = { cd = 180, spec = L["Feral"], altName = Gladdy:SpellName(50334, " Feral") }, -- Berserk
 		[17116] = { cd = 120, spec = L["Restoration"], }, -- Natures Swiftness
 		[18562] = { cd = 15, spec = L["Restoration"], }, -- Swiftmend
 		[33831] = { cd = 180, spec = L["Balance"], }, -- Force of Nature
@@ -839,7 +839,7 @@ local cooldownList = {
 		[17962] = { cd = 10, spec = L["Destruction"], }, -- Conflagrate
 		[59172] = { cd = 12, spec = L["Destruction"], }, -- Chaos Bolt
 		[47241] = { cd = 180, spec = L["Demonology"], }, -- Metamorphosis
-		[47996] = { cd = 30, spec = L["Demonology"], pet = true, altName = GetSpellInfo(47996) .. " Felguard" }, -- Intercept
+		[47996] = { cd = 30, spec = L["Demonology"], pet = true, altName = Gladdy:SpellName(47996, " Felguard") }, -- Intercept
 		[1122] = { cd = 600, spec = L["Demonology"], }, -- Inferno
 	},
 
@@ -1183,10 +1183,10 @@ local totemData = {
 	[string_lower("Mana Spring Totem")] = { id = 5675, texture = select(3, GetSpellInfo(5675)), color = { r = 0, g = 0, b = 0, a = 1 } },
 }
 
-local totemSpellIdToPulse = {
-	[GetSpellInfo(totemData[string_lower("Disease Cleansing Totem")].id)] = totemData[string_lower("Disease Cleansing Totem")].pulse,
+local totemSpellIdToPulse = Gladdy:FilterSpellTable({
+	[Gladdy:SpellKey(totemData[string_lower("Disease Cleansing Totem")].id)] = totemData[string_lower("Disease Cleansing Totem")].pulse,
 	[8170] = totemData[string_lower("Disease Cleansing Totem")].pulse,
-}
+})
 
 local totemDataShared, totemNameTotemData, totemSpellIdToPulseShared = Gladdy:GetSharedTotemData()
 Gladdy:AddEntriesToTable(totemData, totemDataShared)

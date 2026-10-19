@@ -37,20 +37,20 @@ local function GetTotemColorDefaultOptions()
 		}
 		options["totem" .. indexedList[i].id] = {
 			order = i+1,
-			name = select(1, GetSpellInfo(indexedList[i].id)),
+			name = GetSpellInfo(indexedList[i].id) or tostring(indexedList[i].id),
 			width  = "3.0",
 			type = "group",
 			icon = indexedList[i].texture,
 			args = {
 				headerTotemConfig = {
 					type = "header",
-					name = format("|T%s:20|t %s", indexedList[i].texture, select(1, GetSpellInfo(indexedList[i].id))),
+					name = format("|T%s:20|t %s", indexedList[i].texture or "Interface\\Icons\\INV_Misc_QuestionMark", GetSpellInfo(indexedList[i].id) or tostring(indexedList[i].id)),
 					order = 1,
 				},
 				enabled = {
 					order = 2,
 					name = L["Enabled"],
-					desc = "Enable " .. format("|T%s:20|t %s", indexedList[i].texture, select(1, GetSpellInfo(indexedList[i].id))),
+					desc = "Enable " .. format("|T%s:20|t %s", indexedList[i].texture or "Interface\\Icons\\INV_Misc_QuestionMark", GetSpellInfo(indexedList[i].id) or tostring(indexedList[i].id)),
 					type = "toggle",
 					width = "full",
 					get = function() return Gladdy.dbi.profile.npTotemColors["totem" .. indexedList[i].id].enabled end,
@@ -218,13 +218,16 @@ function TotemPlates:NAME_PLATE_UNIT_ADDED(nameplate)
 
 		local totem = nameplate.gladdyTotemFrame
 		if ( totem ) then
-			local nameplateText = string.lower(totem.nametext:GetText())
+            local text = totem.nametext:GetText()
+            if type(text) ~= "string" or text == "" then return end
+			local nameplateText = string.lower(text)
 			local totemData = totemNameTotemData[nameplateText]
 
 			if ( totemData ) then
 				if ( TotemPlates:NameplateTypeValid(totem) ) then
 					local totemInfo = Gladdy.db.npTotemColors["totem" .. totemData.id]
 
+                    if not totemInfo then return end
 					if ( totemInfo.enabled ) then
 						totem.totemIcon:SetTexture(totemData.texture)
 						totem.totemBorder:SetVertexColor(totemInfo.color.r, totemInfo.color.g, totemInfo.color.b, totemInfo.color.a)
@@ -325,6 +328,21 @@ function TotemPlates:UpdateFrameOnce()
 end
 
 function TotemPlates:CreateTotemFrame(nameplate, test)
+    if not nameplate then return end
+    if nameplate.gladdyTotemFrame then return nameplate.gladdyTotemFrame end
+    local healthbar, healthborder, highlighttexture, nametext, leveltext, bossicon, raidicon, mobicon
+    if not test then
+        if not nameplate.GetChildren or not nameplate.GetRegions or not nameplate.HookScript then return end
+        healthbar = nameplate:GetChildren()
+        if not healthbar or not healthbar.GetStatusBarColor then return end
+        local threatglow, castborder, castinterrupt, casticon
+        threatglow, healthborder, castborder, castinterrupt, casticon, highlighttexture, nametext, leveltext, bossicon, raidicon, mobicon = nameplate:GetRegions()
+        if not nametext or not nametext.GetText then return end
+        for _, region in pairs({healthborder, highlighttexture, nametext, leveltext, bossicon, raidicon, mobicon}) do
+            if not region.Show or not region.Hide or not region.SetAlpha then return end
+        end
+        if not healthborder or not highlighttexture or not leveltext or not bossicon or not raidicon or not mobicon then return end
+    end
 	local Frame = CreateFrame("Frame", nil, WorldFrame)
 	Frame:SetPoint("BOTTOM", nameplate, "TOP", 0, -35)
 	Frame:SetSize(Gladdy.db.npTotemPlatesSize * Gladdy.db.npTotemPlatesWidthFactor, Gladdy.db.npTotemPlatesSize)
@@ -356,9 +374,14 @@ function TotemPlates:CreateTotemFrame(nameplate, test)
 		Highlight:SetAlpha(0)
 		Frame.selectionHighlight = Highlight
 
-		local threatglow, castbar, castbarborder, castbarinterrupt, castbaricon
-		Frame.healthbar, castbar = nameplate:GetChildren()
-		threatglow, Frame.healthborder, castborder, castinterrupt, casticon, Frame.highlighttexture, Frame.nametext, Frame.leveltext, Frame.bossicon, Frame.raidicon, Frame.mobicon = nameplate:GetRegions()
+        Frame.healthbar = healthbar
+        Frame.healthborder = healthborder
+        Frame.highlighttexture = highlighttexture
+        Frame.nametext = nametext
+        Frame.leveltext = leveltext
+        Frame.bossicon = bossicon
+        Frame.raidicon = raidicon
+        Frame.mobicon = mobicon
 
 		nameplate:HookScript("OnHide", TotemPlates.NAME_PLATE_UNIT_REMOVED)
 		nameplate:HookScript("OnShow", TotemPlates.NAME_PLATE_UNIT_ADDED)
