@@ -1,0 +1,4 @@
+dispatch_before: dispatches=2000 handlers=50000 sorts=2000 seconds=0.038982 allocated_KiB=6250.312
+dispatch_after: dispatches=2000 handlers=50000 sorts=1 seconds=0.009592 allocated_KiB=0.914
+pets_before: callbacks=600 health_reads=1200 maxhealth_reads=600 text_writes=600
+pets_after: callbacks=600 health_reads=99 maxhealth_reads=99 text_writes=0
