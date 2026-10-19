@@ -40,17 +40,12 @@ function EventListener:Initialize()
 end
 
 function EventListener.OnEvent(self, event, ...)
-	-- Проверяем наличие обработчика события
-	if not self[event] then
-		Gladdy:Debug("WARN", "EventListener", "No handler for event:", event)
-		return
-	end
-
-	-- Безопасно вызываем обработчик
-	local success, err = pcall(self[event], self, ...)
-	if not success then
-		Gladdy:Debug("ERROR", "EventListener", "Error in event handler", event, ":", err)
-	end
+    local handler = self[event]
+    if handler then
+        -- Let WoW's normal error handler report failures; debug mode must not
+        -- decide whether a runtime error is visible to the user.
+        handler(self, ...)
+    end
 end
 
 function EventListener:Reset()
@@ -139,22 +134,22 @@ function Gladdy:SpotEnemy(unit, auraScan)
 	end
 end
 
+-- Keep these tables outside the combat-log callback (one allocation/load).
+local combatEvents = {
+    SPELL_AURA_APPLIED = true, SPELL_AURA_REMOVED = true,
+    SPELL_AURA_REFRESH = true, SPELL_CAST_SUCCESS = true, SPELL_MISSED = true,
+    SPELL_INTERRUPT = true, UNIT_DIED = true, PARTY_KILL = true,
+    SPELL_INSTAKILL = true,
+}
+
 function EventListener:COMBAT_LOG_EVENT_UNFILTERED(...)
 	local _, eventType, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellID, spellName, spellSchool, extraSpellId, extraSpellName,extraSpellSchool = ...
 
-	-- Список событий для дебага
-	local debugEvents = {
-		["SPELL_AURA_APPLIED"] = true,
-		["SPELL_AURA_REMOVED"] = true,
-		["SPELL_CAST_SUCCESS"] = true,
-		["SPELL_INTERRUPT"] = true,
-		["UNIT_DIED"] = true,
-		["PARTY_KILL"] = true,
-		["SPELL_INSTAKILL"] = true
-	}
+    -- Some spec-identifying abilities are observed as damage/healing, so
+    -- never discard an otherwise irrelevant event carrying a known spec spell.
+    if not combatEvents[eventType] and not Gladdy.specSpells[spellName] then return end
 
-	-- Выводим дебаг только для интересующих нас событий
-	if debugEvents[eventType] then
+    if Gladdy.debug and combatEvents[eventType] then
 		Gladdy:Debug("INFO", "COMBAT_LOG_EVENT_UNFILTERED",
 			"Event:", eventType,
 			"Source:", sourceName or "nil",
@@ -371,16 +366,12 @@ function EventListener:UNIT_AURA(unit)
 	local button = Gladdy.buttons[unit]
 	if not button then return end
 
-	-- Проверка и инициализация необходимых таблиц для аур
-	if not button.auras then
-		button.auras = {}
-	end
-
-	wipe(button.auras)
-
-	if not button.lastAuras then
-		button.lastAuras = {}
-	end
+    local previous = button.lastAuras or {}
+    local current = button.auras or {}
+    if current == previous then current = button.auraCache or {} end
+    wipe(current)
+    button.auras = current
+    button.lastAuras = previous
 
 	-- Отправляем сообщения о исчезновении аур
 	--Gladdy:Debug("INFO", "AURA_FADE", unit, AURA_TYPE_BUFF, AURA_TYPE_DEBUFF)
@@ -419,7 +410,12 @@ function EventListener:UNIT_AURA(unit)
 			end
 
 			-- Сохраняем информацию об ауре
-			button.auras[spellID] = { auraType, spellID, spellName, texture, duration, expirationTime, count, dispelType }
+            -- Consumers receive scalar arguments, never these tuples. A tuple
+            -- for an aura still present can be safely reused from the old map.
+            local aura = previous[spellID] or {}
+            aura[1], aura[2], aura[3], aura[4] = auraType, spellID, spellName, texture
+            aura[5], aura[6], aura[7], aura[8] = duration, expirationTime, count, dispelType
+            current[spellID] = aura
 
 			-- Определение специализации по ауре
 			if not button.spec and Gladdy.specBuffs and Gladdy.specBuffs[spellName] and unitCaster then
@@ -467,9 +463,11 @@ function EventListener:UNIT_AURA(unit)
 		end
 	end
 
-	-- Очищаем предыдущие ауры и сохраняем текущие
-	wipe(button.lastAuras)
-	button.lastAuras = Gladdy:DeepCopy(button.auras)
+    -- Two bounded maps; no recursive deep copy per UNIT_AURA. Both public
+    -- snapshots still expose current auras between callbacks.
+    button.lastAuras = current
+    button.auraCache = previous
+    wipe(previous)
 
 	--Gladdy:Debug("INFO", "UNIT_AURA", "End for unit", unit)
 	--Gladdy:Debug("INFO", "UNIT_AURA", "- final class:", button.class)

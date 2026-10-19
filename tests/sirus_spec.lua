@@ -20,7 +20,8 @@ GetTime = function() return now end
 GetLocale = function() return 'ruRU' end
 GetSpellInfo = function(id) if id then return 'spell' .. id, '', 'icon' .. id end end
 GetItemInfo = function() return nil end
-UnitExists = function(unit) return unit ~= nil and unit ~= 'missing' end
+local unitQueries=0
+UnitExists = function(unit) unitQueries=unitQueries+1; return unit ~= nil and unit ~= 'missing' end
 UnitName = function(unit) return unit end
 UnitRace = function() return 'Human', 'Human' end
 UnitClass = function() return 'Mage', 'MAGE' end
@@ -192,5 +193,40 @@ test('message dispatch caches order but observes live subscription changes', fun
     local highest=G:NewModule('highest',20)
     assert(G:GetModuleOrder()~=cached); eq(G:GetModuleOrder()[1],highest)
     G.modules=savedModules; G.moduleOrder=nil
+end)
+test('aura snapshots reuse tuples, detect removal and preserve public current map',function()
+    local b=G.buttons.arena1; b.class='MAGE'; b.race='Human'; b.spec='Frost'
+    b.constellation=C[371796]; b.auras={}; b.lastAuras={}; b.auraCache={}
+    local present=true
+    auraProvider=function(unit,index,filter)
+        if present and filter=='HELPFUL' and index==1 then
+            return 'tracked',nil,'icon',1,nil,10,now+10,nil,nil,nil,12345
+        end
+    end
+    E:UNIT_AURA('arena1')
+    local tuple=b.lastAuras[12345]; local firstMap=b.lastAuras
+    E:UNIT_AURA('arena1')
+    eq(b.lastAuras[12345],tuple); eq(b.auras,b.lastAuras); assert(b.lastAuras~=firstMap)
+    local fades=0
+    G.modules.Cooldowns.cooldownSpellIds.tracked=12345
+    G.modules.Cooldowns.AURA_FADE=function(_,unit,id) eq(id,12345); fades=fades+1 end
+    present=false; E:UNIT_AURA('arena1'); eq(fades,1); eq(next(b.lastAuras),nil)
+    G.modules.Cooldowns.cooldownSpellIds.tracked=nil; auraProvider=noop
+end)
+test('irrelevant combat damage exits before querying tracked source visibility',function()
+    local before=unitQueries
+    clear(); E:COMBAT_LOG_EVENT_UNFILTERED(now,'SWING_DAMAGE','unknown','Enemy',64,'other','Other',0,50)
+    eq(#events,0); eq(#calls,0); eq(unitQueries,before)
+end)
+test('damage spell can still identify a specialization',function()
+    local b=G.buttons.arena1; b.class='MAGE'; b.race='Human'; b.spec=nil
+    G.specSpells['spec-damage']='Frost'
+    E:COMBAT_LOG_EVENT_UNFILTERED(now,'SPELL_DAMAGE','enemy','Enemy',64,'other','Other',0,123,'spec-damage',1)
+    eq(b.spec,G.L['Frost']); G.specSpells['spec-damage']=nil
+end)
+test('event errors are not silently swallowed when debug is disabled',function()
+    E.BROKEN=function() error('intentional-test-error') end
+    local ok,err=pcall(E.OnEvent,E,'BROKEN')
+    eq(ok,false); assert(err:find('intentional%-test%-error')); E.BROKEN=nil
 end)
 print('PASS: ' .. passed .. ' regression tests (Lua ' .. _VERSION .. ')')

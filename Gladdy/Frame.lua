@@ -34,6 +34,7 @@ Gladdy.BUTTON_DEFAULTS = {
     classColors = {},
     lastState = 0,
     auras = {},
+    auraCache = {},
     lastAuras = {}
 }
 
