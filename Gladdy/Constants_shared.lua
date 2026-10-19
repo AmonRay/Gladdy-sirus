@@ -122,27 +122,27 @@ Gladdy.frameStrataSorting = {
 }
 
 Gladdy.exceptionNames = {
-    [50334] = (GetSpellInfo(50334) or "...") .. " Feral", -- Berserk
-    [30151] = select(1, GetSpellInfo(30151)) .. " Felguard", -- Intercept
-    [30194] = select(1, GetSpellInfo(30151)) .. " Felguard", -- Intercept
-    [30198] = select(1, GetSpellInfo(30151)) .. " Felguard", -- Intercept
-    [47996] = select(1, GetSpellInfo(30151)) .. " Felguard", -- Intercept
-    [31117] = select(1, GetSpellInfo(30405)) .. " Silence", -- Unstable Affliction Silence
-    [43523] = select(1, GetSpellInfo(30405)) .. " Silence",
-    [24131] = select(1, GetSpellInfo(19386)) .. " Dot", -- Wyvern Sting Dot
-    [24134] = select(1, GetSpellInfo(19386)) .. " Dot",
-    [24135] = select(1, GetSpellInfo(19386)) .. " Dot",
-    [27069] = select(1, GetSpellInfo(19386)) .. " Dot",
-    [49009] = select(1, GetSpellInfo(19386)) .. " Dot",
-    [49010] = select(1, GetSpellInfo(19386)) .. " Dot",
-    [19975] = select(1, GetSpellInfo(27010)) .. " " .. select(1, GetSpellInfo(16689)), -- Entangling Roots Nature's Grasp
-    [19974] = select(1, GetSpellInfo(27010)) .. " " .. select(1, GetSpellInfo(16689)),
-    [19973] = select(1, GetSpellInfo(27010)) .. " " .. select(1, GetSpellInfo(16689)),
-    [19972] = select(1, GetSpellInfo(27010)) .. " " .. select(1, GetSpellInfo(16689)),
-    [19971] = select(1, GetSpellInfo(27010)) .. " " .. select(1, GetSpellInfo(16689)),
-    [19971] = select(1, GetSpellInfo(27010)) .. " " .. select(1, GetSpellInfo(16689)),
-    [27010] = select(1, GetSpellInfo(27010)) .. " " .. select(1, GetSpellInfo(16689)),
-    [53312] = select(1, GetSpellInfo(27010)) .. " " .. select(1, GetSpellInfo(16689)),
+    [50334] = Gladdy:SpellName(50334, " Feral"), -- Berserk
+    [30151] = Gladdy:SpellName(30151, " Felguard"), -- Intercept
+    [30194] = Gladdy:SpellName(30151, " Felguard"), -- Intercept
+    [30198] = Gladdy:SpellName(30151, " Felguard"), -- Intercept
+    [47996] = Gladdy:SpellName(30151, " Felguard"), -- Intercept
+    [31117] = Gladdy:SpellName(30405, " Silence"), -- Unstable Affliction Silence
+    [43523] = Gladdy:SpellName(30405, " Silence"),
+    [24131] = Gladdy:SpellName(19386, " Dot"), -- Wyvern Sting Dot
+    [24134] = Gladdy:SpellName(19386, " Dot"),
+    [24135] = Gladdy:SpellName(19386, " Dot"),
+    [27069] = Gladdy:SpellName(19386, " Dot"),
+    [49009] = Gladdy:SpellName(19386, " Dot"),
+    [49010] = Gladdy:SpellName(19386, " Dot"),
+    [19975] = Gladdy:SpellName(27010, " ", 16689), -- Entangling Roots Nature's Grasp
+    [19974] = Gladdy:SpellName(27010, " ", 16689),
+    [19973] = Gladdy:SpellName(27010, " ", 16689),
+    [19972] = Gladdy:SpellName(27010, " ", 16689),
+    [19971] = Gladdy:SpellName(27010, " ", 16689),
+    [19971] = Gladdy:SpellName(27010, " ", 16689),
+    [27010] = Gladdy:SpellName(27010, " ", 16689),
+    [53312] = Gladdy:SpellName(27010, " ", 16689),
 }
 
 local dispelTypeColors = {}
@@ -201,14 +201,14 @@ local totemData = {
     [string_lower("Wrath of Air Totem")] = {id = 3738,texture = select(3, GetSpellInfo(3738)), color = {r = 0, g = 0, b = 0, a = 1}},
 }
 
-local totemSpellIdToPulse = {
-    [GetSpellInfo(totemData[string_lower("Earthbind Totem")].id)] = totemData[string_lower("Earthbind Totem")].pulse,
+local totemSpellIdToPulse = Gladdy:FilterSpellTable({
+    [Gladdy:SpellKey(totemData[string_lower("Earthbind Totem")].id)] = totemData[string_lower("Earthbind Totem")].pulse,
     [2484] = totemData[string_lower("Earthbind Totem")].pulse,
-    [GetSpellInfo(totemData[string_lower("Tremor Totem")].id)] = totemData[string_lower("Tremor Totem")].pulse,
+    [Gladdy:SpellKey(totemData[string_lower("Tremor Totem")].id)] = totemData[string_lower("Tremor Totem")].pulse,
     [8143] = totemData[string_lower("Tremor Totem")].pulse,
-    [GetSpellInfo(totemData[string_lower("Disease Cleansing Totem")].id)] = totemData[string_lower("Disease Cleansing Totem")].pulse,
+    [Gladdy:SpellKey(totemData[string_lower("Disease Cleansing Totem")].id)] = totemData[string_lower("Disease Cleansing Totem")].pulse,
     [8170] = totemData[string_lower("Disease Cleansing Totem")].pulse,
-    [GetSpellInfo(totemData[string_lower("Fire Nova Totem")].id)] = totemData[string_lower("Fire Nova Totem")].pulse,
+    [Gladdy:SpellKey(totemData[string_lower("Fire Nova Totem")].id)] = totemData[string_lower("Fire Nova Totem")].pulse,
     [1535] = totemData[string_lower("Fire Nova Totem")].pulse, -- Rank 1
     [8498] = totemData[string_lower("Fire Nova Totem")].pulse, -- Rank 2
     [8499] = totemData[string_lower("Fire Nova Totem")].pulse, -- Rank 3
@@ -216,7 +216,7 @@ local totemSpellIdToPulse = {
     [11315] = totemData[string_lower("Fire Nova Totem")].pulse, -- Rank 5
     [25546] = totemData[string_lower("Fire Nova Totem")].pulse, -- Rank 6
     [25547] = totemData[string_lower("Fire Nova Totem")].pulse, -- Rank 7
-    [GetSpellInfo(totemData[string_lower("Magma Totem")].id)] = totemData[string_lower("Magma Totem")].pulse,
+    [Gladdy:SpellKey(totemData[string_lower("Magma Totem")].id)] = totemData[string_lower("Magma Totem")].pulse,
     [8190] = totemData[string_lower("Magma Totem")].pulse, -- Rank 1
     [10585] = totemData[string_lower("Magma Totem")].pulse, -- Rank 2
     [10586] = totemData[string_lower("Magma Totem")].pulse, -- Rank 3
@@ -224,7 +224,7 @@ local totemSpellIdToPulse = {
     [25552] = totemData[string_lower("Magma Totem")].pulse, -- Rank 5
     [58731] = totemData[string_lower("Magma Totem")].pulse, -- Rank 6
     [58734] = totemData[string_lower("Magma Totem")].pulse, -- Rank 7
-    [GetSpellInfo(totemData[string_lower("Healing Stream Totem")].id)] = totemData[string_lower("Healing Stream Totem")].pulse,
+    [Gladdy:SpellKey(totemData[string_lower("Healing Stream Totem")].id)] = totemData[string_lower("Healing Stream Totem")].pulse,
     [5394] = totemData[string_lower("Healing Stream Totem")].pulse, -- Rank 1
     [6375] = totemData[string_lower("Healing Stream Totem")].pulse, -- Rank 2
     [6377] = totemData[string_lower("Healing Stream Totem")].pulse, -- Rank 3
@@ -234,9 +234,9 @@ local totemSpellIdToPulse = {
     [58755] = totemData[string_lower("Healing Stream Totem")].pulse, -- Rank 7
     [58756] = totemData[string_lower("Healing Stream Totem")].pulse, -- Rank 8
     [58757] = totemData[string_lower("Healing Stream Totem")].pulse, -- Rank 9
-    [GetSpellInfo(totemData[string_lower("Mana Tide Totem")].id)] = totemData[string_lower("Mana Tide Totem")].pulse,
+    [Gladdy:SpellKey(totemData[string_lower("Mana Tide Totem")].id)] = totemData[string_lower("Mana Tide Totem")].pulse,
     [16190] = totemData[string_lower("Mana Tide Totem")].pulse, -- Rank 1
-    [GetSpellInfo(totemData[string_lower("Stoneclaw Totem")].id)] = totemData[string_lower("Stoneclaw Totem")].pulse,
+    [Gladdy:SpellKey(totemData[string_lower("Stoneclaw Totem")].id)] = totemData[string_lower("Stoneclaw Totem")].pulse,
     [5730] = totemData[string_lower("Stoneclaw Totem")].pulse, -- Rank 1
     [6390] = totemData[string_lower("Stoneclaw Totem")].pulse, -- Rank 2
     [6391] = totemData[string_lower("Stoneclaw Totem")].pulse, -- Rank 3
@@ -247,7 +247,7 @@ local totemSpellIdToPulse = {
     [58580] = totemData[string_lower("Stoneclaw Totem")].pulse, -- Rank 8
     [58581] = totemData[string_lower("Stoneclaw Totem")].pulse, -- Rank 9
     [58582] = totemData[string_lower("Stoneclaw Totem")].pulse, -- Rank 10
-}
+})
 
 local totemNameToTotemData = {}
 
@@ -277,11 +277,13 @@ for Name, Data in pairs(totemData) do
 	local TotemRanks = totemRanks[TotemID]
 	local TotemName = GetSpellInfo(TotemID)
 
-	if ( TotemRanks ) then
+	if TotemName and TotemRanks then
 		for i=1, TotemRanks do
 			totemNameToTotemData[string_lower(TotemName..totemNumeric[i])] = Data
 		end
-	else
+	elseif TotemName then
 		totemNameToTotemData[string_lower(TotemName)] = Data
+    else
+        Gladdy:SpellKey(TotemID)
 	end
 end

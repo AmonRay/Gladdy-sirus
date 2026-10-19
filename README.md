@@ -10,6 +10,15 @@
 
 Сохранённые профили `GladdyXZ` сохраняются. Перед обновлением рекомендуется сделать резервную копию `WTF`.
 
+## Изменения в 2.43
+
+- Окна импорта и экспорта создаются только при первом открытии, затем переиспользуются.
+- Исправлены принятие несовместимых типов при импорте и применение устаревшего кандидата после изменения строки. Добавлены проверки структуры, версии и лимитов до применения.
+- Отсутствующее имя заклинания не обрывает построение таблиц констант; защищены связанные настройки и объявления. Доступные данные не меняются.
+- Создание защищённых кнопок и регистрация Clique откладываются до выхода из боя; отменённые запросы показа не возобновляются.
+- TotemPlates пропускает неизвестную структуру nameplate и не дублирует фреймы/hooks. Это не полноценная поддержка DF nameplates.
+- Общие Ace-библиотеки не менялись и не изолировались. 133 автономных сценария; ограничения защиты распаковки и клиентская приёмка: [подробности](docs/HARDENING-SIRUS.md).
+
 ## Изменения в 2.42
 
 - Отменена изоляция UI из 2.41: общие AceGUI/AceConfig/SharedMediaWidgets через LibStub, без суффиксов Gladdy, приватных pools и префиксов фреймов.
@@ -73,6 +82,11 @@ lua5.1 tests/libraries_spec.lua
 lua5.1 tests/ace_core_spec.lua
 lua5.1 tests/ace_ui_spec.lua before
 lua5.1 tests/ace_ui_spec.lua after
+lua5.1 tests/import_spec.lua
+lua5.1 tests/lifecycle_spec.lua
+lua5.1 tests/spells_spec.lua available
+lua5.1 tests/spells_spec.lua mixed
+lua5.1 tests/spells_spec.lua missing
 python3 tests/check_ace_sources.py
 lua5.1 tests/bench_dispatch.lua
 lua5.1 tests/bench_pets.lua

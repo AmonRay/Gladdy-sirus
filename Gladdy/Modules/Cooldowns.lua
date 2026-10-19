@@ -1181,7 +1181,7 @@ function Cooldowns:GetCooldownOptions()
 				args = {
 					toggle = {
 						type = "toggle",
-						name = select(1, GetSpellInfo(spellId)) .. (type(cooldown) == "table" and cooldown.spec and (" - " .. cooldown.spec) or ""),
+						name = (GetSpellInfo(spellId) or tostring(spellId)) .. (type(cooldown) == "table" and cooldown.spec and (" - " .. cooldown.spec) or ""),
 						order = 1,
 						width = 1.1,
 						image = select(3, GetSpellInfo(spellId)),
@@ -1265,7 +1265,7 @@ function Cooldowns:GetCooldownOptions()
 				args = {
 					toggle = {
 						type = "toggle",
-						name = select(1, GetSpellInfo(spellId)) .. (type(cooldown) == "table" and cooldown.spec and (" - " .. cooldown.spec) or ""),
+						name = (GetSpellInfo(spellId) or tostring(spellId)) .. (type(cooldown) == "table" and cooldown.spec and (" - " .. cooldown.spec) or ""),
 						order = 1,
 						width = 1.1,
 						image = select(3, GetSpellInfo(spellId)),

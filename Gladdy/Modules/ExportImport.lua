@@ -26,66 +26,85 @@ local ExportImport = Gladdy:NewModule("Export Import", nil, {
     expansion = Gladdy.expansion,
 })
 
-local export = AceGUI:Create("Frame")
-export:SetWidth(550)
-export.sizer_se:Hide()
-export:SetStatusText("")
-export:SetLayout("Flow")
-export:SetTitle("Export")
-export:Hide()
-local exportEditBox = AceGUI:Create("MultiLineEditBox")
-exportEditBox:SetLabel('ExportString')
-exportEditBox:SetNumLines(29)
-exportEditBox:SetText("")
-exportEditBox:SetWidth(500)
-exportEditBox.button:Hide()
-export:AddChild(exportEditBox)
-export.eb = exportEditBox
+local export, import
 
-local import = AceGUI:Create("Frame")
-import:SetWidth(550)
-import:Hide()
-import:SetLayout("Flow")
-import.sizer_se:Hide()
-import:SetStatusText("")
-import:SetTitle("Import")
-import:SetCallback("OnClose", function(widget)
-    import.eb:SetCallback("OnTextChanged", nil)
-end)
-local importEditBox = AceGUI:Create("MultiLineEditBox")
-importEditBox:SetLabel('ImportString')
-importEditBox:SetNumLines(23)
-importEditBox:SetText("")
-importEditBox:SetWidth(500)
-importEditBox.button:Hide()
-import:AddChild(importEditBox)
-import.eb = importEditBox
-local importButton = AceGUI:Create("Button")
-importButton:SetText("Import\n(this will overwrite your current profile!)")
-importButton:SetWidth(200)
-importButton:SetHeight(50)
-importButton:SetCallback("OnClick", function(widget)
-    ExportImport:ApplyImport(import.deserializedTable, Gladdy.db)
+local function GetExportWindow()
+    if export then return export end
+    export = AceGUI:Create("Frame")
+    export:SetWidth(550)
+    export.sizer_se:Hide()
+    export:SetStatusText("")
+    export:SetLayout("Flow")
+    export:SetTitle("Export")
+    export:Hide()
+    local exportEditBox = AceGUI:Create("MultiLineEditBox")
+    exportEditBox:SetLabel('ExportString')
+    exportEditBox:SetNumLines(29)
+    exportEditBox:SetText("")
+    exportEditBox:SetWidth(500)
+    exportEditBox.button:Hide()
+    export:AddChild(exportEditBox)
+    export.eb = exportEditBox
+    return export
+end
+
+local function GetImportWindow()
+    if import then return import end
+    import = AceGUI:Create("Frame")
+    import:SetWidth(550)
     import:Hide()
-    Gladdy:Reset()
-    Gladdy:HideFrame()
-    Gladdy:ToggleFrame(3)
-    LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
-end)
-import:AddChild(importButton)
-import.button = importButton
-local importClearButton = AceGUI:Create("Button")
-importClearButton:SetText("Clear")
-importClearButton:SetWidth(200)
-importClearButton:SetCallback("OnClick", function(widget)
-    import.eb:SetText("")
-    import.eb:SetFocus()
-    import.button:SetDisabled(true)
-    import:SetStatusText("Invalid Import String")
-    import.statustext:SetTextColor(1,0,0)
-end)
-import:AddChild(importClearButton)
-import.clearButton = importClearButton
+    import:SetLayout("Flow")
+    import.sizer_se:Hide()
+    import:SetStatusText("")
+    import:SetTitle("Import")
+    import:SetCallback("OnClose", function(widget)
+        import.eb:SetCallback("OnTextChanged", nil)
+        import.deserializedTable = nil
+    end)
+    local importEditBox = AceGUI:Create("MultiLineEditBox")
+    importEditBox:SetLabel('ImportString')
+    importEditBox:SetNumLines(23)
+    importEditBox:SetText("")
+    importEditBox:SetWidth(500)
+    importEditBox.button:Hide()
+    import:AddChild(importEditBox)
+    import.eb = importEditBox
+    local importButton = AceGUI:Create("Button")
+    importButton:SetText("Import\n(this will overwrite your current profile!)")
+    importButton:SetWidth(200)
+    importButton:SetHeight(50)
+    importButton:SetCallback("OnClick", function(widget)
+        local ok, err = ExportImport:ApplyImport(import.deserializedTable, Gladdy.db)
+        if not ok then
+            import.deserializedTable = nil
+            import.button:SetDisabled(true)
+            import:SetStatusText(err)
+            import.statustext:SetTextColor(1,0,0)
+            return
+        end
+        import:Hide()
+        Gladdy:Reset()
+        Gladdy:HideFrame()
+        Gladdy:ToggleFrame(3)
+        LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
+    end)
+    import:AddChild(importButton)
+    import.button = importButton
+    local importClearButton = AceGUI:Create("Button")
+    importClearButton:SetText("Clear")
+    importClearButton:SetWidth(200)
+    importClearButton:SetCallback("OnClick", function(widget)
+        import.deserializedTable = nil
+        import.eb:SetText("")
+        import.eb:SetFocus()
+        import.button:SetDisabled(true)
+        import:SetStatusText("Invalid Import String")
+        import.statustext:SetTextColor(1,0,0)
+    end)
+    import:AddChild(importClearButton)
+    import.clearButton = importClearButton
+    return import
+end
 
 local deletedOptions = {
     repentance = true,
@@ -122,60 +141,93 @@ local expansionSpecific = {
     "cooldownCooldownsOrder",
 }
 
-local function checkIsDeletedOption(k, str, msg, errorFound, errorMsg)
-    local isDeleted
-    for key, _ in pairs(deletedOptions) do
-        if str_match(k, key) then
-            isDeleted = true
-            Gladdy:Debug("WARN", "found deleted option =", str .. "." .. k)
-        end
-    end
-    if errorFound then
-        return errorFound, errorMsg
-    end
-    if not isDeleted then
-        return true, msg or str .. "." .. k .. " does not exist"
-    end
+local limits = { encoded = 524288, serialized = 2097152, depth = 32, entries = 50000, tokens = 120000 }
+ExportImport.IMPORT_LIMITS = limits
+
+local function FiniteNumber(value)
+    return value == value and value > -math.huge and value < math.huge
 end
 
-function ExportImport:CheckDeserializedOptions(tbl, refTbl, str)
-    if str == nil and not tbl.version_major_num then
-        return false, "Version conflict: version_major_num not seen"
-    end
-    if str == nil and tbl.version_major_num > Gladdy.version_major_num then
-        return false, "Version conflict: Major v" .. tbl.version_major_num .. " ~= v" .. Gladdy.version_major_num
-    end
-    if str == nil then
-        str = "Gladdy.db"
-        tbl.version_major_num = nil
-    end
-    local res, msg
-    local errorFound, errorMsg
-    if refTbl == nil then
-        return false, str .. "does not exist"
-    else
-        for k,v in pairs(tbl) do
-            if refTbl[k] == nil then
-                errorFound, errorMsg = checkIsDeletedOption(k, str, nil, errorFound, errorMsg)
-            elseif type(v) ~= type(refTbl[k]) then
-                errorFound = true
-                errorMsg = str .. "." .. k .. " type error. Expected " .. type(refTbl[k]) .. " found " .. type(v)
-            elseif type(v) == "table" then
-                res, msg = ExportImport:CheckDeserializedOptions(v, refTbl[k], str .. "." .. k)
-                if not res then
-                    errorFound, errorMsg = checkIsDeletedOption(msg, str, msg, errorFound, errorMsg)
-                end
-            end
+local function ValidateTree(tbl, refTbl, depth, state, path)
+    if depth > limits.depth then return false, "Profile nesting limit exceeded" end
+    if state.seen[tbl] then return false, "Cyclic profile table" end
+    state.seen[tbl] = true
+    for key, value in pairs(tbl) do
+        state.entries = state.entries + 1
+        if state.entries > limits.entries then return false, "Profile entry limit exceeded" end
+        local keyType, valueType = type(key), type(value)
+        if keyType ~= "string" and (keyType ~= "number" or not FiniteNumber(key)) then
+            return false, "Invalid profile key at " .. path
+        end
+        state.bytes = (state.bytes or 0) + (keyType == "string" and #key or 8) + (valueType == "string" and #value or 8)
+        if state.bytes > limits.serialized then return false, "Profile data size limit exceeded" end
+        local field = path .. "." .. tostring(key)
+        if valueType ~= "table" and valueType ~= "string" and valueType ~= "boolean" and valueType ~= "number" then
+            return false, "Invalid profile value at " .. field
+        end
+        if valueType == "number" and not FiniteNumber(value) then return false, "Invalid number at " .. field end
+        local expected = refTbl and refTbl[key]
+        if expected ~= nil and type(expected) ~= valueType and not deletedOptions[tostring(key)] then
+            return false, field .. " type error. Expected " .. type(expected) .. " found " .. valueType
+        end
+        if valueType == "table" then
+            local ok, err = ValidateTree(value, type(expected) == "table" and expected or nil, depth + 1, state, field)
+            if not ok then return false, err end
         end
     end
-
-    if errorFound then
-    end
+    state.seen[tbl] = nil
     return true
 end
 
-local dump
-local printable_compressed
+function ExportImport:CheckDeserializedOptions(tbl, refTbl, str)
+    if type(tbl) ~= "table" then return false, "Profile root must be a table" end
+    if tbl.expansion ~= nil and type(tbl.expansion) ~= "string" then return false, "Invalid profile expansion" end
+    if not str then
+        local version = tbl.version_major_num
+        if type(version) ~= "number" or not FiniteNumber(version) or version < 1 or version % 1 ~= 0 then
+            return false, "Invalid or missing profile version"
+        end
+        if version > Gladdy.version_major_num then return false, "Profile version is newer than Gladdy" end
+    end
+    if type(refTbl) ~= "table" then return false, "Profile defaults are unavailable" end
+    return ValidateTree(tbl, refTbl, 1, {seen = {}, entries = 0}, str or "Gladdy.db")
+end
+
+local function ValidateSerialized(str)
+    if #str > limits.serialized then return false, "Serialized profile size limit exceeded" end
+    str = str:gsub("[%c ]", "")
+    if str:sub(1,4) ~= "^1^T" or str:sub(-2) ~= "^^" then return false, "Invalid serialized profile root" end
+    local depth, tokens, closed, ended = 0, 0, false, false
+    for ctl in str:sub(3):gmatch("%^(.)") do
+        tokens = tokens + 1
+        if tokens > limits.tokens then return false, "Serialized profile token limit exceeded" end
+        if ended or (closed and ctl ~= "^") then return false, "Unexpected data after profile" end
+        if ctl == "T" then
+            depth = depth + 1
+            if depth > limits.depth then return false, "Profile nesting limit exceeded" end
+        elseif ctl == "t" then
+            depth = depth - 1
+            if depth < 0 then return false, "Invalid profile table boundary" end
+            if depth == 0 then closed = true end
+        elseif ctl == "^" then
+            if not closed or depth ~= 0 then return false, "Invalid profile terminator" end
+            ended = true
+        end
+    end
+    if not closed or not ended then return false, "Incomplete serialized profile" end
+    return true
+end
+
+local function ImportError(message, showError)
+    if showError and import then
+        import.deserializedTable = nil
+        import.statustext:SetTextColor(1,0,0)
+        import:SetStatusText(message)
+        import.button:SetDisabled(true)
+    end
+    return nil, message
+end
+
 function ExportImport:GetOptions()
     return {
         headerProfileClassic = {
@@ -188,9 +240,10 @@ function ExportImport:GetOptions()
             func = function()
                 local db = table_copy(Gladdy.db)
                 db.version_major_num = Gladdy.version_major_num
-                dump = AceSerializer:Serialize(db)
+                local export = GetExportWindow()
+                local dump = AceSerializer:Serialize(db)
                 local compress_deflate = LibDeflate:CompressZlib(dump)
-                printable_compressed = LibDeflate:EncodeForPrint(compress_deflate)
+                local printable_compressed = LibDeflate:EncodeForPrint(compress_deflate)
                 export.eb:SetText(printable_compressed)
                 export:Show()
                 export.eb:SetFocus()
@@ -204,6 +257,8 @@ function ExportImport:GetOptions()
         import = {
             type = "execute",
             func = function()
+                local import = GetImportWindow()
+                import.deserializedTable = nil
                 import.eb:SetText("")
                 import:Show()
                 import:SetStatusText("Invalid Import String")
@@ -211,6 +266,8 @@ function ExportImport:GetOptions()
                 import.statustext:SetTextColor(1,0,0)
                 import.eb:SetFocus()
                 import.eb:SetCallback("OnTextChanged", function(widget)
+                    import.deserializedTable = nil
+                    import.button:SetDisabled(true)
                     local deserialized = ExportImport:Decode(widget:GetText(), true)
                     if not deserialized then
                         return
@@ -228,75 +285,45 @@ function ExportImport:GetOptions()
     }
 end
 
-function ExportImport:ApplyImport(t, table, str)
-    if str == nil then
-        str = "Gladdy.db"
-        if (not t.newLayout) then
-            table.newLayout = false
-        end
-        if not t.expansion then
-            t.expansion = "BCC"
-        end
-    end
-    for k,v in pairs(t) do
-        local skip = k == "expansion"
-        if t.expansion and t.expansion ~= table.expansion then
-            if Gladdy:contains(k, expansionSpecific) then
-                Gladdy:Debug("WARN", "ExportImport:ApplyImport", "skipped", k, "- import string expansion is", t.expansion, "- current expansion is", table.expansion)
-                skip = true
-            end
-        end
+local function ApplyTable(source, target, crossExpansion)
+    for key, value in pairs(source) do
+        local skip = key == "expansion" or key == "version_major_num" or deletedOptions[tostring(key)]
+        if crossExpansion and Gladdy:contains(key, expansionSpecific) then skip = true end
         if not skip then
-            if type(v) == "table" then
-                if (table[k] ~= nil) then
-                    ExportImport:ApplyImport(v, table[k], str .. "." .. k)
-                else
-                    Gladdy:Debug("ERROR", "ExportImport:ApplyImport", "failed for", str .. "." .. k)
-                end
-
+            if type(value) == "table" then
+                if type(target[key]) == "table" then ApplyTable(value, target[key], false) end
             else
-                table[k] = v
+                target[key] = value
             end
         end
     end
 end
 
+function ExportImport:ApplyImport(tbl, target)
+    if type(tbl) ~= "table" or type(target) ~= "table" then return false, "Invalid profile table" end
+    local ok, err = ValidateTree(tbl, target, 1, {seen = {}, entries = 0}, "Gladdy.db")
+    if not ok then return false, err end
+    local expansion = tbl.expansion or "BCC"
+    if not tbl.newLayout then target.newLayout = false end
+    ApplyTable(tbl, target, expansion ~= target.expansion)
+    return true
+end
+
 function ExportImport:Decode(str, showError)
-    local decoded_string = LibDeflate:DecodeForPrint(str)
-    if not decoded_string then
-        if showError then
-            import.statustext:SetTextColor(1,0,0)
-            import:SetStatusText("Invalid Import String FAILED LibDeflate:DecodeForPrint")
-            import.button:SetDisabled(true)
-        end
-        return nil
-    end
-    local decompress_deflate = LibDeflate:DecompressZlib(decoded_string)
-    if not decompress_deflate then
-        if showError then
-            import.statustext:SetTextColor(1,0,0)
-            import:SetStatusText("Invalid Import String FAILED LibDeflate:DecompressZlib")
-            import.button:SetDisabled(true)
-        end
-        return nil
-    end
-    local success, deserialized = AceSerializer:Deserialize(decompress_deflate)
-    if not success then
-        if showError then
-            import.statustext:SetTextColor(1,0,0)
-            import:SetStatusText("Invalid Import String FAILED AceSerializer:Deserialize")
-            import.button:SetDisabled(true)
-        end
-        return nil
-    end
-    local statusOption, error = ExportImport:CheckDeserializedOptions(deserialized, Gladdy.defaults.profile)
-    if not statusOption then
-        if showError then
-            import.statustext:SetTextColor(1,0,0)
-            import:SetStatusText(error)
-            import.button:SetDisabled(true)
-        end
-        return nil
-    end
+    if type(str) ~= "string" or #str == 0 then return ImportError("Invalid import string", showError) end
+    if #str > limits.encoded then return ImportError("Import string size limit exceeded", showError) end
+    local ok, decoded = pcall(LibDeflate.DecodeForPrint, LibDeflate, str)
+    if not ok or not decoded then return ImportError("Invalid import encoding", showError) end
+    local raw, remaining
+    ok, raw, remaining = pcall(LibDeflate.DecompressZlib, LibDeflate, decoded)
+    if not ok or not raw or (remaining and remaining ~= 0) then return ImportError("Invalid compressed profile", showError) end
+    local err
+    ok, err = ValidateSerialized(raw)
+    if not ok then return ImportError(err, showError) end
+    local success, deserialized = AceSerializer:Deserialize(raw)
+    if not success then return ImportError("Invalid serialized profile", showError) end
+    ok, err = self:CheckDeserializedOptions(deserialized, Gladdy.defaults.profile)
+    if not ok then return ImportError(err, showError) end
+    deserialized.version_major_num = nil
     return deserialized
 end
