@@ -96,6 +96,29 @@ setmetatable(Gladdy, {
 	end
 })
 
+function Gladdy:ValueRatio(current, maximum)
+    if type(current) ~= "number" or type(maximum) ~= "number"
+        or current ~= current or maximum ~= maximum or maximum <= 0
+        or current == math.huge or current == -math.huge or maximum == math.huge then return nil end
+    return math.max(0, math.min(1, current / maximum))
+end
+
+function Gladdy:SetTimerStyle(font, path, size, r, g, b, alpha)
+    if font.timerFont ~= path or font.timerSize ~= size then
+        font:SetFont(path, size, "OUTLINE")
+        font.timerFont, font.timerSize = path, size
+    end
+    if font.timerR ~= r or font.timerG ~= g or font.timerB ~= b or font.timerAlpha ~= alpha then
+        font:SetTextColor(r, g, b, alpha)
+        font.timerR, font.timerG, font.timerB, font.timerAlpha = r, g, b, alpha
+    end
+end
+
+function Gladdy:CooldownRemaining(frame)
+    local remaining = type(frame.endTime) == "number" and (frame.endTime - GetTime()) or frame.timeLeft
+    return math.max(0, type(remaining) == "number" and remaining or 0)
+end
+
 local missingSpellKey = {}
 Gladdy.missingSpellIDs = {}
 
@@ -417,11 +440,11 @@ function Gladdy:OnInitialize()
 	end
 
 	self.testData = {
-		["arena1"] = { name = "Swift", raceLoc = L["NightElf"], classLoc = L["Druid"], class = "DRUID", health = 67, healthMax = 100, power = 76, powerMax = 100, powerType = 1, testSpec = L["Restoration"], race = "NightElf" },
-		["arena2"] = { name = "Vilden", raceLoc = L["Undead"], classLoc = L["Mage"], class = "MAGE", health = 99, healthMax = 100, power = 7833, powerMax = 10460, powerType = 0, testSpec = L["Frost"], race = "Scourge" },
-		["arena3"] = { name = "Krymu", raceLoc = L["Human"], classLoc = L["Rogue"], class = "ROGUE", health = 10, healthMax = 100, power = 45, powerMax = 110, powerType = 3, testSpec = L["Subtlety"], race = "Human" },
-		["arena4"] = { name = "Talmon", raceLoc = L["Human"], classLoc = L["Warlock"], class = "WARLOCK", health = 40, healthMax = 100, power = 9855, powerMax = 9855, powerType = 0, testSpec = L["Demonology"], race = "Human" },
-		["arena5"] = { name = "Hydra", raceLoc = L["Undead"], classLoc = L["Priest"], class = "PRIEST", health = 70, healthMax = 100, power = 2515, powerMax = 10240, powerType = 0, testSpec = L["Discipline"], race = "Human" },
+		["arena1"] = { name = "Swift", raceLoc = L["NightElf"], classLoc = L["Druid"], class = "DRUID", health = 67, healthMax = 100, power = 76, powerMax = 100, powerType = 1, testSpec = "Restoration", race = "NightElf" },
+		["arena2"] = { name = "Vilden", raceLoc = L["Undead"], classLoc = L["Mage"], class = "MAGE", health = 99, healthMax = 100, power = 7833, powerMax = 10460, powerType = 0, testSpec = "Frost", race = "Scourge" },
+		["arena3"] = { name = "Krymu", raceLoc = L["Human"], classLoc = L["Rogue"], class = "ROGUE", health = 10, healthMax = 100, power = 45, powerMax = 110, powerType = 3, testSpec = "Subtlety", race = "Human" },
+		["arena4"] = { name = "Talmon", raceLoc = L["Human"], classLoc = L["Warlock"], class = "WARLOCK", health = 40, healthMax = 100, power = 9855, powerMax = 9855, powerType = 0, testSpec = "Demonology", race = "Human" },
+		["arena5"] = { name = "Hydra", raceLoc = L["Undead"], classLoc = L["Priest"], class = "PRIEST", health = 70, healthMax = 100, power = 2515, powerMax = 10240, powerType = 0, testSpec = "Discipline", race = "Human" },
 	}
 
 	self.cooldownSpellIds = {}
@@ -745,7 +768,7 @@ function Gladdy:JoinedArena()
     for i = 1, self.curBracket do
         local button = self.buttons["arena" .. i]
         if button then
-            button:SetAlpha(1)
+            button:SetAlpha(button.opponentKnown and 1 or 0)
             Gladdy:Debug("INFO", "JoinedArena", "Set alpha for arena" .. i)
         end
     end

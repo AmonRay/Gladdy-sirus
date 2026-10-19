@@ -226,28 +226,8 @@ function Classicon:UNIT_SPEC(unit, spec)
     local button = Gladdy.buttons[unit]
     if not button or not button.class then return end
 
-    local specIconTexture = nil
-    local specKeys = {
-        "Balance", "Feral", "Restoration",
-        "Unholy", "Blood", "Frost",
-        "Beast Mastery", "Marksmanship", "Survival",
-        "Arcane", "Fire",
-        "Holy", "Retribution", "Protection",
-        "Discipline", "Shadow",
-        "Assassination", "Combat", "Subtlety",
-        "Elemental", "Enhancement",
-        "Affliction", "Demonology", "Destruction",
-        "Arms", "Fury",
-    }
-
-    for _, enKey in ipairs(specKeys) do
-        if L[enKey] == spec then
-            if specIcons[button.class] and specIcons[button.class][enKey] then
-                specIconTexture = specIcons[button.class][enKey]
-                break
-            end
-        end
-    end
+    local key = Gladdy:NormalizeSpec(spec, button.class)
+    local specIconTexture = key and specIcons[button.class] and specIcons[button.class][key]
 
     if specIconTexture then
         classIcon.texture:SetTexture(specIconTexture)

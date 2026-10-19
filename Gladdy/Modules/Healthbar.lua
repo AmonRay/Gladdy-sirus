@@ -116,6 +116,14 @@ function Healthbar:CreateFrame(unit)
     healthBar:SetScript("OnEvent", Healthbar.OnEvent)
 end
 
+function Healthbar:PublishHealth(unit, health, maximum)
+    local button = Gladdy.buttons[unit]
+    if not button or not Gladdy:ValueRatio(health, maximum) then return end
+    local changed = button.health ~= health or button.healthMax ~= maximum
+    button.health, button.healthMax = health, maximum
+    if changed then Gladdy:SendMessage("UNIT_HEALTH", unit, health, maximum) end
+end
+
 function Healthbar.OnEvent(self, event, unit)
     if not UnitExists(unit) then return end
     if event == "UNIT_HEALTH" or event == "UNIT_MAXHEALTH" then
@@ -126,12 +134,14 @@ function Healthbar.OnEvent(self, event, unit)
         end
         local health = UnitHealth(unit)
         local healthMax = UnitHealthMax(unit)
+        if not Gladdy:ValueRatio(health, healthMax) then Healthbar:ScheduleHealthRetry(unit); return end
         self.hp:SetMinMaxValues(0, healthMax)
         self.hp:SetValue(health)
         self.hp.current = health
         self.hp.max = healthMax
         Healthbar:SetText(unit, health, healthMax)
         Healthbar:SetHealthStatusBarColor(unit, self.hp.current, self.hp.max)
+        Healthbar:PublishHealth(unit, health, healthMax)
     elseif event == "UNIT_NAME_UPDATE" then
         local name = UnitName(unit)
         if name then Gladdy.buttons[unit].name = name end
@@ -149,7 +159,7 @@ end
 local rMax, gMax, bMax, rMid, gMid, bMid, rMin, gMin, bMin, rNow, gNow, bNow, percentage, factor, stealthAlpha
 function Healthbar:SetHealthStatusBarColor(unit, health, healthMax)
     local button = Gladdy.buttons[unit]
-    if not button or not health or not healthMax then
+    if not button or not Gladdy:ValueRatio(health, healthMax) then
         return
     end
 
@@ -175,7 +185,7 @@ function Healthbar:SetHealthStatusBarColor(unit, health, healthMax)
             rMax, gMax, bMax = Gladdy:SetColor(Gladdy.db.healthBarStatusBarColorMax)
             rMid, gMid, bMid = Gladdy:SetColor(Gladdy.db.healthBarStatusBarColorMid)
             rMin, gMin, bMin = Gladdy:SetColor(Gladdy.db.healthBarStatusBarColorMin)
-            percentage = health / healthMax
+            percentage = Gladdy:ValueRatio(health, healthMax)
             if percentage == 0.5 then
                 rNow, gNow, bNow = Gladdy:SetColor(Gladdy.db.healthBarStatusBarColorMid, healthBar.hp.oorFactor)
             elseif percentage < 0.5 then
@@ -184,7 +194,7 @@ function Healthbar:SetHealthStatusBarColor(unit, health, healthMax)
                 gNow = getGradient(gMin, gMid, percentage, factor)
                 bNow = getGradient(bMin, bMid, percentage, factor)
             elseif percentage > 0.5 then
-                factor = ((healthMax - health) / healthMax) * 2
+                factor = (1 - percentage) * 2
                 rNow = getGradient(rMax, rMid, percentage, factor)
                 gNow = getGradient(gMax, gMid, percentage, factor)
                 bNow = getGradient(bMax, bMid, percentage, factor)
@@ -204,7 +214,8 @@ end
 
 function Healthbar:SetHealthText(healthBar, health, healthMax)
     local healthText = ""
-    local healthPercentage = health and healthMax and floor(health * 100 / healthMax)
+    local ratio = Gladdy:ValueRatio(health, healthMax)
+    local healthPercentage = ratio and floor(ratio * 100)
 
     if health == 0 and UnitExists(healthBar.unit) and UnitIsDeadOrGhost(healthBar.unit) and not Gladdy:isFeignDeath(healthBar.unit) then
         self:UNIT_DEATH(healthBar.unit)
@@ -368,7 +379,7 @@ function Healthbar:ENEMY_SPOTTED(unit)
         local health = UnitHealth(unit)
         local healthMax = UnitHealthMax(unit)
 
-        if not healthMax or healthMax <= 0 or health == nil then
+        if not Gladdy:ValueRatio(health, healthMax) then
             self:ScheduleHealthRetry(unit)
             return
         end
@@ -387,6 +398,7 @@ function Healthbar:ENEMY_SPOTTED(unit)
     end
     Healthbar:SetText(unit, healthBar.hp.current, healthBar.hp.max)
     Healthbar:SetHealthStatusBarColor(unit, healthBar.hp.current, healthBar.hp.max)
+    self:PublishHealth(unit, healthBar.hp.current, healthBar.hp.max)
 end
 
 function Healthbar:ENEMY_STEALTH(unit, stealth)
@@ -409,6 +421,7 @@ function Healthbar:UNIT_DEATH(unit)
 
     healthBar.hp:SetValue(0)
     healthBar.hp.current = 0
+    self:PublishHealth(unit, 0, healthBar.hp.max)
     Healthbar:SetText(unit, 0, 100, L["DEAD"])
 
     if healthBar.healthRetry then Gladdy:CancelTimer(healthBar.healthRetry) end

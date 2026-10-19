@@ -462,7 +462,6 @@ function Castbar:CAST_START(unit, spell, icon, value, maxValue, notInterruptible
     if (not castBar) then
         return
     end
-    Gladdy:SendMessage("CAST_START", unit, spell)
     castBar:SetScript("OnUpdate", Castbar.OnUpdate)
     if test then
         castBar.casting = test == "cast"

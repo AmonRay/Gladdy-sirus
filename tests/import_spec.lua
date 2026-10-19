@@ -120,5 +120,30 @@ test('all nine bundled historical profiles decode within the limits',function()
         local decoded,err=module:Decode(G[name](G));assert(decoded,name..': '..tostring(err))
     end
 end)
+test('legacy profiles decode unchanged under both supported profile languages',function()
+    dofile('Gladdy/Lang.lua')
+    for _,name in ipairs({'GetKlimpProfile','GetClassicProfile','GetClassicProfileNoPet','GetKnallProfile','GetBlizzardProfile','GetRukkProfile','GetMirProfile','GetMirEditedProfile','GetLikeGladius'}) do
+        local encoded=G[name](G)
+        G:ApplyLanguage('enUS');local english=assert(module:Decode(encoded))
+        G:ApplyLanguage('ruRU');local russian=assert(module:Decode(encoded))
+        local function same(a,b)
+            if type(a)~='table' then return a==b end
+            if type(b)~='table' then return false end
+            for k,v in pairs(a) do if not same(v,b[k]) then return false end end
+            for k in pairs(b) do if a[k]==nil then return false end end
+            return true
+        end
+        assert(same(english,russian),name)
+    end
+end)
+test('language changes preserve imported numeric cooldown maps and custom user text',function()
+    G.defaults.profile.cooldownCooldowns={MAGE={['44572']=true,['45438']=true}}
+    G.defaults.profile.cooldownCooldownsOrder={MAGE={['44572']=1,['45438']=2}}
+    local target={expansion='Wrath',cooldownCooldowns={MAGE={['44572']=true,['45438']=true}},cooldownCooldownsOrder={MAGE={['44572']=1,['45438']=2}}}
+    assert(module:ApplyImport({expansion='Wrath',cooldownCooldowns={MAGE={['44572']=false,['45438']=true}},cooldownCooldownsOrder={MAGE={['44572']=2,['45438']=1}},customText='Лёд'},target))
+    G.db=target;G:ApplyLanguage('enUS');G:ApplyLanguage('ruRU')
+    assert(target.cooldownCooldowns.MAGE['44572']==false and target.cooldownCooldowns.MAGE['45438']==true)
+    assert(target.cooldownCooldownsOrder.MAGE['44572']==2 and target.cooldownCooldownsOrder.MAGE['45438']==1 and target.customText=='Лёд')
+end)
 test('import and export integration reports no swallowed UI errors',function() assert(#wow.errors==0,table.concat(wow.errors,'\n')) end)
 print('PASS: '..n..' import hardening tests')

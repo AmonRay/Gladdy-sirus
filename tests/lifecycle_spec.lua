@@ -68,7 +68,7 @@ test('arena join supersedes a queued test without running test mode',function()
     assert(G.buttons.arena2 and not G.frame.testing and not G.startTest)
 end)
 test('deferred arena join restores alpha and applies Blizzard hiding',function()
-    setup();G.curBracket=2;G:EnsureButtons(2);G.buttons.arena1:SetAlpha(0)
+    setup();G.curBracket=2;G:EnsureButtons(2);G.buttons.arena1.opponentKnown=true;G.buttons.arena1:SetAlpha(0)
     local alpha;local original=G.BlizzArenaSetAlpha;G.BlizzArenaSetAlpha=function(_,value) alpha=value end
     G.db.hideBlizzard='arena';combat=true;G:JoinedArena();combat=false;G:PLAYER_REGEN_ENABLED()
     assert(G.buttons.arena1:GetAlpha()==1 and alpha==0 and #events==1)

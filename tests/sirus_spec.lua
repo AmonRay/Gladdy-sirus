@@ -59,7 +59,7 @@ dofile('Gladdy/Util.lua')
 local events, calls = {}, {}
 G.SendMessage = function(_, name, ...) events[#events+1] = {name, ...} end
 G.defaults = {profile={}}
-G.buttons = {arena1={class='MAGE', race='Human', spec='Frost', auras={}, lastAuras={}}}
+G.buttons = {arena1={SetAlpha=noop,class='MAGE', race='Human', spec='Frost', auras={}, lastAuras={}}}
 G.guids = {enemy='arena1', pet='arenapet1'}
 G.specSpells, G.specBuffs, G.exceptionNames = {}, {}, {}
 G.db = {cooldown=true, cooldownCooldowns={}, racialEnabled=true, trinketEnabled=true}
@@ -223,7 +223,7 @@ test('damage spell can still identify a specialization',function()
     local b=G.buttons.arena1; b.class='MAGE'; b.race='Human'; b.spec=nil
     G.specSpells['spec-damage']='Frost'
     E:COMBAT_LOG_EVENT_UNFILTERED(now,'SPELL_DAMAGE','enemy','Enemy',64,'other','Other',0,123,'spec-damage',1)
-    eq(b.spec,G.L['Frost']); G.specSpells['spec-damage']=nil
+    eq(b.spec,'Frost'); G.specSpells['spec-damage']=nil
 end)
 test('event errors are not silently swallowed when debug is disabled',function()
     E.BROKEN=function() error('intentional-test-error') end
@@ -350,7 +350,7 @@ end
 CreateFrame=fake; G.SMFetch=function() return 'font' end
 test('icon expiry emits READY once and stops before rendering expired data',function()
     local f=G:CreateIconFrame(nil,nil,{frameLevel=1,fontScale=1,hasBackdrop=true})
-    f.unit='arena1'; f.timeLeft=0.01; f.active=true; clear()
+    f.unit='arena1'; f.timeLeft=0.01; f.endTime=now+0.01; f.active=true; clear(); now=now+0.02
     f.scripts.OnUpdate(f,0.02); eq(f.active,false); eq(count('TRINKET_READY'),1)
     f.scripts.OnUpdate(f,0.02); eq(count('TRINKET_READY'),1)
 end)

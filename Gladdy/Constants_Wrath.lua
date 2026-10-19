@@ -12,155 +12,155 @@ Gladdy.CLASSES = { "MAGE", "PRIEST", "DRUID", "SHAMAN", "PALADIN", "WARLOCK", "W
 tbl_sort(Gladdy.CLASSES)
 
 local specBuffs = Gladdy:FilterSpellTable({
-	[Gladdy:SpellKey(56638)] = L["Arms"], -- Taste for Blood
-	[Gladdy:SpellKey(64976)] = L["Arms"], -- Juggernaut
-	[Gladdy:SpellKey(57522)] = L["Arms"], -- Enrage
-	[Gladdy:SpellKey(52437)] = L["Arms"], -- Sudden Death
-	[Gladdy:SpellKey(46857)] = L["Arms"], -- Trauma
-	[Gladdy:SpellKey(56112)] = L["Fury"], -- Furious Attacks
-	[Gladdy:SpellKey(29801)] = L["Fury"], -- Rampage
-	[Gladdy:SpellKey(46916)] = L["Fury"], -- Slam!
-	[Gladdy:SpellKey(50227)] = L["Protection"], -- Sword and Board
-	[Gladdy:SpellKey(50720)] = L["Protection"], -- Vigilance
-	[Gladdy:SpellKey(74347)] = L["Protection"], -- Silenced - Gag Order
-	[Gladdy:SpellKey(20375)] = L["Retribution"], -- Seal of Command
-	[Gladdy:SpellKey(59578)] = L["Retribution"], -- The Art of War
-	[Gladdy:SpellKey(31836)] = L["Holy"], -- Light's Grace
-	[Gladdy:SpellKey(53563)] = L["Holy"], -- Beacon of Light
-	[Gladdy:SpellKey(54149)] = L["Holy"], -- Infusion of Light
-	[Gladdy:SpellKey(63529)] = L["Protection"], -- Silenced - Shield of the Templar
-	[Gladdy:SpellKey(36554)] = L["Subtlety"], -- Shadowstep
-	[Gladdy:SpellKey(44373)] = L["Subtlety"], -- Shadowstep Speed
-	[Gladdy:SpellKey(36563)] = L["Subtlety"], -- Shadowstep DMG
-	[Gladdy:SpellKey(51713)] = L["Subtlety"], -- Shadow Dance
-	[Gladdy:SpellKey(31665)] = L["Subtlety"], -- Master of Subtlety
-	[Gladdy:SpellKey(14278)] = L["Subtlety"], -- Ghostly Strike
-	[Gladdy:SpellKey(51690)] = L["Combat"], -- Killing Spree
-	[Gladdy:SpellKey(13877)] = L["Combat"], -- Blade Flurry
-	[Gladdy:SpellKey(13750)] = L["Combat"], -- Adrenaline Rush
-	[Gladdy:SpellKey(14177)] = L["Assassination"], -- Cold Blood
-	[Gladdy:SpellKey(47788)] = L["Holy"], -- Guardian Spirit
-	[Gladdy:SpellKey(52800)] = L["Discipline"], -- Borrowed Time
-	[Gladdy:SpellKey(63944)] = L["Discipline"], -- Renewed Hope
-	[Gladdy:SpellKey(15473)] = L["Shadow"], -- Shadowform
-	[Gladdy:SpellKey(15286)] = L["Shadow"], -- Vampiric Embrace
-	[Gladdy:SpellKey(49222)] = L["Unholy"], -- Bone Shield
-	[Gladdy:SpellKey(49016)] = L["Blood"], -- Hysteria
-	[Gladdy:SpellKey(53138)] = L["Blood"], -- Abomination's Might
-	[Gladdy:SpellKey(55610)] = L["Frost"], -- Imp. Icy Talons
-	[Gladdy:SpellKey(43039)] = L["Frost"], -- Ice Barrier
-	[Gladdy:SpellKey(74396)] = L["Frost"], -- Fingers of Frost
-	[Gladdy:SpellKey(57761)] = L["Frost"], -- Fireball!
-	[Gladdy:SpellKey(11129)] = L["Fire"], -- Combustion
-	[Gladdy:SpellKey(64346)] = L["Fire"], -- Fiery Payback
-	[Gladdy:SpellKey(48108)] = L["Fire"], -- Hot Streak
-	[Gladdy:SpellKey(54741)] = L["Fire"], -- Firestarter
-	[Gladdy:SpellKey(55360)] = L["Fire"], -- Living Bomb
-	[Gladdy:SpellKey(31583)] = L["Arcane"], -- Arcane Empowerment
-	[Gladdy:SpellKey(44413)] = L["Arcane"], -- Incanter's Absorption
-	[Gladdy:SpellKey(30302)] = L["Destruction"], -- Nether Protection
-	[Gladdy:SpellKey(63244)] = L["Destruction"], -- Pyroclasm
-	[Gladdy:SpellKey(54277)] = L["Destruction"], -- Backdraft
-	[Gladdy:SpellKey(47283)] = L["Destruction"], -- Empowered Imp
-	[Gladdy:SpellKey(34936)] = L["Destruction"], -- Backlash
-	[Gladdy:SpellKey(47193)] = L["Demonology"], -- Demonic Empowerment
-	[Gladdy:SpellKey(64371)] = L["Affliction"], -- Eradication
-	[Gladdy:SpellKey(57663)] = L["Elemental"], -- Totem of Wrath
-	[Gladdy:SpellKey(65264)] = L["Elemental"], -- Lava Flows
-	[Gladdy:SpellKey(51470)] = L["Elemental"], -- Elemental Oath
-	[Gladdy:SpellKey(52179)] = L["Elemental"], -- Astral Shift
-	[Gladdy:SpellKey(49284)] = L["Restoration"], -- Earth Shield
-	[Gladdy:SpellKey(53390)] = L["Restoration"], -- Tidal Waves
-	[Gladdy:SpellKey(30809)] = L["Enhancement"], -- Unleashed Rage
-	[Gladdy:SpellKey(53817)] = L["Enhancement"], -- Maelstrom Weapon
-	[Gladdy:SpellKey(63685)] = L["Enhancement"], -- Freeze (Frozen Power)
-	[Gladdy:SpellKey(20895)] = L["Beast Mastery"], -- Spirit Bond
-	[Gladdy:SpellKey(34471)] = L["Beast Mastery"], -- The Beast Within
-	[Gladdy:SpellKey(75447)] = L["Beast Mastery"], -- Ferocious Inspiration
-	[Gladdy:SpellKey(19506)] = L["Marksmanship"], -- Trueshot Aura
-	[Gladdy:SpellKey(64420)] = L["Survival"], -- Sniper Training
-	[Gladdy:SpellKey(24932)] = L["Feral"], -- Leader of the Pack
-	[Gladdy:SpellKey(16975)] = L["Feral"], -- Predatory Strikes
-	[Gladdy:SpellKey(50334, " Feral")] = L["Feral"], -- Berserk
-	[Gladdy:SpellKey(24907)] = L["Balance"], -- Moonkin Aura
-	[Gladdy:SpellKey(24858)] = L["Balance"], -- Moonkin Form
-	[Gladdy:SpellKey(48504)] = L["Restoration"], -- Living Seed
-	[Gladdy:SpellKey(45283)] = L["Restoration"], -- Natural Perfection
-	[Gladdy:SpellKey(53251)] = L["Restoration"], -- Wild Growth
-	[Gladdy:SpellKey(16188)] = L["Restoration"], -- Nature's Swiftness
-	[Gladdy:SpellKey(33891)] = L["Restoration"], -- Tree of Life
+	[Gladdy:SpellKey(56638)] = "Arms", -- Taste for Blood
+	[Gladdy:SpellKey(64976)] = "Arms", -- Juggernaut
+	[Gladdy:SpellKey(57522)] = "Arms", -- Enrage
+	[Gladdy:SpellKey(52437)] = "Arms", -- Sudden Death
+	[Gladdy:SpellKey(46857)] = "Arms", -- Trauma
+	[Gladdy:SpellKey(56112)] = "Fury", -- Furious Attacks
+	[Gladdy:SpellKey(29801)] = "Fury", -- Rampage
+	[Gladdy:SpellKey(46916)] = "Fury", -- Slam!
+	[Gladdy:SpellKey(50227)] = "Protection", -- Sword and Board
+	[Gladdy:SpellKey(50720)] = "Protection", -- Vigilance
+	[Gladdy:SpellKey(74347)] = "Protection", -- Silenced - Gag Order
+	[Gladdy:SpellKey(20375)] = "Retribution", -- Seal of Command
+	[Gladdy:SpellKey(59578)] = "Retribution", -- The Art of War
+	[Gladdy:SpellKey(31836)] = "Holy", -- Light's Grace
+	[Gladdy:SpellKey(53563)] = "Holy", -- Beacon of Light
+	[Gladdy:SpellKey(54149)] = "Holy", -- Infusion of Light
+	[Gladdy:SpellKey(63529)] = "Protection", -- Silenced - Shield of the Templar
+	[Gladdy:SpellKey(36554)] = "Subtlety", -- Shadowstep
+	[Gladdy:SpellKey(44373)] = "Subtlety", -- Shadowstep Speed
+	[Gladdy:SpellKey(36563)] = "Subtlety", -- Shadowstep DMG
+	[Gladdy:SpellKey(51713)] = "Subtlety", -- Shadow Dance
+	[Gladdy:SpellKey(31665)] = "Subtlety", -- Master of Subtlety
+	[Gladdy:SpellKey(14278)] = "Subtlety", -- Ghostly Strike
+	[Gladdy:SpellKey(51690)] = "Combat", -- Killing Spree
+	[Gladdy:SpellKey(13877)] = "Combat", -- Blade Flurry
+	[Gladdy:SpellKey(13750)] = "Combat", -- Adrenaline Rush
+	[Gladdy:SpellKey(14177)] = "Assassination", -- Cold Blood
+	[Gladdy:SpellKey(47788)] = "Holy", -- Guardian Spirit
+	[Gladdy:SpellKey(52800)] = "Discipline", -- Borrowed Time
+	[Gladdy:SpellKey(63944)] = "Discipline", -- Renewed Hope
+	[Gladdy:SpellKey(15473)] = "Shadow", -- Shadowform
+	[Gladdy:SpellKey(15286)] = "Shadow", -- Vampiric Embrace
+	[Gladdy:SpellKey(49222)] = "Unholy", -- Bone Shield
+	[Gladdy:SpellKey(49016)] = "Blood", -- Hysteria
+	[Gladdy:SpellKey(53138)] = "Blood", -- Abomination's Might
+	[Gladdy:SpellKey(55610)] = "Frost", -- Imp. Icy Talons
+	[Gladdy:SpellKey(43039)] = "Frost", -- Ice Barrier
+	[Gladdy:SpellKey(74396)] = "Frost", -- Fingers of Frost
+	[Gladdy:SpellKey(57761)] = "Frost", -- Fireball!
+	[Gladdy:SpellKey(11129)] = "Fire", -- Combustion
+	[Gladdy:SpellKey(64346)] = "Fire", -- Fiery Payback
+	[Gladdy:SpellKey(48108)] = "Fire", -- Hot Streak
+	[Gladdy:SpellKey(54741)] = "Fire", -- Firestarter
+	[Gladdy:SpellKey(55360)] = "Fire", -- Living Bomb
+	[Gladdy:SpellKey(31583)] = "Arcane", -- Arcane Empowerment
+	[Gladdy:SpellKey(44413)] = "Arcane", -- Incanter's Absorption
+	[Gladdy:SpellKey(30302)] = "Destruction", -- Nether Protection
+	[Gladdy:SpellKey(63244)] = "Destruction", -- Pyroclasm
+	[Gladdy:SpellKey(54277)] = "Destruction", -- Backdraft
+	[Gladdy:SpellKey(47283)] = "Destruction", -- Empowered Imp
+	[Gladdy:SpellKey(34936)] = "Destruction", -- Backlash
+	[Gladdy:SpellKey(47193)] = "Demonology", -- Demonic Empowerment
+	[Gladdy:SpellKey(64371)] = "Affliction", -- Eradication
+	[Gladdy:SpellKey(57663)] = "Elemental", -- Totem of Wrath
+	[Gladdy:SpellKey(65264)] = "Elemental", -- Lava Flows
+	[Gladdy:SpellKey(51470)] = "Elemental", -- Elemental Oath
+	[Gladdy:SpellKey(52179)] = "Elemental", -- Astral Shift
+	[Gladdy:SpellKey(49284)] = "Restoration", -- Earth Shield
+	[Gladdy:SpellKey(53390)] = "Restoration", -- Tidal Waves
+	[Gladdy:SpellKey(30809)] = "Enhancement", -- Unleashed Rage
+	[Gladdy:SpellKey(53817)] = "Enhancement", -- Maelstrom Weapon
+	[Gladdy:SpellKey(63685)] = "Enhancement", -- Freeze (Frozen Power)
+	[Gladdy:SpellKey(20895)] = "Beast Mastery", -- Spirit Bond
+	[Gladdy:SpellKey(34471)] = "Beast Mastery", -- The Beast Within
+	[Gladdy:SpellKey(75447)] = "Beast Mastery", -- Ferocious Inspiration
+	[Gladdy:SpellKey(19506)] = "Marksmanship", -- Trueshot Aura
+	[Gladdy:SpellKey(64420)] = "Survival", -- Sniper Training
+	[Gladdy:SpellKey(24932)] = "Feral", -- Leader of the Pack
+	[Gladdy:SpellKey(16975)] = "Feral", -- Predatory Strikes
+	[Gladdy:SpellKey(50334, " Feral")] = "Feral", -- Berserk
+	[Gladdy:SpellKey(24907)] = "Balance", -- Moonkin Aura
+	[Gladdy:SpellKey(24858)] = "Balance", -- Moonkin Form
+	[Gladdy:SpellKey(48504)] = "Restoration", -- Living Seed
+	[Gladdy:SpellKey(45283)] = "Restoration", -- Natural Perfection
+	[Gladdy:SpellKey(53251)] = "Restoration", -- Wild Growth
+	[Gladdy:SpellKey(16188)] = "Restoration", -- Nature's Swiftness
+	[Gladdy:SpellKey(33891)] = "Restoration", -- Tree of Life
 })
 function Gladdy:GetSpecBuffs()
 	return specBuffs
 end
 
 local specSpells = Gladdy:FilterSpellTable({
-	[Gladdy:SpellKey(47486)] = L["Arms"], -- Mortal Strike
-	[Gladdy:SpellKey(46924)] = L["Arms"], -- Bladestorm
-	[Gladdy:SpellKey(23881)] = L["Fury"], -- Bloodthirst
-	[Gladdy:SpellKey(12809)] = L["Protection"], -- Concussion Blow
-	[Gladdy:SpellKey(47498)] = L["Protection"], -- Devastate
-	[Gladdy:SpellKey(46968)] = L["Protection"], -- Shockwave
-	[Gladdy:SpellKey(50720)] = L["Protection"], -- Vigilance
-	[Gladdy:SpellKey(48827)] = L["Protection"], -- Avenger's Shield
-	[Gladdy:SpellKey(48825)] = L["Holy"], -- Holy Shock
-	[Gladdy:SpellKey(53563)] = L["Holy"], -- Beacon of Light
-	[Gladdy:SpellKey(35395)] = L["Retribution"], -- Crusader Strike
-	[Gladdy:SpellKey(66006)] = L["Retribution"], -- Divine Storm
-	[Gladdy:SpellKey(20066)] = L["Retribution"], -- Repentance
-	[Gladdy:SpellKey(48666)] = L["Assassination"], -- Mutilate
-	[Gladdy:SpellKey(14177)] = L["Assassination"], -- Cold Blood
-	[Gladdy:SpellKey(51690)] = L["Combat"], -- Killing Spree
-	[Gladdy:SpellKey(13877)] = L["Combat"], -- Blade Flurry
-	[Gladdy:SpellKey(13750)] = L["Combat"], -- Adrenaline Rush
-	[Gladdy:SpellKey(36554)] = L["Subtlety"], -- Shadowstep
-	[Gladdy:SpellKey(48660)] = L["Subtlety"], -- Hemorrhage
-	[Gladdy:SpellKey(51713)] = L["Subtlety"], -- Shadow Dance
-	[Gladdy:SpellKey(53007)] = L["Discipline"], -- Penance
-	[Gladdy:SpellKey(10060)] = L["Discipline"], -- Power Infusion
-	[Gladdy:SpellKey(33206)] = L["Discipline"], -- Pain Suppression
-	[Gladdy:SpellKey(34861)] = L["Holy"], -- Circle of Healing
-	[Gladdy:SpellKey(15487)] = L["Shadow"], -- Silence
-	[Gladdy:SpellKey(48160)] = L["Shadow"], -- Vampiric Touch
-	[Gladdy:SpellKey(55262)] = L["Blood"], -- Heart Strike
-	[Gladdy:SpellKey(49203)] = L["Frost"], -- Hungering Cold
-	[Gladdy:SpellKey(55268)] = L["Frost"], -- Frost Strike
-	[Gladdy:SpellKey(51411)] = L["Frost"], -- Howling Blast
-	[Gladdy:SpellKey(55271)] = L["Unholy"], -- Scourge Strike
-	[Gladdy:SpellKey(44781)] = L["Arcane"], -- Arcane Barrage
-	[Gladdy:SpellKey(55360)] = L["Fire"], -- Living Bomb
-	[Gladdy:SpellKey(42950)] = L["Fire"], -- Dragon's Breath
-	[Gladdy:SpellKey(42945)] = L["Fire"], -- Blast Wave
-	[Gladdy:SpellKey(44572)] = L["Frost"], -- Deep Freeze
-	[Gladdy:SpellKey(59164)] = L["Affliction"], -- Haunt
-	[Gladdy:SpellKey(47843)] = L["Affliction"], -- Unstable Affliction
-	[Gladdy:SpellKey(59672)] = L["Demonology"], -- Metamorphosis
-	[Gladdy:SpellKey(47193)] = L["Demonology"], -- Demonic Empowerment
-	[Gladdy:SpellKey(47996, " Felguard")] = L["Demonology"], -- Intercept Felguard
-	[Gladdy:SpellKey(59172)] = L["Destruction"], -- Chaos Bolt
-	[Gladdy:SpellKey(47847)] = L["Destruction"], -- Shadowfury
-	[Gladdy:SpellKey(59159)] = L["Elemental"], -- Thunderstorm
-	[Gladdy:SpellKey(16166)] = L["Elemental"], -- Elemental Mastery
-	[Gladdy:SpellKey(51533)] = L["Enhancement"], -- Feral Spirit
-	[Gladdy:SpellKey(30823)] = L["Enhancement"], -- Shamanistic Rage
-	[Gladdy:SpellKey(17364)] = L["Enhancement"], -- Stormstrike
-	[Gladdy:SpellKey(61301)] = L["Restoration"], -- Riptide
-	[Gladdy:SpellKey(51886)] = L["Restoration"], -- Cleanse Spirit
-	[Gladdy:SpellKey(19577)] = L["Beast Mastery"], -- Intimidation
-	[Gladdy:SpellKey(34490)] = L["Marksmanship"], -- Silencing Shot
-	[Gladdy:SpellKey(53209)] = L["Marksmanship"], -- Chimera Shot
-	[Gladdy:SpellKey(60053)] = L["Survival"], -- Explosive Shot
-	[Gladdy:SpellKey(49012)] = L["Survival"], -- Wyvern Sting
-	[Gladdy:SpellKey(53201)] = L["Balance"], -- Starfall
-	[Gladdy:SpellKey(61384)] = L["Balance"], -- Typhoon
-	[Gladdy:SpellKey(24858)] = L["Balance"], -- Moonkin Form
-	[Gladdy:SpellKey(48566)] = L["Feral"], -- Mangle (Cat)
-	[Gladdy:SpellKey(48564)] = L["Feral"], -- Mangle (Bear)
-	[Gladdy:SpellKey(50334, " Feral")] = L["Feral"], -- Berserk
-	[Gladdy:SpellKey(18562)] = L["Restoration"], -- Swiftmend
-	[Gladdy:SpellKey(17116)] = L["Restoration"], -- Nature's Swiftness
-	[Gladdy:SpellKey(33891)] = L["Restoration"], -- Tree of Life
-	[Gladdy:SpellKey(53251)] = L["Restoration"], -- Wild Growth
+	[Gladdy:SpellKey(47486)] = "Arms", -- Mortal Strike
+	[Gladdy:SpellKey(46924)] = "Arms", -- Bladestorm
+	[Gladdy:SpellKey(23881)] = "Fury", -- Bloodthirst
+	[Gladdy:SpellKey(12809)] = "Protection", -- Concussion Blow
+	[Gladdy:SpellKey(47498)] = "Protection", -- Devastate
+	[Gladdy:SpellKey(46968)] = "Protection", -- Shockwave
+	[Gladdy:SpellKey(50720)] = "Protection", -- Vigilance
+	[Gladdy:SpellKey(48827)] = "Protection", -- Avenger's Shield
+	[Gladdy:SpellKey(48825)] = "Holy", -- Holy Shock
+	[Gladdy:SpellKey(53563)] = "Holy", -- Beacon of Light
+	[Gladdy:SpellKey(35395)] = "Retribution", -- Crusader Strike
+	[Gladdy:SpellKey(66006)] = "Retribution", -- Divine Storm
+	[Gladdy:SpellKey(20066)] = "Retribution", -- Repentance
+	[Gladdy:SpellKey(48666)] = "Assassination", -- Mutilate
+	[Gladdy:SpellKey(14177)] = "Assassination", -- Cold Blood
+	[Gladdy:SpellKey(51690)] = "Combat", -- Killing Spree
+	[Gladdy:SpellKey(13877)] = "Combat", -- Blade Flurry
+	[Gladdy:SpellKey(13750)] = "Combat", -- Adrenaline Rush
+	[Gladdy:SpellKey(36554)] = "Subtlety", -- Shadowstep
+	[Gladdy:SpellKey(48660)] = "Subtlety", -- Hemorrhage
+	[Gladdy:SpellKey(51713)] = "Subtlety", -- Shadow Dance
+	[Gladdy:SpellKey(53007)] = "Discipline", -- Penance
+	[Gladdy:SpellKey(10060)] = "Discipline", -- Power Infusion
+	[Gladdy:SpellKey(33206)] = "Discipline", -- Pain Suppression
+	[Gladdy:SpellKey(34861)] = "Holy", -- Circle of Healing
+	[Gladdy:SpellKey(15487)] = "Shadow", -- Silence
+	[Gladdy:SpellKey(48160)] = "Shadow", -- Vampiric Touch
+	[Gladdy:SpellKey(55262)] = "Blood", -- Heart Strike
+	[Gladdy:SpellKey(49203)] = "Frost", -- Hungering Cold
+	[Gladdy:SpellKey(55268)] = "Frost", -- Frost Strike
+	[Gladdy:SpellKey(51411)] = "Frost", -- Howling Blast
+	[Gladdy:SpellKey(55271)] = "Unholy", -- Scourge Strike
+	[Gladdy:SpellKey(44781)] = "Arcane", -- Arcane Barrage
+	[Gladdy:SpellKey(55360)] = "Fire", -- Living Bomb
+	[Gladdy:SpellKey(42950)] = "Fire", -- Dragon's Breath
+	[Gladdy:SpellKey(42945)] = "Fire", -- Blast Wave
+	[Gladdy:SpellKey(44572)] = "Frost", -- Deep Freeze
+	[Gladdy:SpellKey(59164)] = "Affliction", -- Haunt
+	[Gladdy:SpellKey(47843)] = "Affliction", -- Unstable Affliction
+	[Gladdy:SpellKey(59672)] = "Demonology", -- Metamorphosis
+	[Gladdy:SpellKey(47193)] = "Demonology", -- Demonic Empowerment
+	[Gladdy:SpellKey(47996, " Felguard")] = "Demonology", -- Intercept Felguard
+	[Gladdy:SpellKey(59172)] = "Destruction", -- Chaos Bolt
+	[Gladdy:SpellKey(47847)] = "Destruction", -- Shadowfury
+	[Gladdy:SpellKey(59159)] = "Elemental", -- Thunderstorm
+	[Gladdy:SpellKey(16166)] = "Elemental", -- Elemental Mastery
+	[Gladdy:SpellKey(51533)] = "Enhancement", -- Feral Spirit
+	[Gladdy:SpellKey(30823)] = "Enhancement", -- Shamanistic Rage
+	[Gladdy:SpellKey(17364)] = "Enhancement", -- Stormstrike
+	[Gladdy:SpellKey(61301)] = "Restoration", -- Riptide
+	[Gladdy:SpellKey(51886)] = "Restoration", -- Cleanse Spirit
+	[Gladdy:SpellKey(19577)] = "Beast Mastery", -- Intimidation
+	[Gladdy:SpellKey(34490)] = "Marksmanship", -- Silencing Shot
+	[Gladdy:SpellKey(53209)] = "Marksmanship", -- Chimera Shot
+	[Gladdy:SpellKey(60053)] = "Survival", -- Explosive Shot
+	[Gladdy:SpellKey(49012)] = "Survival", -- Wyvern Sting
+	[Gladdy:SpellKey(53201)] = "Balance", -- Starfall
+	[Gladdy:SpellKey(61384)] = "Balance", -- Typhoon
+	[Gladdy:SpellKey(24858)] = "Balance", -- Moonkin Form
+	[Gladdy:SpellKey(48566)] = "Feral", -- Mangle (Cat)
+	[Gladdy:SpellKey(48564)] = "Feral", -- Mangle (Bear)
+	[Gladdy:SpellKey(50334, " Feral")] = "Feral", -- Berserk
+	[Gladdy:SpellKey(18562)] = "Restoration", -- Swiftmend
+	[Gladdy:SpellKey(17116)] = "Restoration", -- Nature's Swiftness
+	[Gladdy:SpellKey(33891)] = "Restoration", -- Tree of Life
+	[Gladdy:SpellKey(53251)] = "Restoration", -- Wild Growth
 })
 function Gladdy:GetSpecSpells()
 	return specSpells
@@ -723,15 +723,15 @@ local cooldownList = {
 		[2139] = 24, -- Counterspell
 		[55342] = 180, -- Mirror Image
 		[12051] = 480, --Evocation
-		[45438] = { cd = 300, [L["Frost"]] = 240, }, -- Ice Block
-		[44572] = { cd = 30, spec = L["Frost"], }, -- Deep Freeze
-		[12472] = { cd = 180, spec = L["Frost"], }, -- Icy Veins
-		[31687] = { cd = 180, spec = L["Frost"], }, -- Summon Water Elemental
-		[12043] = { cd = 120, spec = L["Arcane"], }, -- Presence of Mind
-		[12042] = { cd = 180, spec = L["Arcane"], }, -- Arcane Power
-		[42950] = { cd = 20, spec = L["Fire"] }, -- Dragon's Breath
-		[11129] = { cd = 120, spec = L["Fire"] }, -- Combustion
-		[11958] = { cd = 480, spec = L["Frost"], -- Coldsnap
+		[45438] = { cd = 300, ["Frost"] = 240, }, -- Ice Block
+		[44572] = { cd = 30, spec = "Frost", }, -- Deep Freeze
+		[12472] = { cd = 180, spec = "Frost", }, -- Icy Veins
+		[31687] = { cd = 180, spec = "Frost", }, -- Summon Water Elemental
+		[12043] = { cd = 120, spec = "Arcane", }, -- Presence of Mind
+		[12042] = { cd = 180, spec = "Arcane", }, -- Arcane Power
+		[42950] = { cd = 20, spec = "Fire" }, -- Dragon's Breath
+		[11129] = { cd = 120, spec = "Fire" }, -- Combustion
+		[11958] = { cd = 480, spec = "Frost", -- Coldsnap
 					resetCD = {
 						[12472] = true,
 						[45438] = true,
@@ -743,17 +743,17 @@ local cooldownList = {
 	},
 
 	["PRIEST"] = {
-		[10890] = { cd = 27, [L["Shadow"]] = 23, }, -- Psychic Scream
-		[34433] = { cd = 300, [L["Shadow"]] = 180, }, -- Shadowfiend
-		[15487] = { cd = 45, spec = L["Shadow"], }, -- Silence
-		[64044] = { cd = 120, spec = L["Shadow"], }, -- Psychic Horror
+		[10890] = { cd = 27, ["Shadow"] = 23, }, -- Psychic Scream
+		[34433] = { cd = 300, ["Shadow"] = 180, }, -- Shadowfiend
+		[15487] = { cd = 45, spec = "Shadow", }, -- Silence
+		[64044] = { cd = 120, spec = "Shadow", }, -- Psychic Horror
 		[64843] = 480, -- Divine Hymn
 		[64901] = 360, -- Hymn of Hope
 		[32379] = 12, -- Shadow Word: Death
 		[6346] = 180, -- Fear Ward
-		[47585] = { cd = 75, spec = L["Shadow"], }, -- Dispersion (+ Glyph)
-		[10060] = { cd = 120, spec = L["Discipline"], }, -- Power Infusion
-		[33206] = { cd = 180, spec = L["Discipline"], }, -- Pain Suppression
+		[47585] = { cd = 75, spec = "Shadow", }, -- Dispersion (+ Glyph)
+		[10060] = { cd = 120, spec = "Discipline", }, -- Power Infusion
+		[33206] = { cd = 180, spec = "Discipline", }, -- Pain Suppression
 	},
 
 	["DEATHKNIGHT"] = {
@@ -765,12 +765,12 @@ local cooldownList = {
 		[47568] = 300, -- Empower Rune Weapon
 		[48743] = 120, -- Death Pact
 		[49039] = 120, -- Lichborne
-		[47481] = { cd = 60, spec = L["Unholy"], }, -- Pet Gnaw
-		[51052] = { cd = 120, spec = L["Unholy"], }, -- Anti-Magic Zone
-		[46584] = { cd = 180, notSpec = L["Unholy"], }, -- Raise Dead
-		[49206] = { cd = 180, spec = L["Unholy"], }, -- Summon Gargoyle
-		[49028] = { cd = 90, spec = L["Blood"], }, -- Dancing Rune Weapon
-		[49203] = { cd = 60, spec = L["Frost"], }, -- Hungering Cold
+		[47481] = { cd = 60, spec = "Unholy", }, -- Pet Gnaw
+		[51052] = { cd = 120, spec = "Unholy", }, -- Anti-Magic Zone
+		[46584] = { cd = 180, notSpec = "Unholy", }, -- Raise Dead
+		[49206] = { cd = 180, spec = "Unholy", }, -- Summon Gargoyle
+		[49028] = { cd = 90, spec = "Blood", }, -- Dancing Rune Weapon
+		[49203] = { cd = 60, spec = "Frost", }, -- Hungering Cold
 	},
 
 	["DRUID"] = {
@@ -778,24 +778,24 @@ local cooldownList = {
 		[29166] = 180, -- Innervate
 		[8983] = 60, -- Bash
 		[53312] = 60, -- Natures Grasp
-		[48505] = { cd = 90, spec = L["Balance"], }, -- Starfall
-		[50334] = { cd = 180, spec = L["Feral"], altName = Gladdy:SpellName(50334, " Feral") }, -- Berserk
-		[17116] = { cd = 120, spec = L["Restoration"], }, -- Natures Swiftness
-		[18562] = { cd = 15, spec = L["Restoration"], }, -- Swiftmend
-		[33831] = { cd = 180, spec = L["Balance"], }, -- Force of Nature
-		[61384] = { cd = 20, spec = L["Balance"], }, -- Typhoon
+		[48505] = { cd = 90, spec = "Balance", }, -- Starfall
+		[50334] = { cd = 180, spec = "Feral", altName = Gladdy:SpellName(50334, " Feral") }, -- Berserk
+		[17116] = { cd = 120, spec = "Restoration", }, -- Natures Swiftness
+		[18562] = { cd = 15, spec = "Restoration", }, -- Swiftmend
+		[33831] = { cd = 180, spec = "Balance", }, -- Force of Nature
+		[61384] = { cd = 20, spec = "Balance", }, -- Typhoon
 	},
 
 	["SHAMAN"] = {
 		[57994] = 6, -- Wind Shear
 		[51514] = 45, -- Hex
 		[8177] = 15, -- Grounding Totem
-		[30823] = { cd = 60, spec = L["Enhancement"], }, -- Shamanistic Rage
-		[16166] = { cd = 180, spec = L["Elemental"], }, -- Elemental Mastery
-		[59159] = { cd = 45, spec = L["Elemental"], }, -- Thunderstorm
-		[16188] = { cd = 120, spec = L["Restoration"], }, -- Natures Swiftness
-		[51533] = { cd = 180, spec = L["Enhancement"], }, -- Feral Spirit
-		[16190] = { cd = 300, spec = L["Restoration"], }, -- Mana Tide Totem
+		[30823] = { cd = 60, spec = "Enhancement", }, -- Shamanistic Rage
+		[16166] = { cd = 180, spec = "Elemental", }, -- Elemental Mastery
+		[59159] = { cd = 45, spec = "Elemental", }, -- Thunderstorm
+		[16188] = { cd = 120, spec = "Restoration", }, -- Natures Swiftness
+		[51533] = { cd = 180, spec = "Enhancement", }, -- Feral Spirit
+		[16190] = { cd = 300, spec = "Restoration", }, -- Mana Tide Totem
 	},
 
 	["PALADIN"] = {
@@ -804,7 +804,7 @@ local cooldownList = {
 		[54428] = 60, -- Divine Plea
 		[6940] = 120, -- Hand of Sacrifice
 		[64205] = 120, -- Divine Sacrifice
-		[10308] = { cd = 60, [L["Protection"]] = 40, [L["Retribution"]] = 40, }, -- Hammer of Justice
+		[10308] = { cd = 60, ["Protection"] = 40, ["Retribution"] = 40, }, -- Hammer of Justice
 		[642] = { cd = 300, -- Divine Shield
 				  sharedCD = {
 					  cd = 30,
@@ -816,13 +816,13 @@ local cooldownList = {
 						cd = 30,
 						[642] = true,
 					},
-					[L["Retribution"]] = 120,
+					["Retribution"] = 120,
 		},
-		[31821] = { cd = 120, spec = L["Holy"], }, -- Aura Mastery
-		[20066] = { cd = 60, spec = L["Retribution"], }, -- Repentance
-		[20216] = { cd = 120, spec = L["Holy"], }, -- Divine Favor
-		[31842] = { cd = 180, spec = L["Holy"], }, -- Divine Illumination
-		[31935] = { cd = 30, spec = L["Protection"], }, -- Avengers Shield
+		[31821] = { cd = 120, spec = "Holy", }, -- Aura Mastery
+		[20066] = { cd = 60, spec = "Retribution", }, -- Repentance
+		[20216] = { cd = 120, spec = "Holy", }, -- Divine Favor
+		[31842] = { cd = 180, spec = "Holy", }, -- Divine Illumination
+		[31935] = { cd = 30, spec = "Protection", }, -- Avengers Shield
 
 	},
 
@@ -834,13 +834,13 @@ local cooldownList = {
 		[19647] = { cd = 24, pet = true, }, -- Spell Lock
 		[27277] = { cd = 8, pet = true, },  -- Devour Magic
 		[61290] = 15,  -- Shadowflame
-		[47847] = { cd = 20, spec = L["Destruction"], }, -- Shadowfury
-		[17877] = { cd = 15, spec = L["Destruction"], }, -- Shadowburn
-		[17962] = { cd = 10, spec = L["Destruction"], }, -- Conflagrate
-		[59172] = { cd = 12, spec = L["Destruction"], }, -- Chaos Bolt
-		[47241] = { cd = 180, spec = L["Demonology"], }, -- Metamorphosis
-		[47996] = { cd = 30, spec = L["Demonology"], pet = true, altName = Gladdy:SpellName(47996, " Felguard") }, -- Intercept
-		[1122] = { cd = 600, spec = L["Demonology"], }, -- Inferno
+		[47847] = { cd = 20, spec = "Destruction", }, -- Shadowfury
+		[17877] = { cd = 15, spec = "Destruction", }, -- Shadowburn
+		[17962] = { cd = 10, spec = "Destruction", }, -- Conflagrate
+		[59172] = { cd = 12, spec = "Destruction", }, -- Chaos Bolt
+		[47241] = { cd = 180, spec = "Demonology", }, -- Metamorphosis
+		[47996] = { cd = 30, spec = "Demonology", pet = true, altName = Gladdy:SpellName(47996, " Felguard") }, -- Intercept
+		[1122] = { cd = 600, spec = "Demonology", }, -- Inferno
 	},
 
 	["WARRIOR"] = {
@@ -857,7 +857,7 @@ local cooldownList = {
 		[18499] = 30, -- Berserker Rage
 		[23920] = 10, -- Spell Reflection
 		[3411] = 30, -- Intervene
-		[20252] = { cd = 30, [L["Arms"]] = 20, }, -- Intercept
+		[20252] = { cd = 30, ["Arms"] = 20, }, -- Intercept
 		[676] = 60, -- Disarm
 		[5246] = 120, -- Intimidating Shout
 		[2565] = 60, -- Shield Block
@@ -866,11 +866,11 @@ local cooldownList = {
 		[1719] = 300, -- Recklessness
 		[871] = 300, -- Shield Wall
 		[64382] = 300, -- Shattering Throw
-		[12292] = { cd = 180, spec = L["Fury"], }, -- Death Wish
-		[46924] = { cd = 90, spec = L["Arms"], }, -- Bladestorm
-		[46968] = { cd = 20, spec = L["Protection"], }, -- Shockwave
-		[12975] = { cd = 180, spec = L["Protection"], }, -- Last Stand
-		[12809] = { cd = 30, spec = L["Protection"], }, -- Concussion Blow
+		[12292] = { cd = 180, spec = "Fury", }, -- Death Wish
+		[46924] = { cd = 90, spec = "Arms", }, -- Bladestorm
+		[46968] = { cd = 20, spec = "Protection", }, -- Shockwave
+		[12975] = { cd = 180, spec = "Protection", }, -- Last Stand
+		[12809] = { cd = 30, spec = "Protection", }, -- Concussion Blow
 
 	},
 
@@ -900,8 +900,8 @@ local cooldownList = {
 					},
 		},
 		[34600] = { cd = 28, }, -- Snake Trap
-		[34490] = { cd = 20, spec = L["Marksmanship"], }, -- Silencing Shot
-		[19386] = { cd = 60, spec = L["Survival"], }, -- Wyvern Sting
+		[34490] = { cd = 20, spec = "Marksmanship", }, -- Silencing Shot
+		[19386] = { cd = 60, spec = "Survival", }, -- Wyvern Sting
 		[53271] = { cd = 60, pet = true, }, -- Masters Call
 		[19577] = { cd = 60, pet = true, }, -- Intimidation
 		[19574] = { cd = 120, pet = true, }, -- Bestial Wrath
@@ -931,13 +931,13 @@ local cooldownList = {
 		[2094] = 180, -- Blind
 		[51722] = 60, -- Dismantle
 		[11305] = 180, -- Sprint
-		[14177] = { cd = 180, spec = L["Assassination"], }, -- Cold Blood
-		[51713] = { cd = 60, spec = L["Subtlety"], }, -- Shadow Dance
-		[13750] = { cd = 180, spec = L["Combat"], }, -- Adrenaline Rush
-		[13877] = { cd = 120, spec = L["Combat"], }, -- Blade Flurry
-		[51690] = { cd = 120, spec = L["Combat"], }, -- Killing Spree
-		[36554] = { cd = 30, spec = L["Subtlety"], }, -- Shadowstep
-		[14185] = { cd = 480, spec = L["Subtlety"], -- Preparation
+		[14177] = { cd = 180, spec = "Assassination", }, -- Cold Blood
+		[51713] = { cd = 60, spec = "Subtlety", }, -- Shadow Dance
+		[13750] = { cd = 180, spec = "Combat", }, -- Adrenaline Rush
+		[13877] = { cd = 120, spec = "Combat", }, -- Blade Flurry
+		[51690] = { cd = 120, spec = "Combat", }, -- Killing Spree
+		[36554] = { cd = 30, spec = "Subtlety", }, -- Shadowstep
+		[14185] = { cd = 480, spec = "Subtlety", -- Preparation
 					resetCD = {
 						[26669] = true,
 						[11305] = true,

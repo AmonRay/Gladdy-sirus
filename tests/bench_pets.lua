@@ -8,7 +8,9 @@ SetPortraitTexture=noop
 local G={L={},db={petEnabled=true,petHealthPercentage=true},guids={}}
 G.NewModule=function() return {} end
 G.SetColor=function() return 1,1,1,1 end
-LibStub=function() return G end
+LibStub=setmetatable({NewLibrary=function() return G end},{__call=function(_,name) return name=="Gladdy" and G or {Embed=noop} end})
+CreateFrame=function() return {RegisterEvent=noop,SetScript=noop} end
+dofile("Gladdy/Gladdy.lua")
 local Pets
 G.NewModule=function() Pets={}; return Pets end
 dofile(arg and arg[1] or 'Gladdy/Modules/Pets.lua')

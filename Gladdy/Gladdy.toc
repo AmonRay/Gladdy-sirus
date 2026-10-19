@@ -2,10 +2,10 @@
 ## Title: Gladdy - Sirus
 ## Version: 2.44
 ## Notes: The most powerful arena AddOn for WoW 3.3.5
-## Author: XiconQoo, DnB_Junkee, Knall, Tsoukie, Qb, x3k
+## Author: XiconQoo, DnB_Junkee, Knall, Tsoukie, Qb, x3k, Рэйнбоу
 ## SavedVariables: GladdyXZ
 ## OptionalDeps: SharedMedia, Blizzard_CombatLog, Blizzard_ArenaUI, Blizzard_CombatText
-## X-Sirus-Update: https://github.com/AmonRay/Gladdy-sirus/tree/master/Gladdy
+## X-Sirus-Update: https://github.com/AmonRay/Gladdy-sirus/tree/main/Gladdy
 
 embeds.xml
 
@@ -18,7 +18,7 @@ Constants_shared.lua
 Constants_Wrath.lua
 ImportStrings.lua
 
-#Modules\Announcements.lua
+Modules\Announcements.lua
 Modules\Healthbar.lua
 Modules\Powerbar.lua
 Modules\Auras.lua

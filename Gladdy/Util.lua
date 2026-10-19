@@ -40,9 +40,10 @@ local function getTagText(unit, tag, current, max, status)
     end
 
     if str_find(tag, "percent") then
-        return current and max and floor(current * 100 / max) .. "%%" or ""
+        local ratio = Gladdy:ValueRatio(current, max)
+        return ratio and floor(ratio * 100) .. "%%" or ""
     elseif str_find(tag, "current") then
-        return current and max > 999 and ("%.1fk"):format(current / 1000) or current or ""
+        return current and max and max > 999 and ("%.1fk"):format(current / 1000) or current or ""
     elseif str_find(tag, "max") then
         return max and max > 999 and ("%.1fk"):format(max / 1000) or max or ""
     elseif str_find(tag, "status") then
@@ -64,7 +65,7 @@ local function getTagText(unit, tag, current, max, status)
         if str_find(tag, "%|") and button.spec == nil then
             return nil
         else
-            return button.spec or ""
+            return Gladdy:GetSpecName(button.spec, button.class)
         end
     end
 end
@@ -334,11 +335,15 @@ function Gladdy:CreateIconFrame(parent, name, config)
         frame.texture.overlay:Show()
     end
 
-    frame:SetScript("OnUpdate", function(self, elapsed)
-        if not self.active or not self.timeLeft then return end
-        self.timeLeft = self.timeLeft - elapsed
+    local timerFontPath = self:SMFetch("font", config.fontOption)
+    frame:SetScript("OnUpdate", function(self)
+        if not self.active then return end
+        if type(self.endTime) ~= "number" then
+            if type(self.timeLeft) ~= "number" then return end
+            self.endTime = GetTime() + self.timeLeft
+        end
+        self.timeLeft = Gladdy:CooldownRemaining(self)
         if self.timeLeft <= 0 then
-            self.active = false
             self:StopCooldown()
             if config.hasBackdrop then
                 Gladdy:SendMessage("TRINKET_READY", self.unit)
@@ -350,34 +355,13 @@ function Gladdy:CreateIconFrame(parent, name, config)
             end
             return
         end
-
         if not self.cooldownFont or not config.fontEnabled then return end
-
-        local timeLeft = self.timeLeft
-        local width = self:GetWidth()
-
-        if timeLeft > 60 then
-            self.cooldownFont:SetTextColor(1, 1, 0, config.fontAlpha)
-            self.cooldownFont:SetFont(Gladdy:SMFetch("font", config.fontOption),
-                (width/2 - 0.15*width) * (config.fontScale), "OUTLINE")
-        elseif timeLeft >= 30 then
-            self.cooldownFont:SetTextColor(1, 1, 0, config.fontAlpha)
-            self.cooldownFont:SetFont(Gladdy:SMFetch("font", config.fontOption),
-                (width/2 - 1) * (config.fontScale), "OUTLINE")
-        elseif timeLeft >= 11 then
-            self.cooldownFont:SetTextColor(1, 0.7, 0, config.fontAlpha)
-            self.cooldownFont:SetFont(Gladdy:SMFetch("font", config.fontOption),
-                (width/2 - 1) * (config.fontScale), "OUTLINE")
-        elseif timeLeft >= 5 then
-            self.cooldownFont:SetTextColor(1, 0.7, 0, config.fontAlpha)
-            self.cooldownFont:SetFont(Gladdy:SMFetch("font", config.fontOption),
-                (width/2 - 1) * (config.fontScale), "OUTLINE")
-        else
-            self.cooldownFont:SetTextColor(1, 0, 0, config.fontAlpha)
-            self.cooldownFont:SetFont(Gladdy:SMFetch("font", config.fontOption),
-                (width/2 - 1) * (config.fontScale), "OUTLINE")
-        end
-
+        local timeLeft, width = self.timeLeft, self:GetWidth()
+        local size = (timeLeft > 60 and (width/2 - 0.15*width) or (width/2 - 1)) * config.fontScale
+        local r, g, b = 1, 1, 0
+        if timeLeft < 5 then r, g, b = 1, 0, 0
+        elseif timeLeft < 30 then r, g, b = 1, 0.7, 0 end
+        Gladdy:SetTimerStyle(self.cooldownFont, timerFontPath, size, r, g, b, config.fontAlpha)
         Gladdy:FormatTimer(self.cooldownFont, timeLeft, timeLeft < 10, true)
     end)
 
@@ -417,10 +401,15 @@ function Gladdy:CreateIconFrame(parent, name, config)
 
         self:UpdateBorder(newConfig.borderStyle, newConfig.borderColor)
 
+        timerFontPath = Gladdy:SMFetch("font", newConfig.fontOption)
+        self.cooldownFont.timerFont = nil
         config = newConfig
     end
 
     function frame:StopCooldown()
+        self.active = false
+        self.endTime = nil
+        self.timeLeft = nil
         if self.cooldown then
             self.cooldown:SetCooldown(0, 0)
             self.cooldown:Hide()

@@ -97,6 +97,7 @@ end
 
 function Pets:RefreshHealth(bar, force)
     local health, maximum = UnitHealth(bar.unit), UnitHealthMax(bar.unit)
+    if not Gladdy:ValueRatio(health, maximum) then return end
     if force or bar.lastHealth ~= health or bar.lastMaximum ~= maximum then
         bar.hp:SetMinMaxValues(0, maximum)
         bar.hp:SetValue(health)
@@ -361,16 +362,8 @@ end
 
 function Pets:SetHealthText(healthBar, health, healthMax)
 
-    local healthText = ""
-    if healthMax ~= 0 then
-        local healthPercentage = floor(health * 100 / healthMax)
-
-        if (Gladdy.db.petHealthPercentage) then
-            healthText = ("%d%%"):format(healthPercentage)
-        end
-    else
-        healthText = ""
-    end
+    local ratio = Gladdy:ValueRatio(health, healthMax)
+    local healthText = ratio and Gladdy.db.petHealthPercentage and ("%d%%"):format(floor(ratio * 100)) or ""
 
     healthBar.healthText:SetText(healthText)
 end

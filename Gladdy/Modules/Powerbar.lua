@@ -194,32 +194,33 @@ function Powerbar:SetText(unit, power, powerMax, status)
         powerBar.raceText:SetText(Gladdy:SetTag(unit, Gladdy.db.powerTextLeft, power, powerMax, status))
     else
         if power then
-            local powerPercentage = floor(power * 100 / powerMax)
+            local ratio = Gladdy:ValueRatio(power, powerMax)
+            local powerPercentage = ratio and floor(ratio * 100)
             local powerText
             if (Gladdy.db.powerActual) then
-                powerText = powerMax > 999 and ("%.1fk"):format(power / 1000) or power
+                powerText = powerMax and powerMax > 999 and ("%.1fk"):format(power / 1000) or power
             end
             if (Gladdy.db.powerMax) then
-                local text = powerMax > 999 and ("%.1fk"):format(powerMax / 1000) or powerMax
+                local text = powerMax and powerMax > 999 and ("%.1fk"):format(powerMax / 1000) or powerMax or ""
                 if (powerText) then
                     powerText = ("%s/%s"):format(powerText, text)
                 else
                     powerText = text
                 end
             end
-            if (Gladdy.db.powerPercentage) then
+            if (Gladdy.db.powerPercentage and powerPercentage) then
                 if (powerText) then
                     powerText = ("%s (%d%%)"):format(powerText, powerPercentage)
                 else
                     powerText = ("%d%%"):format(powerPercentage)
                 end
             end
-            powerBar.powerText:SetText(powerText)
+            powerBar.powerText:SetText(powerText or "")
         end
 
         local raceText = Gladdy.db.powerShowRace and button.raceLoc or ""
         if (button.spec and Gladdy.db.powerShowSpec) then
-            raceText = button.spec .. " " .. raceText
+            raceText = Gladdy:GetSpecName(button.spec, button.class) .. " " .. (raceText or "")
         end
         powerBar.raceText:SetText(raceText)
     end
@@ -227,6 +228,7 @@ end
 
 function Powerbar:SetPower(powerBar, unit, power, powerMax, powerType, status)
     Powerbar:SetText(unit, power, powerMax, status)
+    if not Gladdy:ValueRatio(power, powerMax) then return end
     powerBar.energy.current = power
     powerBar.energy.max = powerMax
     powerBar.energy.powerType = powerType

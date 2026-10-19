@@ -31,6 +31,7 @@ Gladdy.BUTTON_DEFAULTS = {
     damaged = 0,
     click = false,
     stealthed = false,
+    opponentKnown = false,
     classColors = {},
     lastState = 0,
     auras = {},

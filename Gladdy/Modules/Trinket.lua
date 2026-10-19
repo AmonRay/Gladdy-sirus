@@ -59,6 +59,7 @@ function Trinket:ResetUnit(unit)
 
 	trinket.itemID = nil
 	trinket.timeLeft = nil
+    trinket.endTime = nil
 	trinket.active = false
 	trinket:StopCooldown()
 end
@@ -205,7 +206,7 @@ function Trinket:RACIAL_USED(unit)
 	end
 
     local sharedCD = button.constellation.sharedTrinketCD
-    if sharedCD and (not trinket.active or (trinket.timeLeft or 0) < sharedCD) then
+    if sharedCD and (not trinket.active or Gladdy:CooldownRemaining(trinket) < sharedCD) then
         self:Used(unit, GetTime() * 1000, sharedCD * 1000)
     end
 end
@@ -214,7 +215,8 @@ function Trinket:Used(unit, startTime, duration)
 	local trinket = self.frames[unit]
 	if (not trinket) then return end
 
-	trinket.timeLeft = (startTime/1000.0 + duration/1000.0) - GetTime()
+    trinket.endTime = (startTime + duration) / 1000.0
+    trinket.timeLeft = Gladdy:CooldownRemaining(trinket)
 
 	if not Gladdy.db.trinketDisableCircle then
 		trinket.cooldown:SetCooldown(startTime/1000.0, duration/1000.0)

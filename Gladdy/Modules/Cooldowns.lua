@@ -230,39 +230,7 @@ function Cooldowns:UpdateFrame(unit)
 			0, 0, "cooldown")
 	end
 
-	for spellId, icon in pairs(cooldownFrame.icons) do
-		icon:SetWidth(Gladdy.db.cooldownSize)
-		icon:SetHeight(Gladdy.db.cooldownSize)
-
-		icon:SetFrameStrata(Gladdy.db.cooldownFrameStrata)
-		icon:SetFrameLevel(Gladdy.db.cooldownFrameLevel)
-		icon.cooldown:SetFrameStrata(Gladdy.db.cooldownFrameStrata)
-		icon.cooldown:SetFrameLevel(Gladdy.db.cooldownFrameLevel + 1)
-		icon.cooldownFrame:SetFrameStrata(Gladdy.db.cooldownFrameStrata)
-		icon.cooldownFrame:SetFrameLevel(Gladdy.db.cooldownFrameLevel + 2)
-
-		if Gladdy.db.cooldownIconZoomed then
-			icon.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-		else
-			icon.texture:SetTexCoord(0, 1, 0, 1)
-		end
-
-		if Gladdy.db.cooldownDisableCircle then
-			icon.cooldown:SetAlpha(0)
-		else
-			icon.cooldown:SetAlpha(Gladdy.db.cooldownCooldownAlpha)
-		end
-
-		icon.cooldownFont:SetFont(Gladdy:SMFetch("font", "cooldownFont"), (Gladdy.db.cooldownSize/2 - 1) * Gladdy.db.cooldownFontScale, "OUTLINE")
-		icon.cooldownFont:SetTextColor(Gladdy:SetColor(Gladdy.db.cooldownFontColor))
-
-		if Gladdy.db.cooldownBorderStyle ~= "None" then
-			icon.border:SetTexture(Gladdy.db.cooldownBorderStyle)
-			icon.border:SetVertexColor(Gladdy:SetColor(Gladdy.db.cooldownBorderColor))
-		else
-			icon.border:SetTexture("")
-		end
-	end
+    for _, icon in pairs(cooldownFrame.icons) do self:UpdateIcon(icon) end
 end
 
 function Cooldowns:CreateIcon()
@@ -300,6 +268,8 @@ function Cooldowns:CreateIcon()
 end
 
 function Cooldowns:UpdateIcon(icon)
+    icon.timerFontPath = Gladdy:SMFetch("font", "cooldownFont")
+    icon.cooldownFont.timerFont = nil
 	icon:SetFrameStrata(Gladdy.db.cooldownFrameStrata)
 	icon:SetFrameLevel(Gladdy.db.cooldownFrameLevel)
 	icon.cooldown:SetFrameStrata(Gladdy.db.cooldownFrameStrata)
@@ -385,6 +355,8 @@ function Cooldowns:ClearIcon(button, index, spellId, icon)
 	icon:SetParent(nil)
 	icon:Hide()
 	icon.spellId = nil
+    icon.endTime = nil
+    icon.ownerButton = nil
 	icon.active = false
 	icon.cooldown:Hide()
 	icon.cooldownFont:SetText("")
@@ -434,6 +406,7 @@ function Cooldowns:IconsSetPoint(button)
 end
 
 local function resetIcon(icon)
+    icon.endTime = nil
 	if Gladdy.db.cooldownIconDesaturateOnCooldown then
 		icon.texture:SetDesaturated(false)
 	end
@@ -479,6 +452,7 @@ function Cooldowns:AddCooldown(spellID, value, button)
 end
 
 function Cooldowns:UpdateCooldowns(button)
+    Gladdy:MigrateUnitSpec(button)
 	local class = button.class
 	local race = button.race
 	local spec = button.spec
@@ -512,11 +486,33 @@ function Cooldowns:UpdateCooldowns(button)
 	end
 end
 
+function Cooldowns.OnUpdate(icon)
+    icon.timeLeft = Gladdy:CooldownRemaining(icon)
+    if icon.timeLeft <= 0 then
+        Cooldowns:CooldownReady(icon.ownerButton, icon.spellId, icon)
+        return
+    end
+    local timeLeft = ceil(icon.timeLeft)
+    local size = Gladdy.db.cooldownSize / (timeLeft >= 540 and 3.1 or 2.15) * Gladdy.db.cooldownFontScale
+    local color = Gladdy.db.cooldownFontColor
+    local r, g, b = color.r, color.g, color.b
+    if Gladdy.db.cooldownFontDynamicColor then
+        if timeLeft >= 11 then r, g, b = 0.7, 1, 0
+        elseif timeLeft >= 5 then r, g, b = 1, 0.7, 0
+        else r, g, b = 1, 0, 0 end
+    end
+    Gladdy:SetTimerStyle(icon.cooldownFont, icon.timerFontPath, size, r, g, b, color.a)
+    Gladdy:FormatTimer(icon.cooldownFont, icon.timeLeft, icon.timeLeft < 0)
+end
+
 function Cooldowns:CooldownStart(button, spellId, duration, start)
 	if not duration or duration == nil or type(duration) ~= "number" then
 		return
 	end
-	local cooldown = Gladdy:GetCooldownList()[button.class][spellId]
+    Gladdy:MigrateUnitSpec(button)
+    local list = Gladdy:GetCooldownList()[button.class]
+    local cooldown = list and list[spellId]
+    if not cooldown then return end
 	if type(cooldown) == "table" then
 		if (button.spec ~= nil and cooldown[button.spec] ~= nil) then
 			cooldown = cooldown[button.spec]
@@ -526,11 +522,13 @@ function Cooldowns:CooldownStart(button, spellId, duration, start)
 	end
 	for _,icon in pairs(button.spellCooldownFrame.icons) do
 		if (icon.spellId == spellId) then
-			if not start and icon.active and icon.timeLeft > cooldown/2 then
+			if not start and icon.active and Gladdy:CooldownRemaining(icon) > (type(cooldown) == "number" and cooldown or duration)/2 then
 				return
 			end
 			icon.active = true
-			icon.timeLeft = start and start - GetTime() + duration or duration
+            icon.endTime = (start or GetTime()) + duration
+            icon.timeLeft = Gladdy:CooldownRemaining(icon)
+            icon.ownerButton = button
 			icon.cooldown:SetCooldown(start or GetTime(), duration)
 			if Gladdy.db.cooldownIconDesaturateOnCooldown then
 				icon.texture:SetDesaturated(true)
@@ -543,34 +541,8 @@ function Cooldowns:CooldownStart(button, spellId, duration, start)
 				playThrottledSound(Gladdy.db.cooldownSoundUsed)
 			end
 
-			icon:SetScript("OnUpdate", function(self, elapsed)
-				self.timeLeft = self.timeLeft - elapsed
-				local timeLeft = ceil(self.timeLeft)
-				if timeLeft >= 540 then
-					self.cooldownFont:SetFont(Gladdy:SMFetch("font", "cooldownFont"), Gladdy.db.cooldownSize / 3.1 * Gladdy.db.cooldownFontScale, "OUTLINE")
-				elseif timeLeft < 540 and timeLeft >= 60 then
-					self.cooldownFont:SetFont(Gladdy:SMFetch("font", "cooldownFont"), Gladdy.db.cooldownSize / 2.15 * Gladdy.db.cooldownFontScale, "OUTLINE")
-				elseif timeLeft < 60 and timeLeft > 0 then
-					self.cooldownFont:SetFont(Gladdy:SMFetch("font", "cooldownFont"), Gladdy.db.cooldownSize / 2.15 * Gladdy.db.cooldownFontScale, "OUTLINE")
-				end
-				if Gladdy.db.cooldownFontDynamicColor then
-					if timeLeft >= 60 then
-						self.cooldownFont:SetTextColor(0.7, 1, 0, Gladdy.db.cooldownFontColor.a)
-					elseif timeLeft < 60 and timeLeft >= 11 then
-						self.cooldownFont:SetTextColor(0.7, 1, 0, Gladdy.db.cooldownFontColor.a)
-					elseif timeLeft <= 10 and timeLeft >= 5 then
-						self.cooldownFont:SetTextColor(1, 0.7, 0, Gladdy.db.cooldownFontColor.a)
-					elseif timeLeft <= 4 and timeLeft >= 3 then
-						self.cooldownFont:SetTextColor(1, 0, 0, Gladdy.db.cooldownFontColor.a)
-					elseif timeLeft <= 3 and timeLeft > 0 then
-						self.cooldownFont:SetTextColor(1, 0, 0, Gladdy.db.cooldownFontColor.a)
-					end
-				end
-				Gladdy:FormatTimer(self.cooldownFont, self.timeLeft, self.timeLeft < 0)
-				if (self.timeLeft <= 0) then
-					Cooldowns:CooldownReady(button, spellId, icon)
-				end
-			end)
+            icon:SetScript("OnUpdate", Cooldowns.OnUpdate)
+            Cooldowns.OnUpdate(icon)
 			break
 		end
 	end
@@ -597,6 +569,7 @@ function Cooldowns:CooldownUsed(unit, unitClass, spellId, expirationTimeInSecond
 		return
 	end
 
+    Gladdy:MigrateUnitSpec(button)
 	local cooldown = Gladdy:GetCooldownList()[unitClass][spellId]
 	local cd = cooldown
 	if (type(cooldown) == "table") then
@@ -623,7 +596,7 @@ function Cooldowns:CooldownUsed(unit, unitClass, spellId, expirationTimeInSecond
 				if (spellID ~= "cd") then
 					local skip = false
 					for _,icon in pairs(button.spellCooldownFrame.icons) do
-						if (icon.spellId == spellID and icon.active and icon.timeLeft > sharedCD) then
+						if (icon.spellId == spellID and icon.active and Gladdy:CooldownRemaining(icon) > sharedCD) then
 							skip = true
 							break
 						end
@@ -1174,7 +1147,7 @@ function Cooldowns:GetCooldownOptions()
 				args = {
 					toggle = {
 						type = "toggle",
-						name = (GetSpellInfo(spellId) or tostring(spellId)) .. (type(cooldown) == "table" and cooldown.spec and (" - " .. cooldown.spec) or ""),
+						name = (GetSpellInfo(spellId) or tostring(spellId)) .. (type(cooldown) == "table" and cooldown.spec and (" - " .. Gladdy:GetSpecName(cooldown.spec, class)) or ""),
 						order = 1,
 						width = 1.1,
 						image = select(3, GetSpellInfo(spellId)),
@@ -1258,7 +1231,7 @@ function Cooldowns:GetCooldownOptions()
 				args = {
 					toggle = {
 						type = "toggle",
-						name = (GetSpellInfo(spellId) or tostring(spellId)) .. (type(cooldown) == "table" and cooldown.spec and (" - " .. cooldown.spec) or ""),
+						name = (GetSpellInfo(spellId) or tostring(spellId)) .. (type(cooldown) == "table" and cooldown.spec and (" - " .. Gladdy:GetSpecName(cooldown.spec, class)) or ""),
 						order = 1,
 						width = 1.1,
 						image = select(3, GetSpellInfo(spellId)),

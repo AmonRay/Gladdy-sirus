@@ -25,10 +25,10 @@ test('temporary missing keys are not exposed to consumers',function()
 end)
 test('available spell names and suffix keys remain unchanged',function()
     if mode=='available' then
-        assert(G:GetSpecBuffs().spell56638==G.L.Arms)
-        assert(G:GetSpecSpells()['spell50334 Feral']==G.L.Feral)
+        assert(G:GetSpecBuffs().spell56638=='Arms')
+        assert(G:GetSpecSpells()['spell50334 Feral']=='Feral')
     elseif mode=='mixed' then
-        assert(G:GetSpecSpells().spell47486==G.L.Arms and G:GetSpecSpells()['spell50334 Feral']==nil)
+        assert(G:GetSpecSpells().spell47486=='Arms' and G:GetSpecSpells()['spell50334 Feral']==nil)
     else
         assert(next(G:GetSpecBuffs())==nil and next(G:GetSpecSpells())==nil)
     end

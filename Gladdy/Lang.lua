@@ -12,7 +12,53 @@ local L = Gladdy.L
 local mt = {__index = function(self, key) return key end}
 setmetatable(L, mt)
 
+local classSpecs = {
+    WARRIOR = {"Arms", "Fury", "Protection"},
+    PALADIN = {"Holy", "Protection", "Retribution"},
+    HUNTER = {"Beast Mastery", "Marksmanship", "Survival"},
+    ROGUE = {"Assassination", "Combat", "Subtlety"},
+    PRIEST = {"Discipline", "Holy", "Shadow"},
+    DEATHKNIGHT = {"Blood", "Frost", "Unholy"},
+    SHAMAN = {"Elemental", "Enhancement", "Restoration"},
+    MAGE = {"Arcane", "Fire", "Frost"},
+    WARLOCK = {"Affliction", "Demonology", "Destruction"},
+    DRUID = {"Balance", "Feral", "Restoration"},
+}
+
+local function findSpec(value, specs)
+    for _, key in ipairs(specs) do
+        if value == key or value == enUS[key] or value == ruRU[key] then return key end
+    end
+end
+
+function Gladdy:NormalizeSpec(value, class)
+    if type(value) ~= "string" then return nil end
+    if class then return classSpecs[class] and findSpec(value, classSpecs[class]) or nil end
+    for _, specs in pairs(classSpecs) do
+        local key = findSpec(value, specs)
+        if key then return key end
+    end
+end
+
+function Gladdy:GetSpecName(value, class)
+    local key = self:NormalizeSpec(value, class)
+    return key and L[key] or ""
+end
+
+local specFields = {"spec", "testSpec"}
+function Gladdy:MigrateUnitSpec(button)
+    if not button then return end
+    for _, field in ipairs(specFields) do
+        if button[field] ~= nil then
+            local key = self:NormalizeSpec(button[field], button.class)
+            if key then button[field] = key end
+        end
+    end
+end
+
 function Gladdy:ApplyLanguage(lang)
+    for _, button in pairs(self.buttons or {}) do self:MigrateUnitSpec(button) end
+    for _, button in pairs(self.testData or {}) do self:MigrateUnitSpec(button) end
     for k in pairs(L) do
         L[k] = nil
     end
@@ -1215,5 +1261,8 @@ ruRU["Y Offset"] = "Смещение по Y"
 ruRU["Zoomed Icon"] = "Увеличенная иконка"
 ruRU["Zoom Icons"] = "Увеличить иконки"
 ruRU["Zooms the icon to remove borders"] = "Увеличивает иконку, убирая границы"
+
+enUS["ENEMY SPOTTED: %s (%s)"] = "ENEMY SPOTTED: %s (%s)"
+ruRU["ENEMY SPOTTED: %s (%s)"] = "ПРОТИВНИК ОБНАРУЖЕН: %s (%s)"
 
 Gladdy:ApplyLanguage(GetLocale())

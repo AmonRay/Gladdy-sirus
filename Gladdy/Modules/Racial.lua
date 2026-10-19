@@ -85,6 +85,7 @@ function Racial:ResetUnit(unit)
 
 	racial:SetIcon(nil)
 	racial.timeLeft = nil
+    racial.endTime = nil
 	racial.active = false
 	racial:StopCooldown()
 end
@@ -214,7 +215,7 @@ function Racial:TRINKET_USED(unit) -- Wrath only
 		return
 	end
     local sharedCD = button.constellation.sharedTrinketCD
-    if sharedCD and (not racial.active or (racial.timeLeft or 0) < sharedCD) then
+    if sharedCD and (not racial.active or Gladdy:CooldownRemaining(racial) < sharedCD) then
         self:Used(unit, GetTime(), sharedCD)
     end
 end
@@ -225,7 +226,8 @@ function Racial:Used(unit, startTime, duration)
 
     local remaining = startTime + duration - GetTime()
     if remaining <= 0 then return end
-    if racial.active and (racial.timeLeft or 0) >= remaining then return end
+    if racial.active and Gladdy:CooldownRemaining(racial) >= remaining then return end
+    racial.endTime = startTime + duration
     racial.timeLeft = remaining
     if not Gladdy.db.racialDisableCircle then
         racial.cooldown:SetCooldown(startTime, duration)

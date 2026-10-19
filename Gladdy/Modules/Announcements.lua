@@ -21,8 +21,6 @@ local function IsInRaid()
     return GetNumRaidMembers() > 0
 end
 
-local LE_PARTY_CATEGORY_HOME = 1
-local LE_PARTY_CATEGORY_INSTANCE = 2
 
 local Gladdy = LibStub("Gladdy")
 local L = Gladdy.L
@@ -33,6 +31,7 @@ local Announcements = Gladdy:NewModule("Announcements", 101, {
         enemy = false,
         spec = true,
         health = false,
+        shadowsight = false,
         healthThreshold = 20,
         trinketUsed = true,
         trinketReady = false,
@@ -50,6 +49,7 @@ function Announcements:Initialize()
         [Gladdy:SpellKey(20770)] = true,
         [Gladdy:SpellKey(20773)] = true,
         [Gladdy:SpellKey(20777)] = true,
+        [Gladdy:SpellKey(50769)] = true,
     })
 
     self:RegisterMessage("JOINED_ARENA")
@@ -90,7 +90,7 @@ function Announcements:CAST_START(unit, spellName)
     end
 
     if (self.RES_SPELLS[spellName]) then
-        self:Send(L["RESURRECTING: %s (%s)"]:format(button.name, button.classLoc), 3, RAID_CLASS_COLORS[button.class], unit)
+        self:Send(L["RESURRECTING: %s (%s)"]:format(button.name or unit, button.classLoc or button.class or ""), 3, RAID_CLASS_COLORS[button.class], unit)
     end
 end
 
@@ -101,10 +101,10 @@ function Announcements:ENEMY_SPOTTED(unit)
     end
 
     if (not self.enemy[unit]) then
-        if button.name == "Unknown" then
-            button.name = UnitName(unit)
+        if not button.name or button.name == "Unknown" then
+            button.name = UnitName(unit) or button.name
         end
-        self:Send("ENEMY SPOTTED:" .. ("%s (%s)"):format(button.name, button.classLoc), 0, RAID_CLASS_COLORS[button.class], unit)
+        self:Send(L["ENEMY SPOTTED: %s (%s)"]:format(button.name or unit, button.classLoc or button.class or ""), 0, RAID_CLASS_COLORS[button.class], unit)
         self.enemy[unit] = true
     end
 end
@@ -114,10 +114,10 @@ function Announcements:UNIT_SPEC(unit, spec)
     if (not button or not Gladdy.db.announcements.spec) then
         return
     end
-    if button.name == "Unknown" then
-        button.name = UnitName(unit)
+    if not button.name or button.name == "Unknown" then
+        button.name = UnitName(unit) or button.name
     end
-    self:Send(L["SPEC DETECTED: %s - %s (%s)"]:format(button.name, spec, button.classLoc), 1, RAID_CLASS_COLORS[button.class], unit)
+    self:Send(L["SPEC DETECTED: %s - %s (%s)"]:format(button.name or unit, Gladdy:GetSpecName(spec, button.class), button.classLoc or button.class or ""), 1, RAID_CLASS_COLORS[button.class], unit)
 end
 
 function Announcements:UNIT_HEALTH(unit, health)
@@ -126,9 +126,11 @@ function Announcements:UNIT_HEALTH(unit, health)
         return
     end
 
-    local healthPercent = floor(health * 100 / button.healthMax)
+    local ratio = Gladdy:ValueRatio(health, button.healthMax)
+    if not ratio or ratio == 0 then return end
+    local healthPercent = floor(ratio * 100)
     if (healthPercent < Gladdy.db.announcements.healthThreshold) then
-        self:Send(L["LOW HEALTH: %s (%s)"]:format(button.name, button.classLoc), 10, RAID_CLASS_COLORS[button.class], unit)
+        self:Send(L["LOW HEALTH: %s (%s)"]:format(button.name or unit, button.classLoc or button.class or ""), 10, RAID_CLASS_COLORS[button.class], unit)
     end
 end
 
@@ -138,7 +140,7 @@ function Announcements:TRINKET_USED(unit)
         return
     end
 
-    self:Send(L["TRINKET USED: %s (%s)"]:format(button.name, button.classLoc), 1, RAID_CLASS_COLORS[button.class], unit)
+    self:Send(L["TRINKET USED: %s (%s)"]:format(button.name or unit, button.classLoc or button.class or ""), 1, RAID_CLASS_COLORS[button.class], unit)
 end
 
 function Announcements:TRINKET_READY(unit)
@@ -147,7 +149,7 @@ function Announcements:TRINKET_READY(unit)
         return
     end
 
-    self:Send(L["TRINKET READY: %s (%s)"]:format(button.name, button.classLoc), 1, RAID_CLASS_COLORS[button.class], unit)
+    self:Send(L["TRINKET READY: %s (%s)"]:format(button.name or unit, button.classLoc or button.class or ""), 1, RAID_CLASS_COLORS[button.class], unit)
 end
 
 function Announcements:SPELL_INTERRUPT(unit, spellID, spellName, spellSchool, extraSpellId, extraSpellName, extraSpellSchool)
@@ -155,7 +157,7 @@ function Announcements:SPELL_INTERRUPT(unit, spellID, spellName, spellSchool, ex
     if (not button or not Gladdy.db.announcements.spellInterrupt) then
         return
     end
-    self:Send(L["INTERRUPTED: %s (%s)"]:format(extraSpellName, button.name or ""), nil, RAID_CLASS_COLORS[button.class], unit)
+    self:Send(L["INTERRUPTED: %s (%s)"]:format(extraSpellName or tostring(extraSpellId or ""), button.name or unit), nil, RAID_CLASS_COLORS[button.class], unit)
 end
 
 function Announcements:AURA_GAIN(unit, auraType, spellID, spellName, texture, duration, expirationTime, count, dispelType, index, unitCaster)
@@ -164,8 +166,8 @@ function Announcements:AURA_GAIN(unit, auraType, spellID, spellName, texture, du
         return
     end
 
-    if (spellName == self.DRINK_AURA) then
-        self:Send(L["DRINKING: %s (%s)"]:format(button.name, button.classLoc), 3, RAID_CLASS_COLORS[button.class], unit)
+    if self.DRINK_AURA and spellName == self.DRINK_AURA then
+        self:Send(L["DRINKING: %s (%s)"]:format(button.name or unit, button.classLoc or button.class or ""), 3, RAID_CLASS_COLORS[button.class], unit)
     end
 end
 
@@ -182,7 +184,7 @@ function Announcements:Send(msg, throttle, color, unit)
         if (not self.throttled[throttledMsg]) then
             self.throttled[throttledMsg] = GetTime() + throttle
             Gladdy:Debug("INFO", throttledMsg, "- NOT THROTTLED -", self.throttled[throttledMsg])
-        elseif (self.throttled[throttledMsg] < GetTime()) then
+        elseif (self.throttled[throttledMsg] <= GetTime()) then
             Gladdy:Debug("INFO", throttledMsg, "- THROTTLED OVER -", self.throttled[throttledMsg])
             self.throttled[throttledMsg] = GetTime() + throttle
         else
@@ -192,6 +194,7 @@ function Announcements:Send(msg, throttle, color, unit)
     end
 
     local dest = Gladdy.db.announcements.dest
+    if dest == "party" and Gladdy.frame and Gladdy.frame.testing then dest = "self" end
     color = color or { r = 0, g = 1, b = 0 }
 
     if (dest == "self") then
@@ -206,7 +209,7 @@ function Announcements:Send(msg, throttle, color, unit)
         RaidNotice_AddMessage(RaidBossEmoteFrame, msg, color)
     elseif (dest == "fct" and IsAddOnLoaded("Blizzard_CombatText")) then
         CombatText_AddMessage(msg, nil, color.r, color.g, color.b, "crit", 1)
-    elseif (dest == "msbt" and IsAddOnLoaded("MikScrollingBattleText")) then
+    elseif (dest == "msbt" and IsAddOnLoaded("MikScrollingBattleText") and MikSBT and MikSBT.Animations and MikSBT.Animations.DisplayMessage) then
         MikSBT.Animations.DisplayMessage(msg, MikSBT.DISPLAYTYPE_NOTIFICATION, true, color.r * 255, color.g * 255, color.b * 255)
     end
 end

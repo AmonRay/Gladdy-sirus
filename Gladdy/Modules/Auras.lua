@@ -481,7 +481,7 @@ function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,e
 	if (interruptFrame.priority and interruptFrame.priority > Gladdy.db.auraListInterrupts[interruptSpellId].priority) then
 		return
 	end
-	local multiplier = ((button.spec == L["Restoration"] and button.class == "SHAMAN") or (button.spec == L["Holy"] and button.class == "PALADIN")) and 0.7 or 1
+	local multiplier = ((Gladdy:NormalizeSpec(button.spec, button.class) == "Restoration" and button.class == "SHAMAN") or (Gladdy:NormalizeSpec(button.spec, button.class) == "Holy" and button.class == "PALADIN")) and 0.7 or 1
 
 	local duration = Gladdy:GetInterrupts()[spellName].duration * multiplier
 

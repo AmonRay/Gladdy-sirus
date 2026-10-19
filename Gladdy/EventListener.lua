@@ -90,6 +90,9 @@ function Gladdy:SpotEnemy(unit, auraScan)
         button.class = class or button.class
         button.name = UnitName(unit) or button.name
         local guid = UnitGUID(unit)
+        if (guid and guid ~= "") or (button.name and button.name ~= "" and button.name ~= "Unknown" and button.class and button.class ~= "") then
+            button.opponentKnown = true
+        end
         if guid then
             if button.guid and button.guid ~= guid and self.guids[button.guid] == unit then
                 self.guids[button.guid] = nil
@@ -98,7 +101,8 @@ function Gladdy:SpotEnemy(unit, auraScan)
             self.guids[guid] = unit
         end
     end
-	if button.class and button.race then
+    button:SetAlpha(button.opponentKnown and 1 or 0)
+	if button.class and button.class ~= "" and button.race and button.race ~= "" then
 		Gladdy:Debug("INFO", "SpotEnemy", "ENEMY_SPOTTED", unit)
 		Gladdy:SendMessage("ENEMY_SPOTTED", unit)
 	end
@@ -289,7 +293,6 @@ function EventListener:ARENA_OPPONENT_UPDATE(unit, updateReason)
 			if button then
 				button.stealthed = false
 				Gladdy:SendMessage("ENEMY_STEALTH", unit, false)
-                button:SetAlpha(1)
                 Gladdy:SpotEnemy(unit, true)
 			end
 			if pet then
@@ -298,7 +301,7 @@ function EventListener:ARENA_OPPONENT_UPDATE(unit, updateReason)
 		elseif updateReason == "unseen" or updateReason == "destroyed" then
 			if button then
 				button.stealthed = true
-                button:SetAlpha(1)
+                button:SetAlpha(button.opponentKnown and 1 or 0)
 				Gladdy:SendMessage("ENEMY_STEALTH", unit, true)
 			end
 			if pet then
@@ -432,6 +435,7 @@ end
 function EventListener:UNIT_SPELLCAST_START(unit)
 	if Gladdy.buttons[unit] then
 		local spellName = UnitCastingInfo(unit)
+        if spellName then Gladdy:SendMessage("CAST_START", unit, spellName) end
 		if Gladdy.specSpells[spellName] and not Gladdy.buttons[unit].spec then
 			self:DetectSpec(unit, Gladdy.specSpells[spellName])
 		end
@@ -491,19 +495,8 @@ end
 function EventListener:DetectSpec(unit, spec)
 	local button = Gladdy.buttons[unit]
 	if (not button or not spec or button.spec) then return end
-    spec = L[spec]
-	if button.class == "PALADIN" and not Gladdy:contains(spec, {L["Holy"], L["Retribution"], L["Protection"]}) or
-	   button.class == "SHAMAN" and not Gladdy:contains(spec, {L["Restoration"], L["Enhancement"], L["Elemental"]}) or
-	   button.class == "ROGUE" and not Gladdy:contains(spec, {L["Subtlety"], L["Assassination"], L["Combat"]}) or
-	   button.class == "WARLOCK" and not Gladdy:contains(spec, {L["Demonology"], L["Destruction"], L["Affliction"]}) or
-	   button.class == "PRIEST" and not Gladdy:contains(spec, {L["Shadow"], L["Discipline"], L["Holy"]}) or
-	   button.class == "MAGE" and not Gladdy:contains(spec, {L["Frost"], L["Fire"], L["Arcane"]}) or
-	   button.class == "DRUID" and not Gladdy:contains(spec, {L["Restoration"], L["Feral"], L["Balance"]}) or
-	   button.class == "HUNTER" and not Gladdy:contains(spec, {L["Beast Mastery"], L["Marksmanship"], L["Survival"]}) or
-	   button.class == "WARRIOR" and not Gladdy:contains(spec, {L["Arms"], L["Protection"], L["Fury"]}) or
-	   button.class == "DEATHKNIGHT" and not Gladdy:contains(spec, {L["Unholy"], L["Blood"], L["Frost"]}) then
-		return
-	end
+    spec = Gladdy:NormalizeSpec(spec, button.class)
+    if not spec then return end
 
 	if not button.spec then
 		button.spec = spec
