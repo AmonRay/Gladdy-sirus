@@ -492,7 +492,7 @@
     "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
     "source_path": "ElvUI_Options/Libraries/Ace3/AceGUI-3.0/AceGUI-3.0.lua",
     "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Options/Libraries/Ace3/AceGUI-3.0/AceGUI-3.0.lua",
-    "installed_sha256": "e76a13e9eb762de48153a84bd427ae451ace1221a850ac0772f57a83d1bd074f"
+    "installed_sha256": "062560b2f5b9acc258921b17f8d010fdf451f69d0f151270cfa26082b4df5715"
   },
   {
     "path": "tests/fixtures/elvui-acegui/tree.lua",
@@ -501,7 +501,7 @@
     "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
     "source_path": "ElvUI_Options/Libraries/Ace3/AceGUI-3.0/widgets/AceGUIContainer-TreeGroup.lua",
     "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Options/Libraries/Ace3/AceGUI-3.0/widgets/AceGUIContainer-TreeGroup.lua",
-    "installed_sha256": "2c05fc3a1c028b11ef7e3211946279f3456bfd119570f186a74351264d365fdc"
+    "installed_sha256": "1145817637fee96ba24697b2e16ea50c789f0790ac0c7d264472f83a98cf29ec"
   },
   {
     "path": "Gladdy/Libs/Ace3/CallbackHandler-1.0/CallbackHandler-1.0.xml",

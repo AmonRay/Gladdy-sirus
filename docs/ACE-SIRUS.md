@@ -41,7 +41,7 @@
 
 1. Предыдущие 37 регрессий Gladdy и 9 реальных библиотечных тестов, включая legacy zlib-профиль.
 2. 8 интеграционных тестов Ace core: существующие SavedVariables, copy/switch/reset профиля, AceDBOptions, сериализация с nil и бинарными данными, Hook/Unhook, version-check и multipart сообщения AceComm/ChatThrottleLib.
-3. По 9 UI-тестов в двух независимых процессах: ElvUI AceGUI до Gladdy и после Gladdy. Фикстуры core/TreeGroup взяты без изменений из указанного коммита ElvUI. Проверяются разделение registry/pool, уникальные глобальные имена, text/Text, создание и release всех 25 default/media widgets, insert-link callbacks, private media lists, регистрация/open/close AceConfig и загрузка реального ExportImport.lua с декодированием профиля.
+3. По 9 UI-тестов в двух независимых процессах: ElvUI AceGUI до Gladdy и после Gladdy. Фикстуры core/TreeGroup взяты из указанного коммита ElvUI без изменения логики; нормализованы переводы строк и концевые пробелы. Проверяются разделение registry/pool, уникальные глобальные имена, text/Text, создание и release всех 25 default/media widgets, insert-link callbacks, private media lists, регистрация/open/close AceConfig и загрузка реального ExportImport.lua с декодированием профиля.
 4. Синтаксис всех Lua-файлов, целостность provenance-манифеста, разрешение всех TOC/XML-зависимостей и прежние operation-count benchmarks.
 
 Тесты используют реальные исходники перечисленных библиотек, но имитируют WoW API. Они не являются загрузкой полного ElvUI, проверкой его скинов в игре, замером FPS или скриншотным тестом. Сеть заменена локальным transport stub; проверяется протокол и API, не серверная доставка. UI-stub не моделирует каждый эффект шаблонов клиента.
