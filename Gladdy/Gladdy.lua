@@ -77,7 +77,7 @@ local Gladdy = LibStub:NewLibrary(MAJOR, MINOR)
 local L = {}
 Gladdy.L = L  -- Initialize Gladdy.L early
 Gladdy.version_major_num = 2
-Gladdy.version_minor_num = 0.36
+Gladdy.version_minor_num = 0.39
 Gladdy.version_num = Gladdy.version_major_num + Gladdy.version_minor_num
 Gladdy.version_releaseType = RELEASE_TYPES.release
 Gladdy.version = PREFIX .. string.format("%.2f", Gladdy.version_num) .. "-" .. Gladdy.version_releaseType
@@ -161,11 +161,13 @@ Gladdy.events.registered = {}
 Gladdy.events:RegisterEvent("PLAYER_LOGIN")
 Gladdy.events:RegisterEvent("PLAYER_LOGOUT")
 Gladdy.events:RegisterEvent("CVAR_UPDATE")
-hooksecurefunc("VideoOptionsFrameOkay_OnClick", function(self, button, down, apply)
-	if (self:GetName() == "VideoOptionsFrameApply") then
-		Gladdy:PixelPerfectScale(true)
-	end
-end)
+if type(VideoOptionsFrameOkay_OnClick) == "function" then
+    hooksecurefunc("VideoOptionsFrameOkay_OnClick", function(self)
+        if self and self:GetName() == "VideoOptionsFrameApply" then
+            Gladdy:PixelPerfectScale(true)
+        end
+    end)
+end
 Gladdy.events:SetScript("OnEvent", function(self, event, ...)
 	if (event == "PLAYER_LOGIN") then
 		Gladdy:OnInitialize()
@@ -770,41 +772,28 @@ end
 ---------------------------
 
 function Gladdy:BlizzArenaSetAlpha(alpha)
-	if IsAddOnLoaded("Blizzard_ArenaUI") then
-		if (ArenaEnemyFrames) then
-			ArenaEnemyFrames:SetAlpha(alpha)
-		end
-		if ArenaEnemyFrame1 then
-			ArenaEnemyFrame1:SetAlpha(alpha)
-		end
-		if ArenaEnemyFrame1PetFrame then
-			ArenaEnemyFrame1PetFrame:SetAlpha(alpha)
-		end
-		if ArenaEnemyFrame2 then
-			ArenaEnemyFrame2:SetAlpha(alpha)
-		end
-		if ArenaEnemyFrame2PetFrame then
-			ArenaEnemyFrame2PetFrame:SetAlpha(alpha)
-		end
-		if ArenaEnemyFrame3 then
-			ArenaEnemyFrame3:SetAlpha(alpha)
-		end
-		if ArenaEnemyFrame3PetFrame then
-			ArenaEnemyFrame3PetFrame:SetAlpha(alpha)
-		end
-		if ArenaEnemyFrame4 then
-			ArenaEnemyFrame4:SetAlpha(alpha)
-		end
-		if ArenaEnemyFrame4PetFrame then
-			ArenaEnemyFrame4PetFrame:SetAlpha(alpha)
-		end
-		if ArenaEnemyFrame5 then
-			ArenaEnemyFrame5:SetAlpha(alpha)
-		end
-		if ArenaEnemyFrame5PetFrame then
-			ArenaEnemyFrame5PetFrame:SetAlpha(alpha)
-		end
-	end
+    -- DF UI creates CompactArenaFrame in FrameXML, without Blizzard_ArenaUI.
+    -- ArenaEnemyFrames is an alias on that client. Never touch ElvUI frames.
+    if ArenaEnemyFrames then ArenaEnemyFrames:SetAlpha(alpha) end
+    if CompactArenaFrame and CompactArenaFrame ~= ArenaEnemyFrames then
+        CompactArenaFrame:SetAlpha(alpha)
+    end
+    for i = 1, 5 do
+        local frame = _G["ArenaEnemyFrame" .. i]
+        local pet = _G["ArenaEnemyFrame" .. i .. "PetFrame"]
+        if frame then frame:SetAlpha(alpha) end
+        if pet then pet:SetAlpha(alpha) end
+    end
+end
+
+-- The compact arena container may be generated after Gladdy initializes.
+if type(CompactArenaFrame_Generate) == "function" then
+    hooksecurefunc("CompactArenaFrame_Generate", function()
+        if not Gladdy.db then return end
+        local mode = Gladdy.db.hideBlizzard
+        local inArena = select(2, IsInInstance()) == "arena"
+        Gladdy:BlizzArenaSetAlpha((mode == "always" or (mode == "arena" and inArena)) and 0 or 1)
+    end)
 end
 
 ---------------------------

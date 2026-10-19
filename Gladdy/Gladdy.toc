@@ -1,11 +1,11 @@
 ## Interface: 30300
-## Title: Gladdy - WotLK
-## Version: 2.38.4
+## Title: Gladdy - Sirus
+## Version: 2.39
 ## Notes: The most powerful arena AddOn for WoW 3.3.5
 ## Author: XiconQoo, DnB_Junkee, Knall, Tsoukie, Qb, x3k
 ## SavedVariables: GladdyXZ
 ## OptionalDeps: SharedMedia, Blizzard_CombatLog, Blizzard_ArenaUI, Blizzard_CombatText
-## X-Sirus-Update: https://github.com/Qblolz/Gladdy-sirus/tree/master/Gladdy
+## X-Sirus-Update: https://github.com/AmonRay/Gladdy-sirus/tree/master/Gladdy
 
 embeds.xml
 

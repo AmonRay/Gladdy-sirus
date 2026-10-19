@@ -49,8 +49,8 @@ local List_constellations = {
 	[20] = 371793, -- Eredar
 	[21] = 371810, -- ZandalariTroll
 	[22] = 371797, -- Lightforged
-	[22] = 371790, -- Dracthyr
-	[23] = "None"
+	[23] = 371790, -- Dracthyr
+	[24] = "None"
 }
 
 function Racial:Initialize()
@@ -201,8 +201,8 @@ function Racial:RACIAL_USED(unit, expirationTime, spellId)
 
 	local racial = self.frames[unit]
 	local button = Gladdy.buttons[unit]
-	local constellation = button.constellation
-	if (not racial or not button or not button.constellation or not Gladdy.db.racialEnabled) then
+	local constellation = button and button.constellation
+	if not racial or not constellation then
 		return
 	end
 
@@ -222,34 +222,26 @@ function Racial:TRINKET_USED(unit) -- Wrath only
 	if (not racial or not button or not button.constellation) then
 		return
 	end
-	-- human
-	if button.constellation.id == 371796 then
-		if racial.active and racial.timeLeft >= 90 then
-			-- do nothing
-		else
-			self:Used(unit, GetTime(), 90)
-		end
-	--scourge
-	elseif button.constellation.id == 371804 then
-		if racial.active and racial.timeLeft >= 60 then
-			-- do nothing
-		else
-			self:Used(unit, GetTime(), 60)
-		end
-	end
+    local sharedCD = button.constellation.sharedTrinketCD
+    if sharedCD and (not racial.active or (racial.timeLeft or 0) < sharedCD) then
+        self:Used(unit, GetTime(), sharedCD)
+    end
 end
 
 function Racial:Used(unit, startTime, duration)
 	local racial = self.frames[unit]
 	if not racial then return end
 
-	if not racial.active then
-		racial.timeLeft = duration
-		if not Gladdy.db.racialDisableCircle then
-			racial.cooldown:SetCooldown(startTime, duration)
-		end
-		racial.active = true
-	end
+    local remaining = startTime + duration - GetTime()
+    if remaining <= 0 then return end
+    -- An actual racial cast must replace a shorter shared trinket cooldown.
+    -- A duplicate event/shared CD must not shorten an existing cooldown.
+    if racial.active and (racial.timeLeft or 0) >= remaining then return end
+    racial.timeLeft = remaining
+    if not Gladdy.db.racialDisableCircle then
+        racial.cooldown:SetCooldown(startTime, duration)
+    end
+    racial.active = true
 end
 
 function Racial:Test(unit)

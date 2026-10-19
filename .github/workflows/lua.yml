@@ -1,0 +1,19 @@
+name: Lua 5.1 checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  sirus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua 5.1
+        run: sudo apt-get update && sudo apt-get install -y lua5.1
+      - name: Check Lua syntax
+        run: find Gladdy tests -name '*.lua' -print0 | xargs -0 -n 1 luac5.1 -p
+      - name: Check addon manifest
+        run: python3 tests/check_manifest.py
+      - name: Run Sirus regression tests
+        run: lua5.1 tests/sirus_spec.lua

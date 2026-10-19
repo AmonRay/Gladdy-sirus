@@ -215,19 +215,10 @@ function Trinket:RACIAL_USED(unit) -- Wrath only
 		return
 	end
 
-	-- human
-	if button.constellation.id == 371796 then
-		if trinket.active and trinket.timeLeft >= 90 then
-		else
-			self:Used(unit, GetTime() * 1000, 90 * 1000)
-		end
-		--scourge
-	elseif button.constellation.id == 371804 then
-		if trinket.active and trinket.timeLeft >= 60 then
-		else
-			self:Used(unit, GetTime() * 1000, 60 * 1000)
-		end
-	end
+    local sharedCD = button.constellation.sharedTrinketCD
+    if sharedCD and (not trinket.active or (trinket.timeLeft or 0) < sharedCD) then
+        self:Used(unit, GetTime() * 1000, sharedCD * 1000)
+    end
 end
 
 function Trinket:Used(unit, startTime, duration)

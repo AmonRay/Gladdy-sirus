@@ -1215,6 +1215,14 @@ local constellations = {
     }
 }
 
+-- Keep passive zodiac aura IDs separate from their active spell IDs.
+for auraID, constellation in pairs(constellations) do
+    constellation.auraID = auraID
+end
+-- Preserve the existing shared-CD policy; these are active ability IDs.
+constellations[371796].sharedTrinketCD = 90
+constellations[371804].sharedTrinketCD = 60
+
 function Gladdy:Constellations()
 	return constellations
 end
