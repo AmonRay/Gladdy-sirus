@@ -42,6 +42,7 @@ LibStub = setmetatable({NewLibrary=function() return G end}, {__call=function(_,
     return {Embed=noop}
 end})
 dofile('Gladdy/Gladdy.lua')
+local dispatch=G.SendMessage
 local earlyL = G.L
 dofile('Gladdy/Lang.lua')
 test('localization keeps core table and initializes Russian before constants', function()
@@ -176,5 +177,20 @@ test('DF UI arena hiding does not require Blizzard_ArenaUI addon', function()
     G:BlizzArenaSetAlpha(1); eq(CompactArenaFrame.alpha,1)
     G.db.hideBlizzard='arena'; hooks.CompactArenaFrame_Generate(); eq(CompactArenaFrame.alpha,0)
     G.db.hideBlizzard='never'; hooks.CompactArenaFrame_Generate(); eq(CompactArenaFrame.alpha,1)
+end)
+test('message dispatch caches order but observes live subscription changes', function()
+    local savedModules = G.modules
+    G.modules={}; G.moduleOrder=nil
+    local low=G:NewModule('low',1); local high=G:NewModule('high',10)
+    local order={}
+    low.Run=function() order[#order+1]='low' end
+    high.Run=function() order[#order+1]='high'; low:UnregisterMessage('PING') end
+    high:RegisterMessage('PING','Run'); low:RegisterMessage('PING','Run')
+    local cached=G:GetModuleOrder()
+    dispatch(G,'PING'); eq(#order,1); eq(order[1],'high')
+    eq(G:GetModuleOrder(),cached)
+    local highest=G:NewModule('highest',20)
+    assert(G:GetModuleOrder()~=cached); eq(G:GetModuleOrder()[1],highest)
+    G.modules=savedModules; G.moduleOrder=nil
 end)
 print('PASS: ' .. passed .. ' regression tests (Lua ' .. _VERSION .. ')')

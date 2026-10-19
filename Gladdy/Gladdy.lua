@@ -206,28 +206,28 @@ end
 
 ---------------------------
 
-local function pairsByPrio(t)
-	local a = {}
-	for k, v in pairs(t) do
-		tinsert(a, { k, v.priority })
-	end
-	tsort(a, function(x, y)
-		return x[2] > y[2]
-	end)
-
-	local i = 0
-	return function()
-		i = i + 1
-
-		if (a[i] ~= nil) then
-			return a[i][1], t[a[i][1]]
-		else
-			return nil
-		end
-	end
+-- Module membership/priorities are fixed at registration. Cache the order,
+-- not message subscriptions: handlers may register/unregister during dispatch.
+function Gladdy:GetModuleOrder()
+    if not self.moduleOrder then
+        local ordered = {}
+        for _, module in pairs(self.modules) do
+            tinsert(ordered, module)
+        end
+        tsort(ordered, function(a, b) return a.priority > b.priority end)
+        self.moduleOrder = ordered
+    end
+    return self.moduleOrder
 end
+
 function Gladdy:IterModules()
-	return pairsByPrio(self.modules)
+    local ordered = self:GetModuleOrder()
+    local index = 0
+    return function()
+        index = index + 1
+        local module = ordered[index]
+        if module then return module.name, module end
+    end
 end
 
 function Gladdy:Call(module, func, ...)
@@ -241,9 +241,11 @@ function Gladdy:Call(module, func, ...)
 end
 
 function Gladdy:SendMessage(message, ...)
-	for _, module in self:IterModules() do
-		self:Call(module, module.messages[message], ...)
-	end
+    local ordered = self:GetModuleOrder()
+    for i = 1, #ordered do
+        local module = ordered[i]
+        self:Call(module, module.messages[message], ...)
+    end
 end
 
 function Gladdy:NewModule(name, priority, defaults)
@@ -288,6 +290,7 @@ function Gladdy:NewModule(name, priority, defaults)
 	end
 
 	self.modules[name] = module
+    self.moduleOrder = nil
 
 	return module
 end
