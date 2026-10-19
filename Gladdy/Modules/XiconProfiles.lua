@@ -5,44 +5,22 @@ local XiconProfiles = Gladdy:NewModule("XiconProfiles", nil, {
 })
 
 local function applyProfile(profileString)
-    local deserialized = Gladdy.modules["Export Import"]:Decode(profileString)
-    if deserialized then
-        Gladdy.modules["Export Import"]:ApplyImport(deserialized, Gladdy.db)
-    end
+    local importer = Gladdy.modules["Export Import"]
+    local deserialized, err = importer:Decode(profileString)
+    if not deserialized then Gladdy:Warn(err); return false end
+    local profile = Gladdy:DeepCopy(Gladdy.defaults.profile)
+    local ok
+    ok, err = importer:ApplyImport(deserialized, profile)
+    if not ok then Gladdy:Warn(err); return false end
 
-    if Gladdy.frame then
-        Gladdy.frame.testing = true
-    end
-
-    Gladdy:Reset()
+    Gladdy.dbi:ResetProfile(true, true)
+    Gladdy.db = Gladdy.dbi.profile
+    for key, value in pairs(profile) do Gladdy.db[key] = value end
+    Gladdy:ApplyLocalization()
     Gladdy:HideFrame()
     Gladdy:ToggleFrame(3)
-
-    Gladdy.options.args.lock.name = Gladdy.db.locked and L["Unlock frame"] or L["Lock frame"]
-    Gladdy.options.args.showMover.name = Gladdy.db.showMover and L["Hide Mover"] or L["Show Mover"]
-
-    LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
-
     Gladdy:SendMessage("GLADDY_PROFILE_CHANGED")
-
-    for unit, button in pairs(Gladdy.buttons) do
-        if Gladdy.modules["Trinket"] and Gladdy.modules["Trinket"].frames and Gladdy.modules["Trinket"].frames[unit] then
-            Gladdy.modules["Trinket"]:ForceUpdate(unit, true)
-
-            if unit == "arena1" or unit == "arena2" then
-                Gladdy:SendMessage("TRINKET_USED", unit)
-            end
-        end
-    end
-
-    for _, module in Gladdy:IterModules() do
-        if module.Test then
-            for i=1, math.min(2, Gladdy.curBracket or 3) do
-                local unit = "arena" .. i
-                module:Test(unit)
-            end
-        end
-    end
+    return true
 end
 
 function XiconProfiles:GetOptions()
@@ -55,7 +33,6 @@ function XiconProfiles:GetOptions()
         blizzardProfile = {
             type = "execute",
             func = function()
-                Gladdy.dbi:ResetProfile(Gladdy.dbi:GetCurrentProfile())
                 applyProfile(Gladdy:GetBlizzardProfile())
             end,
             name = " ",
@@ -74,7 +51,6 @@ function XiconProfiles:GetOptions()
         classicProfile = {
             type = "execute",
             func = function()
-                Gladdy.dbi:ResetProfile(Gladdy.dbi:GetCurrentProfile())
                 applyProfile(Gladdy:GetClassicProfile())
             end,
             name = " ",
@@ -93,7 +69,6 @@ function XiconProfiles:GetOptions()
         classicProfileNoPet = {
             type = "execute",
             func = function()
-                Gladdy.dbi:ResetProfile(Gladdy.dbi:GetCurrentProfile())
                 applyProfile(Gladdy:GetClassicProfileNoPet())
             end,
             name = " ",
@@ -112,7 +87,6 @@ function XiconProfiles:GetOptions()
         knallProfile = {
             type = "execute",
             func = function()
-                Gladdy.dbi:ResetProfile(Gladdy.dbi:GetCurrentProfile())
                 applyProfile(Gladdy:GetKnallProfile())
             end,
             name = " ",
@@ -131,7 +105,6 @@ function XiconProfiles:GetOptions()
         klimpProfiles = {
             type = "execute",
             func = function()
-                Gladdy.dbi:ResetProfile(Gladdy.dbi:GetCurrentProfile())
                 applyProfile(Gladdy:GetKlimpProfile())
             end,
             image = "Interface\\AddOns\\Gladdy\\Images\\BasicProfiles\\Klimp1.blp",
@@ -150,7 +123,6 @@ function XiconProfiles:GetOptions()
         rukkProfile = {
             type = "execute",
             func = function()
-                Gladdy.dbi:ResetProfile(Gladdy.dbi:GetCurrentProfile())
                 applyProfile(Gladdy:GetRukkProfile())
             end,
             name = " ",
@@ -169,7 +141,6 @@ function XiconProfiles:GetOptions()
         mirProfile = {
             type = "execute",
             func = function()
-                Gladdy.dbi:ResetProfile(Gladdy.dbi:GetCurrentProfile())
                 applyProfile(Gladdy:GetMirProfile())
             end,
             name = " ",
@@ -188,7 +159,6 @@ function XiconProfiles:GetOptions()
         mirProfileEdited = {
             type = "execute",
             func = function()
-                Gladdy.dbi:ResetProfile(Gladdy.dbi:GetCurrentProfile())
                 applyProfile(Gladdy:GetMirEditedProfile())
             end,
             name = " ",
@@ -207,18 +177,7 @@ function XiconProfiles:GetOptions()
         likeGladiusProfile = {
             type = "execute",
             func = function()
-                Gladdy.dbi:ResetProfile(Gladdy.dbi:GetCurrentProfile())
                 applyProfile(Gladdy:GetLikeGladius())
-
-                if Gladdy.modules["Trinket"] then
-                    for unit, button in pairs(Gladdy.buttons) do
-                        if Gladdy.modules["Trinket"].frames and Gladdy.modules["Trinket"].frames[unit] then
-                            if Gladdy.frame and Gladdy.frame.testing then
-                                Gladdy:SendMessage("TRINKET_USED", unit)
-                            end
-                        end
-                    end
-                end
             end,
             name = " ",
             desc = "Gladius default " .. L["Profile"],

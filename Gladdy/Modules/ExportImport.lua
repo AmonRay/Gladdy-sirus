@@ -148,6 +148,15 @@ local function FiniteNumber(value)
     return value == value and value > -math.huge and value < math.huge
 end
 
+local function TextureTypeCompatible(path, key, expected, value)
+    local texture = path == "Gladdy.db" and key == "trinketIcon"
+        or key == "icon" and path:match("^Gladdy%.db%.drCategories%.[^.]+$")
+    if not texture then return false end
+    local a, b = type(expected), type(value)
+    if a ~= "string" and a ~= "number" then return false end
+    return b == "string" or b == "number" and value > 0 and value % 1 == 0
+end
+
 local function ValidateTree(tbl, refTbl, depth, state, path)
     if depth > limits.depth then return false, "Profile nesting limit exceeded" end
     if state.seen[tbl] then return false, "Cyclic profile table" end
@@ -167,7 +176,8 @@ local function ValidateTree(tbl, refTbl, depth, state, path)
         end
         if valueType == "number" and not FiniteNumber(value) then return false, "Invalid number at " .. field end
         local expected = refTbl and refTbl[key]
-        if expected ~= nil and type(expected) ~= valueType and not deletedOptions[tostring(key)] then
+        if expected ~= nil and type(expected) ~= valueType and not deletedOptions[tostring(key)]
+            and not TextureTypeCompatible(path, key, expected, value) then
             return false, field .. " type error. Expected " .. type(expected) .. " found " .. valueType
         end
         if valueType == "table" then

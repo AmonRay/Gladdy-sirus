@@ -115,6 +115,22 @@ test('same-expansion nested legacy field names are not filtered as root maps',fu
     assert(module:ApplyImport({expansion='Wrath',appearance={cooldownCooldowns={['1']=false}}},target))
     assert(target.appearance.cooldownCooldowns['1']==false)
 end)
+test('texture fields accept numeric IDs and string paths across defaults',function()
+    local target={expansion='Wrath',trinketIcon='Interface\\Icons\\INV_Jewelry_TrinketPVP_02',drCategories={root={icon='root-path'}}}
+    assert(module:ApplyImport({expansion='Wrath',trinketIcon=133452,drCategories={root={icon=135848}}},target))
+    assert(target.trinketIcon==133452 and target.drCategories.root.icon==135848)
+    assert(module:ApplyImport({expansion='Wrath',trinketIcon='trinket-path',drCategories={root={icon='root-path'}}},target))
+    assert(target.trinketIcon=='trinket-path' and target.drCategories.root.icon=='root-path')
+end)
+test('texture compatibility does not relax unrelated field validation',function()
+    local target={appearance={icon='string'},scale=1,trinketIcon='path',drCategories={root={icon='path'}}}
+    assert(not module:ApplyImport({appearance={icon=123}},target))
+    assert(not module:ApplyImport({scale='1'},target))
+    assert(not module:ApplyImport({trinketIcon=true},target))
+    assert(not module:ApplyImport({drCategories={root={icon={}}}},target))
+    assert(not module:ApplyImport({trinketIcon=-1},target))
+    assert(not module:ApplyImport({trinketIcon=1.5},target))
+end)
 test('all nine bundled historical profiles decode within the limits',function()
     dofile('Gladdy/ImportStrings.lua')
     for _,name in ipairs({'GetKlimpProfile','GetClassicProfile','GetClassicProfileNoPet','GetKnallProfile','GetBlizzardProfile','GetRukkProfile','GetMirProfile','GetMirEditedProfile','GetLikeGladius'}) do
