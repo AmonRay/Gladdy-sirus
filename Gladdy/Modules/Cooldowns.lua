@@ -151,7 +151,6 @@ function Cooldowns:Initialize()
 		self:RegisterMessage("ENEMY_SPOTTED")
 		self:RegisterMessage("UNIT_SPEC")
 		self:RegisterMessage("UNIT_DEATH")
-		self:RegisterMessage("UNIT_DESTROYED")
 		self:RegisterMessage("AURA_GAIN")
 	end
 end
@@ -660,12 +659,6 @@ function Cooldowns:UNIT_SPEC(unit)
 		return
 	end
 	self:UpdateCooldowns(Gladdy.buttons[unit])
-end
-
-function Cooldowns:UNIT_DESTROYED(unit)
-	if not Gladdy.db.cooldown then return end
-
-	self:ResetUnit(unit)
 end
 
 function Cooldowns:AURA_GAIN(_, auraType, spellID, spellName, _, duration, _, _, _, _, unitCaster, test)

@@ -1,6 +1,6 @@
 local M = { errors = {}, hooks = {}, names = {}, templateText = 'text' }
 local methods = {}
-local mt = {__index = function(_, key) return methods[key] or (key:match('^[A-Z]') and function() end or nil) end}
+local mt = {__index = function(_, key) return methods[key] or (type(key)=='string' and key:match('^[A-Z]') and function() end or nil) end}
 local function object(kind, name, parent)
     local obj = setmetatable({kind=kind,name=name,parent=parent,scripts={},children={},regions={},points={},shown=true,_width=300,_height=600,textValue=''}, mt)
     if name then assert(_G[name] == nil, 'duplicate global: '..name); _G[name]=obj; M.names[#M.names+1]=name end
