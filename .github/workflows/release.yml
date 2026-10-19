@@ -1,0 +1,97 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+    paths: [Gladdy/Gladdy.toc]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Detect version change
+        id: version
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {execFileSync} = require('child_process');
+            const fs = require('fs');
+            const before = context.payload.before;
+            core.setOutput('changed', 'false');
+            if (!before || /^0+$/.test(before)) return;
+            const pattern = /^##\s*Version:\s*(\S+)\s*$/m;
+            const previous = execFileSync('git', ['show', `${before}:Gladdy/Gladdy.toc`], {encoding: 'utf8'}).match(pattern)?.[1];
+            const version = fs.readFileSync('Gladdy/Gladdy.toc', 'utf8').match(pattern)?.[1];
+            if (!previous || !version) throw new Error('Missing Version in Gladdy.toc');
+            if (version === previous) return;
+            if (!/^\d+\.\d+(?:\.\d+){0,2}(?:-[0-9A-Za-z][0-9A-Za-z.-]*)?$/.test(version)) {
+              throw new Error('Unsupported release version');
+            }
+            core.setOutput('version', version);
+            core.setOutput('changed', 'true');
+      - name: Package addon
+        if: steps.version.outputs.changed == 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import subprocess
+          import zipfile
+          from pathlib import Path
+          target = Path('dist')
+          target.mkdir(exist_ok=True)
+          with zipfile.ZipFile(target / f"Gladdy-Sirus-{os.environ['RELEASE_VERSION']}.zip", 'w', zipfile.ZIP_DEFLATED) as archive:
+              paths = subprocess.check_output(['git', 'ls-files', '-z', '--', 'Gladdy/']).decode().split('\0')
+              for name in sorted(filter(None, paths)):
+                  archive.write(name, name)
+          PY
+      - name: Publish GitHub release
+        if: steps.version.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        with:
+          script: |
+            const fs = require('fs');
+            const version = process.env.RELEASE_VERSION;
+            const tag = `v${version}`;
+            const repo = context.repo;
+            try {
+              await github.rest.git.getRef({...repo, ref: `tags/${tag}`});
+              const {data: commit} = await github.rest.repos.getCommit({...repo, ref: tag});
+              if (commit.sha !== context.sha) throw new Error(`Tag ${tag} already targets another commit`);
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            let release;
+            try {
+              ({data: release} = await github.rest.repos.getReleaseByTag({...repo, tag}));
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              ({data: release} = await github.rest.repos.createRelease({
+                ...repo, tag_name: tag, target_commitish: context.sha,
+                name: `Gladdy Sirus ${version}`, generate_release_notes: true,
+                prerelease: version.includes('-')
+              }));
+            }
+            const name = `Gladdy-Sirus-${version}.zip`;
+            const assets = await github.paginate(github.rest.repos.listReleaseAssets, {...repo, release_id: release.id, per_page: 100});
+            if (!assets.some(asset => asset.name === name)) {
+              await github.rest.repos.uploadReleaseAsset({
+                ...repo, release_id: release.id, name,
+                data: fs.readFileSync(`dist/${name}`),
+                headers: {'content-type': 'application/zip'}
+              });
+            }
+            core.notice(release.html_url);
