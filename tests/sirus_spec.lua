@@ -25,13 +25,16 @@ UnitExists = function(unit) unitQueries=unitQueries+1; return unit ~= nil and un
 UnitName = function(unit) return unit end
 UnitRace = function() return 'Human', 'Human' end
 UnitClass = function() return 'Mage', 'MAGE' end
-UnitGUID = function(unit) return unit end
+local guidProvider=function(unit) return unit end
+UnitGUID = function(unit) return guidProvider(unit) end
 UnitIsUnit = function(a, b) return a == b end
 UnitCastingInfo, UnitChannelInfo = noop, noop
 local auraProvider = noop
 UnitAura = function(...) return auraProvider(...) end
 CreateFrame = function()
-    return {RegisterEvent=noop, SetScript=noop, UnregisterEvent=noop, UnregisterAllEvents=noop}
+    return {scripts={}, RegisterEvent=noop,
+        SetScript=function(self,name,fn) self.scripts[name]=fn end,
+        UnregisterEvent=noop, UnregisterAllEvents=noop}
 end
 IsInInstance = function() return true, 'arena' end
 local hooks = {}
@@ -228,5 +231,94 @@ test('event errors are not silently swallowed when debug is disabled',function()
     E.BROKEN=function() error('intentional-test-error') end
     local ok,err=pcall(E.OnEvent,E,'BROKEN')
     eq(ok,false); assert(err:find('intentional%-test%-error')); E.BROKEN=nil
+end)
+-- Lifecycle tests load the actual modules, only rendering/API surfaces are mocked.
+local healthValue,healthMaximum=0,100
+local healthQueries=0
+UnitHealth=function() healthQueries=healthQueries+1; return healthValue end
+UnitHealthMax=function() return healthMaximum end
+UnitIsDeadOrGhost=function() return false end
+SetPortraitTexture=noop
+local scheduled,cancelled={},{}
+G.ScheduleTimer=function(_,fn) local id={fn=fn}; scheduled[#scheduled+1]=id; return id end
+G.ScheduleRepeatingTimer=G.ScheduleTimer
+G.CancelTimer=function(_,id) cancelled[id]=true end
+G.curBracket=1; G.frame={testing=false}
+G.isFeignDeath=function() return false end
+dofile('Gladdy/Modules/Healthbar.lua')
+dofile('Gladdy/Modules/Powerbar.lua')
+local H,P=G.modules['Health Bar'],G.modules['Power Bar']
+local function bar()
+    return {hp={SetStatusBarColor=noop,SetValue=noop,SetMinMaxValues=noop},
+        nameText={SetText=noop},healthText={SetText=noop},portrait={SetTexture=noop},
+        SetAlpha=noop,scripts={},SetScript=function(self,k,v) self.scripts[k]=v end}
+end
+H.frames={arena1=bar()}
+H.SetText=noop; H.SetHealthStatusBarColor=noop
+P.frames={arena1={energy={max=100,powerType=0}}}; P.SetPower=noop
+test('zero health with known max is accepted without recursive retries',function()
+    scheduled={}; healthValue=0; healthMaximum=100
+    H:ENEMY_SPOTTED('arena1'); eq(#scheduled,0); eq(H.frames.arena1.hp.current,0)
+end)
+test('missing health retries are deduplicated and bounded to three',function()
+    scheduled={}; healthMaximum=0; H.frames.arena1.healthRetryAttempts=0
+    H:ENEMY_SPOTTED('arena1'); H:ENEMY_SPOTTED('arena1'); eq(#scheduled,1)
+    scheduled[1].fn(); scheduled[2].fn(); scheduled[3].fn(); eq(#scheduled,3)
+    eq(H.frames.arena1.healthRetry,nil)
+end)
+test('health retry cannot refresh a replacement GUID and reset cancels it',function()
+    H.frames.arena1.healthRetryAttempts=0; scheduled={}
+    H:ENEMY_SPOTTED('arena1'); eq(#scheduled,1)
+    local before=healthQueries
+    guidProvider=function(unit) return 'replacement-'..unit end
+    scheduled[1].fn(); eq(healthQueries,before)
+    guidProvider=function(unit) return unit end
+    H.frames.arena1.healthRetryAttempts=0; H:ENEMY_SPOTTED('arena1')
+    local pending=H.frames.arena1.healthRetry; H:ResetUnit('arena1'); eq(cancelled[pending],true)
+end)
+test('repeated death events enqueue no health or resource rescan',function()
+    scheduled={}; H:UNIT_DEATH('arena1'); H:UNIT_DEATH('arena1'); P:UNIT_DEATH('arena1')
+    eq(#scheduled,0)
+end)
+test('SpotEnemy removes stale GUID mapping on a reused arena slot',function()
+    G.buttons.arena1.guid='old'; G.guids.old='arena1'
+    G:SpotEnemy('arena1',false); eq(G.guids.old,nil); eq(G.guids.arena1,'arena1')
+end)
+dofile('Gladdy/Modules/Pets.lua')
+local Pets=G.modules.Pets
+Pets.frames={arenapet1={healthBar=bar()}}; local petBar=Pets.frames.arenapet1.healthBar
+petBar.unit='arenapet1'; G.db.petEnabled=true; G.db.petHealthBarColor={}; G.SetColor=function() return 1,1,1,1 end
+local rendered=0; Pets.SetHealthText=function() rendered=rendered+1 end
+test('pet polling is throttled, updates max health, and renders only changes',function()
+    healthValue=50; healthMaximum=100; Pets:PET_SPOTTED('arenapet1')
+    eq(G.guids.arenapet1,'arenapet1'); eq(petBar.scripts.OnUpdate,Pets.OnUpdate)
+    local before=healthQueries; rendered=0
+    for i=1,600 do Pets.OnUpdate(petBar,1/60) end
+    assert(healthQueries-before>=99 and healthQueries-before<=100)
+    eq(rendered,0)
+    healthMaximum=150; Pets.OnUpdate(petBar,0.1); eq(rendered,1)
+end)
+test('pet destruction and disabling clean GUIDs and polling handlers',function()
+    Pets:PET_DESTROYED('arenapet1'); eq(G.guids.arenapet1,nil); eq(petBar.scripts.OnUpdate,nil)
+    Pets:PET_SPOTTED('arenapet1'); G.db.petEnabled=false; Pets:UpdateFrameOnce()
+    eq(petBar.scripts.OnUpdate,nil); eq(G.guids.arenapet1,nil); eq(Pets.active,false)
+    Pets:PET_SPOTTED('unknown'); G.db.petEnabled=true
+end)
+dofile('Gladdy/Modules/RangeCheck.lua')
+local Range=G.modules['Range Check']; Range.SetColor=noop
+G.buttons.arena1.range={}; local rangeTimer=G.buttons.arena1.range
+test('disabling range module cancels polling; reenabling restarts once',function()
+    G.db.rangeCheckEnabled=false; Range:UpdateFrameOnce()
+    eq(cancelled[rangeTimer],true); eq(G.buttons.arena1.range,nil)
+    G.db.rangeCheckEnabled=true; scheduled={}; Range:UpdateFrameOnce(); eq(#scheduled,1)
+    Range:UpdateFrameOnce(); eq(#scheduled,1)
+end)
+dofile('Gladdy/Modules/CombatIndicator.lua')
+local CI=G.modules['Combat Indicator']; CI:Initialize(); G.db.ciEnabled=true
+test('disabling combat indicator detaches OnUpdate and reenables safely',function()
+    CI:JOINED_ARENA(); eq(CI.scripts.OnUpdate,CI.OnEvent)
+    G.db.ciEnabled=false; CI:UpdateFrameOnce(); eq(CI.scripts.OnUpdate,nil)
+    G.db.ciEnabled=true; CI:UpdateFrameOnce(); eq(CI.scripts.OnUpdate,CI.OnEvent)
+    G.curBracket=nil; CI.OnEvent(CI,0.1); eq(CI.scripts.OnUpdate,nil)
 end)
 print('PASS: ' .. passed .. ' regression tests (Lua ' .. _VERSION .. ')')

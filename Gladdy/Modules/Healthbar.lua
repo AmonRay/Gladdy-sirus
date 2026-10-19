@@ -298,6 +298,9 @@ function Healthbar:ResetUnit(unit)
         return
     end
 
+    if healthBar.healthRetry then Gladdy:CancelTimer(healthBar.healthRetry) end
+    healthBar.healthRetry = nil
+    healthBar.healthRetryAttempts = 0
     healthBar.hp:SetStatusBarColor(1, 1, 1, 1)
     healthBar.nameText:SetText("")
     healthBar.healthText:SetText("")
@@ -340,6 +343,23 @@ function Healthbar:JOINED_ARENA()
     end
 end
 
+-- Missing max health is transient on initial visibility. Bound retries and
+-- bind them to the current GUID; a zero-health dead unit is not missing data.
+function Healthbar:ScheduleHealthRetry(unit)
+    local bar = self.frames[unit]
+    local button = Gladdy.buttons[unit]
+    local guid = UnitGUID(unit)
+    if not bar or not button or not guid or not Gladdy.curBracket
+        or bar.healthRetry or (bar.healthRetryAttempts or 0) >= 3 then return end
+    bar.healthRetryAttempts = (bar.healthRetryAttempts or 0) + 1
+    bar.healthRetry = Gladdy:ScheduleTimer(function()
+        bar.healthRetry = nil
+        if Gladdy.curBracket and Gladdy.buttons[unit] == button and UnitGUID(unit) == guid then
+            Healthbar:ENEMY_SPOTTED(unit)
+        end
+    end, 0.1)
+end
+
 function Healthbar:ENEMY_SPOTTED(unit)
     local healthBar = self.frames[unit]
     local button = Gladdy.buttons[unit]
@@ -351,14 +371,18 @@ function Healthbar:ENEMY_SPOTTED(unit)
         local health = UnitHealth(unit)
         local healthMax = UnitHealthMax(unit)
         
-        -- Если значения не получены, пробуем еще раз через небольшую задержку
-        if not health or not healthMax or health == 0 or healthMax == 0 then
-            C_Timer:After(0.1, function()
-                Healthbar:ENEMY_SPOTTED(unit)
-            end)
+        if not healthMax or healthMax <= 0 or health == nil then
+            self:ScheduleHealthRetry(unit)
             return
         end
-        
+        if healthBar.healthRetry then Gladdy:CancelTimer(healthBar.healthRetry) end
+        healthBar.healthRetry = nil
+        healthBar.healthRetryAttempts = 0
+        if UnitIsDeadOrGhost(unit) and not Gladdy:isFeignDeath(unit) then
+            self:UNIT_DEATH(unit)
+            return
+        end
+
         healthBar.hp:SetMinMaxValues(0, healthMax)
         healthBar.hp:SetValue(health)
         healthBar.hp.current = health
@@ -390,9 +414,10 @@ function Healthbar:UNIT_DEATH(unit)
     healthBar.hp.current = 0
     Healthbar:SetText(unit, 0, 100, L["DEAD"])
 
-    Gladdy:ScheduleTimer(function()
-        Healthbar:ENEMY_SPOTTED(unit)
-    end, 0.2)
+    if healthBar.healthRetry then Gladdy:CancelTimer(healthBar.healthRetry) end
+    healthBar.healthRetry = nil
+    -- UNIT_HEALTH / UNIT_MAXHEALTH deliver resurrection; no delayed rescan
+    -- that might overwrite DEAD or act on the next arena's occupant.
 end
 
 local function option(params)

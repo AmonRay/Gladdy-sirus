@@ -94,8 +94,12 @@ function Gladdy:SpotEnemy(unit, auraScan)
 		button.classLoc = select(1, UnitClass(unit))
 		button.class = select(2, UnitClass(unit))
 		button.name = UnitName(unit)
-		local guid = UnitGUID(unit)
-		if guid then Gladdy.guids[guid] = unit end
+        local guid = UnitGUID(unit)
+        if button.guid and button.guid ~= guid and Gladdy.guids[button.guid] == unit then
+            Gladdy.guids[button.guid] = nil
+        end
+        button.guid = guid
+        if guid then Gladdy.guids[guid] = unit end
 	end
 	if button.class and button.race then
 		Gladdy:Debug("INFO", "SpotEnemy", "ENEMY_SPOTTED", unit)

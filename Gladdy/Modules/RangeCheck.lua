@@ -62,8 +62,13 @@ end
 function RangeCheck:UpdateFrameOnce()
     if Gladdy.db.rangeCheckEnabled then
         self:RegisterMessage("JOINED_ARENA")
+        if Gladdy.curBracket and not (Gladdy.frame and Gladdy.frame.testing) then self:JOINED_ARENA() end
     else
         self:UnregisterAllMessages()
+        for _, button in pairs(Gladdy.buttons) do
+            self:CancelTimer(button)
+            self:SetColor(button, 1)
+        end
     end
 end
 
@@ -183,6 +188,7 @@ function RangeCheck:JOINED_ARENA()
 end
 
 function RangeCheck.CheckRange(frame)
+    if not Gladdy.db.rangeCheckEnabled or not Gladdy.curBracket then return end
     local button = frame
 
     local spell = Gladdy.db.rangeCheckDefaultSpells[RangeCheck.playerClass].min
@@ -210,7 +216,7 @@ function RangeCheck:CreateTimer(frame)
 end
 
 function RangeCheck:CancelTimer(frame)
-    if frame.range then
+    if frame and frame.range then
         Gladdy:CancelTimer(frame.range)
         frame.range = nil
     end

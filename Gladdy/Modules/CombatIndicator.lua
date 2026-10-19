@@ -29,6 +29,8 @@ function CombatIndicator:Initialize()
 end
 
 function CombatIndicator:JOINED_ARENA()
+    if not Gladdy.db.ciEnabled then return end
+    self.active = true
     self:SetScript("OnUpdate", CombatIndicator.OnEvent)
     self.lastTimeUpdated = 0
 end
@@ -74,8 +76,10 @@ end
 function CombatIndicator:UpdateFrameOnce()
     if Gladdy.db.ciEnabled then
         self:RegisterMessage("JOINED_ARENA")
+        if Gladdy.curBracket and not self.active then self:JOINED_ARENA() end
     else
         self:UnregisterAllMessages()
+        self:Reset()
     end
 end
 
@@ -113,6 +117,7 @@ function CombatIndicator:UpdateFrame(unit)
     Gladdy:SetPosition(ciFrame, unit, "ciXOffset", "ciYOffset", CombatIndicator)
 
     ciFrame:SetAlpha(Gladdy.db.ciAlpha)
+    ciFrame.combatShown = nil
 
     if (Gladdy.db.ciEnabled == false) then
         ciFrame:Hide()
@@ -139,18 +144,23 @@ end
 function CombatIndicator:Reset()
     self:SetScript("OnUpdate", nil)
     self.test = false
+    self.active = false
 end
 
 function CombatIndicator.OnEvent(self, elapsed)
+    if not Gladdy.db.ciEnabled or not Gladdy.curBracket then self:Reset(); return end
     self.lastTimeUpdated = self.lastTimeUpdated + elapsed
 
     if (self.lastTimeUpdated > self.updateInterval) then
         for i=1,Gladdy.curBracket do
             local unit = "arena" .. i
-            if Gladdy.db.ciEnabled and (CombatIndicator.test or (UnitExists(unit) and UnitAffectingCombat(unit))) then
-                CombatIndicator.frames[unit]:Show()
-            else
-                CombatIndicator.frames[unit]:Hide()
+            local frame = CombatIndicator.frames[unit]
+            if frame then
+                local shown = CombatIndicator.test or (UnitExists(unit) and UnitAffectingCombat(unit)) or false
+                if frame.combatShown ~= shown then
+                    if shown then frame:Show() else frame:Hide() end
+                    frame.combatShown = shown
+                end
             end
         end
         self.lastTimeUpdated = 0
