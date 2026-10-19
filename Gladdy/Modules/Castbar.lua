@@ -9,12 +9,6 @@ local GetTime = GetTime
 local CASTING_BAR_ALPHA_STEP = CASTING_BAR_ALPHA_STEP or 0.05
 local BackdropTemplateMixin = BackdropTemplateMixin
 
----------------------------
-
--- CORE
-
----------------------------
-
 local Gladdy = LibStub("Gladdy")
 local L = Gladdy.L
 local AceGUIWidgetLSMlists = AceGUIWidgetLSMlists
@@ -77,11 +71,6 @@ function Castbar:ResetUnit(unit)
     castBar.fadeOut = nil
     self:CAST_STOP(unit)
 end
----------------------------
-
--- FRAME SETUP
-
----------------------------
 
 function Castbar:CreateFrame(unit)
     local castBar = CreateFrame("Frame", nil, Gladdy.buttons[unit])
@@ -265,12 +254,6 @@ function Castbar:UpdateFrame(unit)
     end
 end
 
----------------------------
-
--- EVENT HANDLING
-
----------------------------
-
 Castbar.TimerFormatFunc = {}
 Castbar.TimerFormatFunc.LEFT = function(castBar)
     castBar.timeText:SetFormattedText("%.1f", castBar.casting and (castBar.maxValue - castBar.value) or castBar.value)
@@ -285,14 +268,12 @@ end
 function Castbar.OnUpdate(castBar, elapsed)
     if castBar.channeling or castBar.casting then
         if ((castBar.casting and castBar.value >= castBar.maxValue) or (castBar.channeling and castBar.value <= 0)) then
-            -- cast timed out
             castBar.holdTime = castBar.casting and (GetTime() + 0.25) or 0
             castBar.fadeOut = castBar.casting
             castBar.channeling = nil
             castBar.casting = nil
             Castbar:CAST_STOP(castBar.unit, 0, 1, 0, 1)
         else
-            --cast active
             castBar.value = castBar.value + (castBar.casting and elapsed or -elapsed)
             castBar.bar:SetValue(castBar.value)
             Castbar.TimerFormatFunc[Gladdy.db.castBarTimerFormat](castBar)
@@ -336,7 +317,7 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_START"] = function(castBar, event, ...)
     if ( castBar.spark ) then
         castBar.spark:Show()
     end
-    
+
     castBar.value = (GetTime() - (startTime / 1000));
     castBar.maxValue = (endTime - startTime) / 1000;
     castBar.holdTime = 0
@@ -352,7 +333,6 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_SUCCEEDED"] = function(castBar, event, ..
             castBar.spark:Hide()
         end
         castBar.casting = nil
-        --castBar.spellText:SetText("Stopped")
         castBar.flash = true
         castBar.fadeOut = true
         castBar.holdTime = GetTime() + 0.25
@@ -395,11 +375,7 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_FAILED"] = function(castBar, event, ...)
             castBar.spark:Hide()
         end
         if ( castBar.spellText ) then
-            --[[if ( event == "UNIT_SPELLCAST_FAILED" ) then
-                castBar.spellText:SetText("Failed")
-            else]]
                 castBar.spellText:SetText("Interrupted")
-            --end
         end
         castBar.bar:SetValue(castBar.maxValue)
         castBar.casting = nil
@@ -415,7 +391,6 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_DELAYED"] = function(castBar, event, ...)
         local name, _, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(castBar.unit)
 
         if ( not name or (not castBar.showTradeSkills and isTradeSkill)) then
-            -- if there is no name, there is no bar
             castBar:SetAlpha(0)
             return
         end
@@ -433,7 +408,7 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_DELAYED"] = function(castBar, event, ...)
 end
 Castbar.CastEventsFunc["UNIT_SPELLCAST_CHANNEL_START"] = function(castBar, event, ...)
     local spell, rank, displayName, texture, startTime, endTime, isTradeSkill, interrupt = UnitChannelInfo(castBar.unit)
-    
+
     if ( not spell or (not castBar.showTradeSkills and isTradeSkill)) then
         castBar:SetAlpha(0)
         return
@@ -442,10 +417,10 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_CHANNEL_START"] = function(castBar, event
     if ( castBar.spark ) then
         castBar.spark:Show()
     end
-    
+
     castBar.value = (endTime / 1000) - GetTime()
     castBar.maxValue = (endTime - startTime) / 1000
-    
+
     castBar.holdTime = 0
     castBar.casting = nil
     castBar.channeling = true
@@ -455,30 +430,30 @@ end
 Castbar.CastEventsFunc["UNIT_SPELLCAST_CHANNEL_UPDATE"] = function(castBar, event, ...)
     if ( castBar:IsShown() ) then
         local spell, rank, displayName, texture, startTime, endTime, isTradeSkill, interrupt = UnitChannelInfo(castBar.unit)
-        
+
         if ( not spell or (not castBar.showTradeSkills and isTradeSkill)) then
             castBar:SetAlpha(0)
             return
         end
-        
+
         castBar.value = ((endTime / 1000) - GetTime())
         castBar.maxValue = (endTime - startTime) / 1000
-        
+
         Castbar:CAST_START(castBar.unit, spell, texture, castBar.value, castBar.maxValue, interrupt)
     end
 end
 
 function Castbar.OnEvent(self, event, ...)
     local unit = ...
-    
+
     if ( unit ~= self.unit ) then
         return
     end
-    
+
     if not Castbar.CastEventsFunc[event] then
         return
     end
-    
+
     Castbar.CastEventsFunc[event](self, event, ...)
 end
 
@@ -553,18 +528,11 @@ function Castbar:CAST_STOP(unit, ...)
     end
 end
 
----------------------------
-
--- Gladdy Messages JOINED_ARENA / ResetUnit
-
----------------------------
-
 function Castbar:JOINED_ARENA()
     if Gladdy.db.castBarEnabled then
         for i=1, Gladdy.curBracket do
             local unit = "arena" .. i
             local castBar = self.frames[unit]
-            -- Используем RegisterUnitEvent для всех событий каста
             castBar:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", unit)
             castBar:RegisterUnitEvent("UNIT_SPELLCAST_DELAYED", unit)
             castBar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", unit)
@@ -574,19 +542,13 @@ function Castbar:JOINED_ARENA()
             castBar:RegisterUnitEvent("UNIT_SPELLCAST_STOP", unit)
             castBar:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", unit)
             castBar:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", unit)
-            
+
             castBar:SetScript("OnEvent", Castbar.OnEvent)
             castBar.fadeOut = nil
             self:CAST_STOP(unit)
         end
     end
 end
-
----------------------------
-
--- TEST
-
----------------------------
 
 function Castbar:Test(unit)
     self.test = true
@@ -616,12 +578,6 @@ function Castbar:Test(unit)
         self:CAST_STOP(unit)
     end
 end
-
----------------------------
-
--- OPTIONS
-
----------------------------
 
 local function option(params)
     local defaults = {

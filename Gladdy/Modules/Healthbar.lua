@@ -26,7 +26,6 @@ local Healthbar = Gladdy:NewModule("Health Bar", 100, {
     healthFrameStrata = "MEDIUM",
     healthFrameLevel = 1,
     healthBarStealthColor = { r = 0.66, g = 0.66, b = 0.66, a = 1 },
-    --font
     healthBarFontColor = { r = 1, g = 1, b = 1, a = 1 },
     healthBarNameFontSize = 12,
     healthBarHealthFontSize = 12,
@@ -333,7 +332,6 @@ function Healthbar:UNIT_SPEC(unit)
         return
     end
     self:SetText(unit, button.healthBar.hp.current, button.healthBar.hp.max)
-    --button.healthBar.nameText:SetText(Gladdy:SetTag(unit, Gladdy.db.healthTextLeft, button.health, button.healthMax))
 end
 
 function Healthbar:JOINED_ARENA()
@@ -343,8 +341,6 @@ function Healthbar:JOINED_ARENA()
     end
 end
 
--- Missing max health is transient on initial visibility. Bound retries and
--- bind them to the current GUID; a zero-health dead unit is not missing data.
 function Healthbar:ScheduleHealthRetry(unit)
     local bar = self.frames[unit]
     local button = Gladdy.buttons[unit]
@@ -370,7 +366,7 @@ function Healthbar:ENEMY_SPOTTED(unit)
     if UnitExists(unit) then
         local health = UnitHealth(unit)
         local healthMax = UnitHealthMax(unit)
-        
+
         if not healthMax or healthMax <= 0 or health == nil then
             self:ScheduleHealthRetry(unit)
             return
@@ -416,8 +412,6 @@ function Healthbar:UNIT_DEATH(unit)
 
     if healthBar.healthRetry then Gladdy:CancelTimer(healthBar.healthRetry) end
     healthBar.healthRetry = nil
-    -- UNIT_HEALTH / UNIT_MAXHEALTH deliver resurrection; no delayed rescan
-    -- that might overwrite DEAD or act on the next arena's occupant.
 end
 
 local function option(params)

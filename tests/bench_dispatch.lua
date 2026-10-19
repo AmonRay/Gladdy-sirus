@@ -1,5 +1,3 @@
--- Synthetic dispatch benchmark, not a WoW/FPS benchmark.
--- lua5.1 tests/bench_dispatch.lua [path/to/Gladdy.lua]
 local G={}
 CreateFrame=function() return {RegisterEvent=function() end,SetScript=function() end} end
 LibStub=setmetatable({NewLibrary=function() return G end},{__call=function()

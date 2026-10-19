@@ -104,8 +104,7 @@ function Auras:CreateFrame(unit)
 	}
 
 	local auraFrame = Gladdy:CreateSomeFrame(Gladdy.buttons[unit], "GladdyAura_" .. unit, config)
-	
-	-- Устанавливаем позицию
+
 	local classIcon = Gladdy.modules["Class Icon"].frames[unit]
 	auraFrame:ClearAllPoints()
 	auraFrame:SetAllPoints(classIcon)
@@ -229,8 +228,7 @@ function Auras:CreateInterrupt(unit)
 	}
 
 	local interruptFrame = Gladdy:CreateSomeFrame(Gladdy.buttons[unit], "GladdyInterrupt_" .. unit, config)
-	
-	-- Устанавливаем позицию
+
 	local classIcon = Gladdy.modules["Class Icon"].frames[unit]
 	interruptFrame:ClearAllPoints()
 	interruptFrame:SetAllPoints(classIcon)
@@ -339,7 +337,7 @@ function Auras:UpdateInterruptFrame(unit)
 
 	interruptFrame.text:SetFont(Gladdy:SMFetch("font", "auraFont"), (width/2 - 1) * Gladdy.db.auraFontSizeScale, "OUTLINE")
 	interruptFrame.text:SetTextColor(Gladdy:SetColor(Gladdy.db.auraFontColor))
-	
+
 	if not interruptFrame.active then
 		interruptFrame.icon.overlay:Hide()
 	end
@@ -348,7 +346,6 @@ function Auras:UpdateInterruptFrame(unit)
 end
 
 function Auras:JOINED_ARENA()
-	-- Skip if module disabled
 	if not Gladdy.db.auraEnabled then
 		return
 	end
@@ -365,7 +362,6 @@ function Auras:JOINED_ARENA()
 end
 
 function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, expirationTime, count, debuffType)
-	-- Skip if module disabled
 	if not Gladdy.db.auraEnabled then return end
 
 	local auraFrame = self.frames[unit]
@@ -380,12 +376,10 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 		return
 	end
 
-	-- Проверяем приоритет
 	if auraFrame.priority and auraFrame.priority > auraConfig.priority then
 		return
 	end
 
-	-- Устанавливаем параметры ауры
 	auraFrame.startTime = expirationTime - duration
 	auraFrame.endTime = expirationTime
 	auraFrame.name = spellName
@@ -396,7 +390,6 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 	auraFrame.active = true
 	auraFrame.cooldownFrame:Show()
 
-	-- Показываем рамку и устанавливаем её цвет
 	if Gladdy.db.auraBorderStyle and Gladdy.db.auraBorderStyle ~= "None" then
 		if auraFrame.icon and auraFrame.icon.overlay then
 			auraFrame.icon.overlay:SetTexture(Gladdy.db.auraBorderStyle)
@@ -415,7 +408,6 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 		end
 	end
 
-	-- Устанавливаем время для специальных спеллов
 	local specialSpells = Gladdy.db.specialSpells
 	if specialSpells[spellID] then
 		auraFrame.timeLeft = specialSpells[spellID]
@@ -423,7 +415,6 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 		auraFrame.timeLeft = expirationTime - GetTime()
 	end
 
-	-- Управляем отображением круга кулдауна
 	if not Gladdy.db.auraDisableCircle and not specialSpells[spellID] then
 		auraFrame.cooldown:Show()
 		auraFrame.cooldown:SetCooldown(auraFrame.startTime, duration)
@@ -433,7 +424,6 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 end
 
 function Auras:AURA_FADE(unit, auraType, force)
-	-- Skip if module disabled
 	if not Gladdy.db.auraEnabled then
 		return
 	end
@@ -458,12 +448,10 @@ function Auras:AURA_FADE(unit, auraType, force)
 end
 
 function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,extraSpellName,extraSpellSchool)
-	-- Skip if module disabled
 	if not Gladdy.db.auraEnabled then
 		return
 	end
 
-	-- Safely check for all required objects
 	if not self.frames or not unit or not self.frames[unit] then
 		return
 	end
@@ -475,14 +463,12 @@ function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,e
 		return
 	end
 
-	-- Check if the interrupt is valid before accessing properties
 	local interrupts = Gladdy:GetInterrupts()
 	if not interrupts or not interrupts[spellName] then
 		return
 	end
 
 	local interruptSpellId = tostring(interrupts[spellName].spellID)
-	-- Инициализируем запись, если она не существует
 	if not Gladdy.db.auraListInterrupts[interruptSpellId] then
 		Gladdy.db.auraListInterrupts[interruptSpellId] = {
 			enabled = true,
@@ -504,10 +490,8 @@ function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,e
 	interruptFrame.name = spellName
 	interruptFrame.timeLeft = duration
 	interruptFrame.priority = Gladdy.db.auraListInterrupts[interruptSpellId].priority
-	-- Set icon texture
 	interruptFrame.icon:SetTexture(Gladdy:GetInterrupts()[spellName].texture)
 
-	-- Apply texture coordinates based on zoom setting
 	if Gladdy.db.auraInterruptIconZoomed then
 		interruptFrame.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	else
@@ -518,17 +502,13 @@ function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,e
 	interruptFrame.active = true
 	interruptFrame.cooldownFrame:Show()
 
-	-- Update border display
 	if Gladdy.db.auraBorderStyle and Gladdy.db.auraBorderStyle ~= "None" then
-		-- Reset texture and set fresh
 		interruptFrame.icon.overlay:SetTexture(nil)
 		interruptFrame.icon.overlay:SetTexture(Gladdy.db.auraBorderStyle)
 
-		-- Apply color using the interrupt color function
 		local r, g, b, a = self:GetInterruptColor(extraSpellSchool)
 		interruptFrame.icon.overlay:SetVertexColor(r, g, b, a)
 
-		-- Force refresh by showing the overlay
 		interruptFrame.icon.overlay:Show()
 	else
 		if interruptFrame.icon.overlay then
@@ -543,10 +523,8 @@ function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,e
 end
 
 function Auras:ResetUnit(unit)
-	-- Проверка существования фрейма и его компонентов
 	if not self.frames[unit] then return end
 
-	-- Проверяем существование каждого компонента перед его использованием
 	if self.frames[unit].interruptFrame then
 		self.frames[unit].interruptFrame.active = false
 		self.frames[unit].interruptFrame:Hide()
@@ -574,7 +552,6 @@ function Auras:Test(unit)
 		self.frames[unit].interruptFrame:Show()
 	end
 
-	--Auras
 	local enabledDebuffs, enabledBuffs, testauras = {}, {}
 	for spellIdStr,value in pairs(Gladdy.db.auraListDefault) do
 		if value.enabled then
@@ -610,7 +587,6 @@ function Auras:Test(unit)
 		end
 	end
 
-	--Interrupts
 	if (unit == "arena1" or unit == "arena3") then
 		local enabledInterrupts = {}
 		local spellSchools = {}

@@ -325,8 +325,6 @@ function Powerbar:UNIT_DEATH(unit)
     end
     Powerbar:SetPower(powerBar, unit, 0, powerBar.energy.max, powerBar.energy.powerType, L["DEAD"])
 
-    -- Resource events refresh the bar on resurrection; do not queue work that
-    -- can outlive this arena opponent.
 end
 
 local function option(params)

@@ -1,4 +1,3 @@
--- Run from repository root: lua5.1 tests/sirus_spec.lua
 local passed = 0
 local function test(name, fn)
     local ok, err = pcall(fn)
@@ -153,7 +152,6 @@ local function frame()
     return {cooldown={SetCooldown=noop},SetIcon=noop,Show=noop}
 end
 R.frames={arena1=frame()}; T.frames={arena1=frame()}
--- Test shared-CD decisions separately from rendering/font setup.
 T.Used=function(self,unit,start,duration)
     self.frames[unit].active=true; self.frames[unit].timeLeft=duration/1000
 end
@@ -232,7 +230,6 @@ test('event errors are not silently swallowed when debug is disabled',function()
     local ok,err=pcall(E.OnEvent,E,'BROKEN')
     eq(ok,false); assert(err:find('intentional%-test%-error')); E.BROKEN=nil
 end)
--- Lifecycle tests load the actual modules, only rendering/API surfaces are mocked.
 local healthValue,healthMaximum=0,100
 local healthQueries=0
 UnitHealth=function() healthQueries=healthQueries+1; return healthValue end
@@ -323,7 +320,6 @@ test('disabling combat indicator detaches OnUpdate and reenables safely',functio
 end)
 floor=math.floor; SlashCmdList={}
 local savedDefaults=G.defaults
--- Options is loaded before modules in the game; restore test defaults afterward.
 dofile('Gladdy/Options.lua'); G.defaults=savedDefaults
 local function font()
     return {writes=0, text='',GetText=function(self) return self.text end,

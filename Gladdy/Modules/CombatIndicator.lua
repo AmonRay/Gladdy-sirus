@@ -16,7 +16,7 @@ local CombatIndicator = Gladdy:NewModule("Combat Indicator", nil, {
     ciBorderColor = { r = 0, g = 0, b = 0, a = 1 },
     ciFrameStrata = "HIGH",
     ciFrameLevel = 5,
-    ciIconZoomed = true, -- Set to true by default for WoW 3.3.5 compatibility
+    ciIconZoomed = true,
 })
 
 function CombatIndicator:Initialize()
@@ -51,8 +51,7 @@ function CombatIndicator:CreateFrame(unit)
     ciFrame.texture = ciFrame:CreateTexture(nil, "ARTWORK")
     ciFrame.texture:SetTexture(self.combatIndicatorIcon)
     ciFrame.texture:SetAllPoints(ciFrame)
-    
-    -- Apply texture coordinates based on zoom setting - simpler approach
+
     if Gladdy.db.ciIconZoomed then
         ciFrame.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     else
@@ -102,8 +101,7 @@ function CombatIndicator:UpdateFrame(unit)
         ciFrame.border:Show()
         ciFrame.border:SetVertexColor(Gladdy:SetColor(Gladdy.db.ciBorderColor))
     end
-    
-    -- Handle the icon zooming - simpler approach
+
     local testAgain = false
     if Gladdy.db.ciIconZoomed then
         ciFrame.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)

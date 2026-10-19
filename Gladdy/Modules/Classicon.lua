@@ -1,25 +1,17 @@
 local select, str_gsub = select, string.gsub
 
----------------------------
--- Namespaces
----------------------------
-
 local Gladdy = LibStub("Gladdy")
 local CreateFrame = CreateFrame
 local GetSpellInfo = GetSpellInfo
 local L = Gladdy.L
 
----------------------------
--- Variables
----------------------------
-
 local Classicon = Gladdy:NewModule("Class Icon", 81, {
     classIconEnabled = true,
     classIconSize = 60 + 20 + 1,
     classIconWidthFactor = 0.9,
-    classIconZoomed = false, -- Use zoomed approach which works more reliably
+    classIconZoomed = false,
     classIconBorderStyle = "Interface\\AddOns\\Gladdy\\Images\\Border_rounded_blp",
-    classIconBorderColor = { r = 0, g = 0, b = 0, a = 1 },  -- Changed to white for better visibility
+    classIconBorderColor = { r = 0, g = 0, b = 0, a = 1 },
     classIconSpecIcon = false,
     classIconXOffset = 0,
     classIconYOffset = 0,
@@ -43,9 +35,7 @@ local classIcons = {
     ["WARRIOR"] = classIconPath .. "inv_sword_27",
 }
 
--- Используем английские ключи напрямую для стабильности
 local specIcons = {
-    --DRUID
     ["DRUID"] = {
         ["Balance"] = select(3, GetSpellInfo(8921)), -- Moonfire
         ["Feral"] = select(3, GetSpellInfo(27545)), -- Cat Form
@@ -98,10 +88,6 @@ local specIcons = {
     },
 }
 
----------------------------
--- CORE
----------------------------
-
 function Classicon:Initialize()
     self.frames = {}
 
@@ -128,10 +114,6 @@ function Classicon:ResetUnit(unit)
 
     classIcon.texture:SetTexture("")
 end
-
----------------------------
--- Frame Setup
----------------------------
 
 function Classicon:CreateFrame(unit)
     local classIcon = CreateFrame("Frame", nil, Gladdy.buttons[unit])
@@ -225,10 +207,6 @@ function Classicon:UpdateFrame(unit)
     end
 end
 
----------------------------
--- Events
----------------------------
-
 function Classicon:ENEMY_SPOTTED(unit)
     if not Gladdy.db.classIconEnabled then return end
 
@@ -277,10 +255,6 @@ function Classicon:UNIT_SPEC(unit, spec)
         classIcon.texture:SetTexture(classIcons[button.class])
     end
 end
-
----------------------------
--- Options
----------------------------
 
 function Classicon:GetOptions()
     return {

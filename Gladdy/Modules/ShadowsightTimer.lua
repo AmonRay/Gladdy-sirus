@@ -1,12 +1,6 @@
 local floor, str_find, pairs = math.floor, string.find, pairs
 local CreateFrame = CreateFrame
 
----------------------------
-
--- CORE
-
----------------------------
-
 local Gladdy = LibStub("Gladdy")
 local L = Gladdy.L
 local ShadowsightTimer = Gladdy:NewModule("Shadowsight Timer", nil, {
@@ -41,7 +35,7 @@ function ShadowsightTimer:Reset()
     if self.anchor then
         self.anchor:Hide()
     end
-    
+
     for i=1,2 do
         if self["timerFrame" .. i] then
             self["timerFrame" .. i].active = false
@@ -49,16 +43,10 @@ function ShadowsightTimer:Reset()
             self["timerFrame" .. i].font:SetTextColor(1, 0.8, 0)
         end
     end
-    
+
     self:UnregisterEvent("CHAT_MSG_BG_SYSTEM_NEUTRAL")
     self:SetScript("OnEvent", nil)
 end
-
----------------------------
-
--- FRAME SETUP
-
----------------------------
 
 function ShadowsightTimer:CreateTimerFrame(anchor, name, points)
     local backdrop = {
@@ -154,24 +142,18 @@ function ShadowsightTimer:UpdateFrameOnce()
     end
 end
 
----------------------------
-
--- EVENT HANDLING
-
----------------------------
-
 function ShadowsightTimer:JOINED_ARENA()
     if Gladdy.db.shadowsightTimerEnabled then
         self:RegisterEvent("CHAT_MSG_BG_SYSTEM_NEUTRAL")
         self:SetScript("OnEvent", ShadowsightTimer.OnEvent)
-        
+
         for i=1,2 do
             if self["timerFrame" .. i] then
                 self["timerFrame" .. i].font:SetText("0:90")
                 self["timerFrame" .. i].font:SetTextColor(1, 0.8, 0)
             end
         end
-        
+
         if self.anchor then
             self.anchor:Show()
         end
@@ -195,35 +177,23 @@ function ShadowsightTimer:CHAT_MSG_BG_SYSTEM_NEUTRAL(msg)
     end
 end
 
----------------------------
-
--- TEST
-
----------------------------
-
 function ShadowsightTimer:Test()
     if Gladdy.db.shadowsightTimerEnabled then
         if self.anchor then
             self.anchor:Show()
         end
-        
+
         ShadowsightTimer:JOINED_ARENA()
-        
+
         if self.timerFrame1 then
             self:Start(20, self.timerFrame1)
         end
-        
+
         if self.timerFrame2 then
             self:Start(25, self.timerFrame2)
         end
     end
 end
-
----------------------------
-
--- TIMER
-
----------------------------
 
 function ShadowsightTimer:Start(time, frame)
     frame.endTime = time or Gladdy.db.shadowsightTimerStartTime
@@ -263,7 +233,7 @@ function ShadowsightTimer:NotifyStart()
     if not self.timerFrame1 or not self.timerFrame2 then
         return
     end
-    
+
     local show = Gladdy.db.shadowsightTimerShowTwoTimer
     if self.timerFrame1.active and self.timerFrame2.active then
         if self.timerFrame1.endTime < self.timerFrame2.endTime then
@@ -290,7 +260,7 @@ function ShadowsightTimer:NotifyEnd()
     if not self.timerFrame1 or not self.timerFrame2 then
         return
     end
-    
+
     local show = Gladdy.db.shadowsightTimerShowTwoTimer
     if self.timerFrame1.active then
         self.timerFrame1:SetAlpha(1)
@@ -307,19 +277,13 @@ function ShadowsightTimer:GetHiddenTimer()
     if not self.timerFrame1 or not self.timerFrame2 then
         return self.timerFrame1 or self.timerFrame2
     end
-    
+
     if self.timerFrame1.active and self.timerFrame2.active then
         return self.timerFrame1.endTime < self.timerFrame2.endTime and self.timerFrame1 or self.timerFrame2
     else
         return self.timerFrame1.active and self.timerFrame2 or self.timerFrame1
     end
 end
-
----------------------------
-
--- OPTIONS
-
----------------------------
 
 function ShadowsightTimer:GetOptions()
     return {
@@ -331,13 +295,11 @@ function ShadowsightTimer:GetOptions()
         shadowsightTimerEnabled = Gladdy:option({
             type = "toggle",
             name = L["Enabled"],
-            --desc = L["Turns countdown before the start of an arena match on/off."],
             order = 3,
         }),
         shadowsightTimerLocked = Gladdy:option({
             type = "toggle",
             name = L["Locked"],
-            --desc = L["Turns countdown before the start of an arena match on/off."],
             order = 4,
             disabled = function() return not Gladdy.db.shadowsightTimerEnabled end,
         }),
@@ -350,7 +312,6 @@ function ShadowsightTimer:GetOptions()
         shadowsightAnnounce = Gladdy:option({
             type = "toggle",
             name = L["Announce"],
-            --desc = L["Turns countdown before the start of an arena match on/off."],
             order = 6,
             disabled = function() return not Gladdy.db.shadowsightTimerEnabled end,
         }),
@@ -414,36 +375,6 @@ function ShadowsightTimer:GetOptions()
                         }),
                     },
                 },
-                --[[font = {
-                    type = "group",
-                    name = L["Font"],
-                    order = 3,
-                    args = {
-                        header = {
-                            type = "header",
-                            name = L["Font"],
-                            order = 4,
-                        },
-                        racialFont = Gladdy:option({
-                            type = "select",
-                            name = L["Font"],
-                            desc = L["Font of the cooldown"],
-                            order = 11,
-                            dialogControl = "LSM30_Font",
-                            values = AceGUIWidgetLSMlists.font,
-                        }),
-                        racialFontScale = Gladdy:option({
-                            type = "range",
-                            name = L["Font scale"],
-                            desc = L["Scale of the font"],
-                            order = 12,
-                            min = 0.1,
-                            max = 2,
-                            step = 0.1,
-                            width = "full",
-                        }),
-                    },
-                },--]]
                 frameStrata = {
                     type = "group",
                     name = L["Frame Strata and Level"],

@@ -91,8 +91,6 @@ function RangeCheck:Test(unit)
     button.lastState = 0
     if Gladdy.db.rangeCheckEnabled then
         if unit == "arena2" or unit == "arena4" then
-            --button.unit = "target"
-            --self:CreateTimer(button)
             self:SetRangeAlpha(button, nil)
         else
             self:SetRangeAlpha(button, true)
@@ -181,7 +179,6 @@ function RangeCheck:JOINED_ARENA()
     if Gladdy.db.rangeCheckEnabled then
         for i = 1, Gladdy.curBracket do
             local button = Gladdy.buttons["arena"..i]
-            --if i == 1 then button.unit = "focus" end
             self:CreateTimer(button)
         end
     end
@@ -197,10 +194,8 @@ function RangeCheck.CheckRange(frame)
         RangeCheck:SetRangeAlpha(button, false)
     elseif (spell) then
         RangeCheck:SetRangeAlpha(button, LSR.IsSpellInRange(spell, button.unit) == 1)
-        -- That didn't work, but they are grouped lets try the actual API for this, it's a bit flaky though and not that useful generally
     elseif (UnitInRaid(button.unit) or UnitInParty(button.unit)) then
         RangeCheck:SetRangeAlpha(button, UnitInRange(button.unit, "player"))
-        -- Nope, fall back to interaction :(
     else
         RangeCheck:SetRangeAlpha(button, CheckInteractDistance(button.unit, 4))
     end
@@ -208,7 +203,7 @@ end
 
 function RangeCheck:CreateTimer(frame)
     if not frame.range then
-        frame.range = Gladdy:ScheduleRepeatingTimer(function() 
+        frame.range = Gladdy:ScheduleRepeatingTimer(function()
             RangeCheck.CheckRange(frame)
         end, 0.05)
         frame.parent = frame
@@ -358,7 +353,7 @@ function RangeCheck:GetSpells()
                     },
                     min = {
                         type = "input",
-                        name = "Spell ID", --format("|T%s:20|t %s", select(3, GetSpellInfo(k)), select(1, GetSpellInfo(k)))
+                        name = "Spell ID",
                         order = 2,
                         width = "full",
                         pattern = "%d+",
@@ -366,7 +361,6 @@ function RangeCheck:GetSpells()
                             LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
                             return type(tonumber(value)) == "number"
                         end,
-                        --image = select(3, GetSpellInfo(defaultSpells()[class].min)),
                         get = function(_)
                             return tostring(Gladdy.db.rangeCheckDefaultSpells[class].min)
                         end,

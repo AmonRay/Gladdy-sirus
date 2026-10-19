@@ -6,7 +6,6 @@ local L = Gladdy.L
 local AceGUI = LibStub("AceGUI-3.0")
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 
-
 local function table_copy(t, str)
     local t2 = {};
     if str == nil then
@@ -40,7 +39,6 @@ exportEditBox:SetNumLines(29)
 exportEditBox:SetText("")
 exportEditBox:SetWidth(500)
 exportEditBox.button:Hide()
--- Удалено обращение к exportEditBox.frame, так как этот объект не существует
 export:AddChild(exportEditBox)
 export.eb = exportEditBox
 
@@ -60,7 +58,6 @@ importEditBox:SetNumLines(23)
 importEditBox:SetText("")
 importEditBox:SetWidth(500)
 importEditBox.button:Hide()
--- Удалено обращение к importEditBox.frame, так как этот объект не существует
 import:AddChild(importEditBox)
 import.eb = importEditBox
 local importButton = AceGUI:Create("Button")
@@ -91,13 +88,11 @@ import:AddChild(importClearButton)
 import.clearButton = importClearButton
 
 local deletedOptions = { -- backwards compatibility
-    --deleted DR-categories
     repentance = true,
     sleep = true,
     impconc = true,
     dragonsbreath = true,
     freezetrap = true,
-    --deleted db options
     castBarPos = true,
     buffsCooldownPos = true,
     buffsBuffsCooldownPos = true,
@@ -175,7 +170,6 @@ function ExportImport:CheckDeserializedOptions(tbl, refTbl, str)
     end
 
     if errorFound then
-        --return false, errorMsg
     end
     return true
 end

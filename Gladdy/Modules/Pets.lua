@@ -95,8 +95,6 @@ function Pets:ResetUnit(unitId)
     petFrame.healthBar.portrait:SetTexture(nil)
 end
 
--- Keep a polling fallback: legacy 3.3.5 arena pet health events are not
--- guaranteed. Query at 10 Hz, render only changes, and share one callback.
 function Pets:RefreshHealth(bar, force)
     local health, maximum = UnitHealth(bar.unit), UnitHealthMax(bar.unit)
     if force or bar.lastHealth ~= health or bar.lastMaximum ~= maximum then
@@ -189,7 +187,6 @@ function Pets:CreateFrame(unitId)
     end
     local button = CreateFrame("Frame", "GladdyButtonFramePet" .. unit, Gladdy.frame)
     button:SetMovable(true)
-    --button:SetAlpha(0)
     button:SetPoint("LEFT", Gladdy.buttons[unitId].healthBar, "RIGHT", Gladdy.db.petXOffset, Gladdy.db.petYOffset)
 
     local secure = CreateFrame("Button", "GladdyButton" .. unit, button, "SecureActionButtonTemplate, SecureHandlerEnterLeaveTemplate")
@@ -220,7 +217,6 @@ function Pets:CreateFrame(unitId)
     healthBar.portrait.border:SetAllPoints(healthBar.portrait)
     healthBar.portrait.border:SetTexture(Gladdy.db.classIconBorderStyle)
     healthBar.portrait.border:SetVertexColor(Gladdy:SetColor(Gladdy.db.petHealthBarBorderColor))
-
 
     healthBar.hp = CreateFrame("StatusBar", nil, healthBar)
     healthBar.hp:SetStatusBarTexture(Gladdy:SMFetch("statusbar", "petHealthBarTexture"))
@@ -268,10 +264,6 @@ function Pets:CreateFrame(unitId)
     healthBar.unit = unit
     button.healthBar = healthBar
 
-    --healthBar:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit)
-    --healthBar:RegisterUnitEvent("UNIT_MAXHEALTH", unit)
-    --healthBar:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", unit)
-    --healthBar:RegisterUnitEvent("UNIT_NAME_UPDATE", unit)
     healthBar:SetScript("OnEvent", Pets.OnEvent)
 
     button:SetWidth(Gladdy.db.petWidth)

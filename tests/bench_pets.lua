@@ -1,5 +1,3 @@
--- Synthetic pet poll benchmark. No real WoW rendering or network updates.
--- lua5.1 tests/bench_pets.lua [path/to/Pets.lua]
 local noop=function() end
 local reads,maxReads,writes=0,0,0
 UnitHealth=function() reads=reads+1; return 50 end
@@ -11,7 +9,6 @@ local G={L={},db={petEnabled=true,petHealthPercentage=true},guids={}}
 G.NewModule=function() return {} end
 G.SetColor=function() return 1,1,1,1 end
 LibStub=function() return G end
--- Get the actual module through its normal registration hook.
 local Pets
 G.NewModule=function() Pets={}; return Pets end
 dofile(arg and arg[1] or 'Gladdy/Modules/Pets.lua')

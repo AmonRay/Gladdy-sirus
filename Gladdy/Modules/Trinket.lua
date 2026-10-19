@@ -50,7 +50,6 @@ function Trinket:UpdateFrameOnce()
 end
 
 function Trinket:Reset()
-	--self:UnregisterEvent("ARENA_COOLDOWNS_UPDATE")
 	self:SetScript("OnEvent", nil)
 end
 
@@ -65,7 +64,6 @@ function Trinket:ResetUnit(unit)
 end
 
 function Trinket:CreateFrame(unit)
-	-- Создаем фрейм иконки с помощью утилиты
 	local trinket = Gladdy:CreateIconFrame(Gladdy.buttons[unit], "GladdyTrinketButton" .. unit, {
 		frameStrata = Gladdy.db.trinketFrameStrata,
 		frameLevel = Gladdy.db.trinketFrameLevel,
@@ -84,11 +82,9 @@ function Trinket:CreateFrame(unit)
 		trinketColoredNoCd = Gladdy.db.trinketColoredNoCd
 	})
 
-	-- Устанавливаем размеры
 	trinket:SetWidth(Gladdy.db.trinketSize)
 	trinket:SetHeight(Gladdy.db.trinketSize)
 
-	-- Сохраняем фрейм
 	self.frames[unit] = trinket
 end
 
@@ -114,7 +110,6 @@ function Trinket:UpdateFrame(unit)
 		trinketColoredNoCd = Gladdy.db.trinketColoredNoCd
 	})
 
-	-- Обновляем цвет тринкета
 	if Gladdy.db.trinketColored then
 		if trinket.active then
 			trinket:SetBackdropColor(Gladdy:SetColor(Gladdy.db.trinketColoredCd))
@@ -128,17 +123,14 @@ function Trinket:UpdateFrame(unit)
 		end
 	end
 
-	-- Обновляем размеры
 	local width, height = Gladdy.db.trinketSize * Gladdy.db.trinketWidthFactor, Gladdy.db.trinketSize
 	trinket:SetWidth(width)
 	trinket:SetHeight(height)
 
-	-- Обновляем позицию
 	if not Gladdy.db.trinketGroup or unit == "arena1" then
 		Gladdy:SetPosition(trinket, unit, "trinketXOffset", "trinketYOffset", Trinket)
 	end
 
-	-- Обновляем группировку
 	if Gladdy.db.trinketGroup then
 		if unit ~= "arena1" then
 			local previousUnit = "arena" .. str_gsub(unit, "arena", "") - 1
@@ -155,7 +147,6 @@ function Trinket:UpdateFrame(unit)
 		end
 	end
 
-	-- Создаем мувер для первой арены
 	if unit == "arena1" then
 		Gladdy:CreateMover(trinket, "trinketXOffset", "trinketYOffset", L["Trinket"],
 			{"TOPLEFT", "TOPLEFT"},
@@ -163,7 +154,6 @@ function Trinket:UpdateFrame(unit)
 			0, 0, "trinketEnabled")
 	end
 
-	-- Показываем/скрываем в зависимости от настроек
 	if Gladdy.db.trinketEnabled then
 		trinket:Show()
 	else
@@ -201,14 +191,13 @@ function Trinket:TRINKET_USED(unit)
 	if (not Gladdy.db.trinketEnabled) then return end
 
 	if Gladdy.buttons[unit] then
-		-- В Wrath кулдаун тринкета PvP всегда 2 минуты
 		self:Used(unit, GetTime() * 1000, 120000)
 	end
 end
 
 function Trinket:RACIAL_USED(unit) -- Wrath only
 	if (not Gladdy.db.trinketEnabled) then return end
-	
+
 	local trinket = self.frames[unit]
 	local button = Gladdy.buttons[unit]
 	if (not trinket or not button or not button.constellation) then
@@ -224,24 +213,21 @@ end
 function Trinket:Used(unit, startTime, duration)
 	local trinket = self.frames[unit]
 	if (not trinket) then return end
-	
+
 	trinket.timeLeft = (startTime/1000.0 + duration/1000.0) - GetTime()
-	
-	-- Set up cooldown animation
+
 	if not Gladdy.db.trinketDisableCircle then
 		trinket.cooldown:SetCooldown(startTime/1000.0, duration/1000.0)
 	end
-	
-	-- Make sure cooldown font is properly configured
+
 	if Gladdy.db.trinketFontEnabled then
 		trinket.cooldownFont:SetAlpha(Gladdy.db.trinketCooldownNumberAlpha)
 	else
 		trinket.cooldownFont:SetText("")
 	end
-	
+
 	trinket.active = true
-	
-	-- Обновляем цвет при использовании
+
 	if Gladdy.db.trinketColored then
 		trinket:SetBackdropColor(Gladdy:SetColor(Gladdy.db.trinketColoredCd))
 	end
@@ -250,7 +236,7 @@ end
 function Trinket:Test(unit)
 	local trinket = self.frames[unit]
 	if (not trinket) then return end
-	
+
 	if (unit == "arena1" or unit == "arena2") then
 		Gladdy:SendMessage("TRINKET_USED", unit)
 	end

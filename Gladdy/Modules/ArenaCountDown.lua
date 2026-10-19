@@ -102,7 +102,6 @@ function ACDFrame.Ticker()
     if (Gladdy.db.countdown) then
         self.ACDNumFrame:Show()
         if (self.countdown and self.countdown >= 10 and self.countdown <= 60) then
-            -- Display has 2 digits
             local ones = self.countdown % 10
             local tens = (self.countdown / 10) % 10
             self.ACDNumOne:Hide()
@@ -113,7 +112,6 @@ function ACDFrame.Ticker()
             self.ACDNumOnes:SetTexture(self.texturePath .. ones)
             self.ACDNumFrame:SetScale(0.7)
         elseif (self.countdown and self.countdown < 10 and self.countdown > -1) then
-            -- Display has 1 digit
             local path = self.countdown <= 0 and self.faction or self.countdown
             self.ACDNumOne:Show()
             self.ACDNumOne:SetTexture(self.texturePath .. path)

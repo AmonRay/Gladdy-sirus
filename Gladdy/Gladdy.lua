@@ -21,7 +21,6 @@ local PREFIX = "Gladdy v"
 local VERSION_REGEX = PREFIX .. "(%d+%.%d+)%-(%a)"
 local LibStub = LibStub
 
--- Add safe C_CreatureInfo getters to avoid errors when ClassicAPI isn't loaded
 if not C_CreatureInfo then
     C_CreatureInfo = {}
 end
@@ -66,12 +65,6 @@ if not C_CreatureInfo._GetRaceInfo then
     end
 end
 
----------------------------
-
--- CORE
-
----------------------------
-
 local MAJOR, MINOR = "Gladdy", 11
 local Gladdy = LibStub:NewLibrary(MAJOR, MINOR)
 local L = {}
@@ -85,7 +78,6 @@ Gladdy.VERSION_REGEX = VERSION_REGEX
 
 Gladdy.debug = false
 
--- Константы для уровней логирования
 Gladdy.LOG_LEVELS = {
     ERROR = 1,
     WARN = 2,
@@ -93,7 +85,6 @@ Gladdy.LOG_LEVELS = {
     DEBUG = 4
 }
 
--- Текущий уровень логирования (по умолчанию INFO)
 Gladdy.logLevel = Gladdy.LOG_LEVELS.INFO
 
 LibStub("AceTimer-3.0"):Embed(Gladdy)
@@ -140,11 +131,10 @@ end
 
 function Gladdy:Debug(lvl, ...)
     if not Gladdy.debug then return end
-    
-    -- Проверяем уровень логирования
+
     local level = Gladdy.LOG_LEVELS[lvl] or 0
     if level > Gladdy.logLevel then return end
-    
+
     if lvl == "INFO" then
         Gladdy:Print("[INFO]", ...)
     elseif lvl == "WARN" then
@@ -200,14 +190,6 @@ function Gladdy:UnregisterAllEvents()
 	self.events:UnregisterAllEvents()
 end
 
----------------------------
-
--- MODULE FUNCTIONS
-
----------------------------
-
--- Module membership/priorities are fixed at registration. Cache the order,
--- not message subscriptions: handlers may register/unregister during dispatch.
 function Gladdy:GetModuleOrder()
     if not self.moduleOrder then
         local ordered = {}
@@ -295,12 +277,6 @@ function Gladdy:NewModule(name, priority, defaults)
 	return module
 end
 
----------------------------
-
--- INIT
-
----------------------------
-
 function Gladdy:DeleteUnknownOptions(tbl, refTbl, str)
 	if str == nil then
 		str = "Gladdy.db"
@@ -326,8 +302,6 @@ function Gladdy:PixelPerfectScale(update)
 	if self.db and self.db.pixelPerfect and self.frame then
 		self.frame:SetIgnoreParentScale(true)
 		self.frame:SetScale(perfectUIScale)
-		--local adaptiveScale = (GetCVar("useUiScale") == "1" and 1.0 + perfectUIScale - GetCVar("UIScale") or perfectUIScale)
-		--self.frame:SetScale(adaptiveScale)
 		if update then
 			self:UpdateFrame()
 		end
@@ -344,10 +318,8 @@ function Gladdy:OnInitialize()
 	self.dbi.RegisterCallback(self, "OnProfileReset", "OnProfileReset")
 	self.db = self.dbi.profile
 
-	-- Применяем локализацию после загрузки настроек
 	self:ApplyLocalization()
 
-	-- Инициализируем таблицу обработчиков сообщений
 	self.messageHandlers = {}
 
 	self.LSM = LibStub("LibSharedMedia-3.0")
@@ -364,21 +336,16 @@ function Gladdy:OnInitialize()
 	self.LSM:Register("font", "DorisPP", "Interface\\AddOns\\Gladdy\\Images\\DorisPP.TTF")
 	self.LSM:Register("border", "Square Full White", "Interface\\AddOns\\Gladdy\\Images\\Square_FullWhite.tga")
 
-	-- Reassign local L to point to Gladdy.L
 	L = self.L
 
-	-- Handle locale settings
 	if self.db.locale ~= "auto" then
-		-- Access the AceDBOptions-3.0 library
 		local AceDBOptions = LibStub("AceDBOptions-3.0")
 		if AceDBOptions then
-			-- Ensure AceDBOptions.L exists before trying to use it
 			if not AceDBOptions.L then
 				AceDBOptions.L = {}
 			end
-				
+
 			if self.db.locale == "enUS" then
-				-- Force English localization for the options
 				AceDBOptions.L.profiles = "Profiles"
 				AceDBOptions.L.profiles_sub = "Manage Profiles"
 				AceDBOptions.L.default = "Default"
@@ -400,7 +367,6 @@ function Gladdy:OnInitialize()
 				AceDBOptions.L.current = "Current Profile:"
 				AceDBOptions.L.confirm_delete = "Are you sure you want to delete the selected profile?"
 			elseif self.db.locale == "ruRU" then
-				-- Force Russian localization
 				AceDBOptions.L.profiles = "Профили"
 				AceDBOptions.L.profiles_sub = "Управление профилями"
 				AceDBOptions.L.default = "По умолчанию"
@@ -456,13 +422,12 @@ function Gladdy:OnInitialize()
 	end
 end
 
--- Function to apply localization based on selected language
 function Gladdy:ApplyLocalization()
     local currentLocale = GetLocale()
     local userSelectedLocale = self.db and self.db.locale or "auto"
-    
+
     local langToApply = "enUS"
-    
+
     if userSelectedLocale == "enUS" then
         langToApply = "enUS"
         Gladdy:Debug("INFO", "Using English localization (forced)")
@@ -476,20 +441,16 @@ function Gladdy:ApplyLocalization()
         langToApply = "enUS"
         Gladdy:Debug("INFO", "Using English localization (default)")
     end
-    
-    -- Применяем локализацию
+
     self:ApplyLanguage(langToApply)
-    
-    -- Обновляем интерфейс
+
     self:UpdateLocalization()
-    
+
     Gladdy:Debug("INFO", "Localization applied", "Client locale:", currentLocale, "Selected locale:", userSelectedLocale)
 end
 
--- Function to update localization based on db settings
 function Gladdy:UpdateLocalization()
 	if Gladdy.options then
-		-- Update specific button texts
 		if Gladdy.options.args.lock then
 			Gladdy.options.args.lock.name = Gladdy.db.locked and L["Unlock frame"] or L["Lock frame"]
 			Gladdy.options.args.lock.desc = L["Toggle if frame can be moved"]
@@ -502,8 +463,7 @@ function Gladdy:UpdateLocalization()
 			Gladdy.options.args.test.name = L["Test"]
 			Gladdy.options.args.test.desc = L["Show Test frames"]
 		end
-		
-		-- Notify AceConfigRegistry of changes
+
 		LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
 	end
 end
@@ -511,8 +471,7 @@ end
 function Gladdy:OnProfileReset()
 	self.db = self.dbi.profile
 	Gladdy:Debug("INFO", "OnProfileReset")
-	
-	-- Применяем локализацию после сброса профиля
+
 	self:ApplyLocalization()
 
 	self:HideFrame()
@@ -524,10 +483,9 @@ end
 
 function Gladdy:OnProfileChanged()
 	self.db = self.dbi.profile
-	
-	-- Применяем локализацию после изменения профиля
+
 	self:ApplyLocalization()
-	
+
 	self:HideFrame()
 	self:ToggleFrame(3)
 	Gladdy.options.args.lock.name = Gladdy.db.locked and L["Unlock frame"] or L["Lock frame"]
@@ -581,12 +539,6 @@ function Gladdy:GetIconStyles()
 	}
 end
 
----------------------------
-
--- TEST
-
----------------------------
-
 function Gladdy:Test()
 	self.frame.testing = true
 	if self.curBracket then
@@ -612,12 +564,6 @@ function Gladdy:Test()
 		end
 	end
 end
-
----------------------------
-
--- EVENT HANDLING
-
----------------------------
 
 function Gladdy:PLAYER_ENTERING_WORLD()
 	if self.showConfig then
@@ -660,12 +606,6 @@ function Gladdy:PLAYER_REGEN_ENABLED()
 		self.hideFrame = nil
 	end
 end
-
----------------------------
-
--- RESET FUNCTIONS (ARENA LEAVE)
-
----------------------------
 
 function Gladdy:Reset()
 	if type(self.guids) == "table" then
@@ -721,28 +661,19 @@ function Gladdy:ResetButton(unit)
 	end
 end
 
----------------------------
-
--- ARENA JOINED
-
----------------------------
-
 function Gladdy:JoinedArena()
     Gladdy:Debug("INFO", "JoinedArena", "Start", "curBracket:", self.curBracket)
-    
-    -- Устанавливаем минимальный размер команды, если не определен
+
     if not self.curBracket then
         self.curBracket = 2
     end
-    
-    -- Создаем кнопки для каждого участника арены
+
     for i = 1, self.curBracket do
         if not self.buttons["arena" .. i] then
             self:CreateButton(i)
         end
     end
-    
-    -- Показываем фреймы с учетом боевой ситуации
+
     if InCombatLockdown() then
         Gladdy:Debug("INFO", "JoinedArena", "In combat, delaying frame show")
         self.showFrame = true
@@ -752,8 +683,7 @@ function Gladdy:JoinedArena()
         self.frame:Show()
 		self:SendMessage("JOINED_ARENA")
     end
-    
-    -- Устанавливаем прозрачность для кнопок арены
+
     for i = 1, self.curBracket do
         local button = self.buttons["arena" .. i]
         if button then
@@ -761,22 +691,13 @@ function Gladdy:JoinedArena()
             Gladdy:Debug("INFO", "JoinedArena", "Set alpha for arena" .. i)
         end
     end
-    
-    -- Скрываем стандартные фреймы Blizzard если необходимо
+
     if self.db.hideBlizzard == "arena" or self.db.hideBlizzard == "always" then
         self:BlizzArenaSetAlpha(0)
     end
 end
 
----------------------------
-
--- BLIZZARD FRAMES
-
----------------------------
-
 function Gladdy:BlizzArenaSetAlpha(alpha)
-    -- DF UI creates CompactArenaFrame in FrameXML, without Blizzard_ArenaUI.
-    -- ArenaEnemyFrames is an alias on that client. Never touch ElvUI frames.
     if ArenaEnemyFrames then ArenaEnemyFrames:SetAlpha(alpha) end
     if CompactArenaFrame and CompactArenaFrame ~= ArenaEnemyFrames then
         CompactArenaFrame:SetAlpha(alpha)
@@ -789,7 +710,6 @@ function Gladdy:BlizzArenaSetAlpha(alpha)
     end
 end
 
--- The compact arena container may be generated after Gladdy initializes.
 if type(CompactArenaFrame_Generate) == "function" then
     hooksecurefunc("CompactArenaFrame_Generate", function()
         if not Gladdy.db then return end
@@ -798,12 +718,6 @@ if type(CompactArenaFrame_Generate) == "function" then
         Gladdy:BlizzArenaSetAlpha((mode == "always" or (mode == "arena" and inArena)) and 0 or 1)
     end)
 end
-
----------------------------
-
--- FONT/STATUSBAR/BORDER
-
----------------------------
 
 local defaults = {["statusbar"] = "Smooth", ["border"] = "Gladdy Tooltip round", ["font"] = "DorisPP"}
 
@@ -814,22 +728,18 @@ function Gladdy:SMFetch(lsmType, key)
         return self.LSM:Fetch(lsmType, defaults[lsmType])
     end
 
-    -- Check if this is a direct path (starting with "Interface\")
     if type(styleValue) == "string" and styleValue:find("^Interface\\") then
-        -- Try to find the registered name for this path
         for _, name in pairs(self.LSM:List(lsmType)) do
             if self.LSM:Fetch(lsmType, name) == styleValue then
                 return styleValue -- Return the direct path
             end
         end
 
-        -- If we reach here, we need to register the texture path
         local baseName = styleValue:match("([^\\]+)%.%w+$") or "CustomBorder"
         self.LSM:Register(lsmType, baseName, styleValue)
         return styleValue
     end
 
-    -- Normal LSM lookup
     local smMediaType = self.LSM:Fetch(lsmType, styleValue)
     if (smMediaType == nil and styleValue ~= "None") then
         if not lastWarning[key] or GetTime() - lastWarning[key] > 120 then
