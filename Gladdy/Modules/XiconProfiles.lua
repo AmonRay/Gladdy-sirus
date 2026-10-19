@@ -21,7 +21,7 @@ local function applyProfile(profileString)
     Gladdy.options.args.lock.name = Gladdy.db.locked and L["Unlock frame"] or L["Lock frame"]
     Gladdy.options.args.showMover.name = Gladdy.db.showMover and L["Hide Mover"] or L["Show Mover"]
 
-    LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
+    LibStub("AceConfigRegistry-3.0-Gladdy"):NotifyChange("Gladdy")
 
     Gladdy:SendMessage("GLADDY_PROFILE_CHANGED")
 

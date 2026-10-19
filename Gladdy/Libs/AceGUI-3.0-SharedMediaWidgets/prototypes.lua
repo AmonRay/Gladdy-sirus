@@ -1,17 +1,19 @@
 -- Widget created by Yssaril
-local DataVersion = 9003
-local AGSMW = LibStub:NewLibrary("AceGUISharedMediaWidgets-1.0", DataVersion)
+local DataVersion = 9004
+local AGSMW = LibStub:NewLibrary("AceGUISharedMediaWidgets-1.0-Gladdy", DataVersion)
 
 if not AGSMW then
   return	-- already loaded and no upgrade necessary
 end
 
-local AceGUI = LibStub("AceGUI-3.0")
+local AceGUI = LibStub("AceGUI-3.0-Gladdy")
+local CreateFrame = AceGUI and AceGUI.CreateFrame
+local CreateFont = AceGUI and AceGUI.CreateFont
 local Media = LibStub("LibSharedMedia-3.0")
 
 AGSMW = AGSMW or {}
 
-AceGUIWidgetLSMlists = {
+GladdyAceGUIWidgetLSMlists = {
 	['font'] = Media:HashTable("font"),
 	['sound'] = Media:HashTable("sound"),
 	['statusbar'] = Media:HashTable("statusbar"),
@@ -95,6 +97,7 @@ do
 		frame.text = text
 
 		local dropButton = CreateFrame("Button", nil, frame)
+			dropButton:SetFrameLevel(frame:GetFrameLevel() + 1)
 			dropButton:SetWidth(24)
 			dropButton:SetHeight(24)
 			dropButton:SetPoint("TOPRIGHT", DRight, "TOPRIGHT", -16, -18)
@@ -113,6 +116,7 @@ do
 		local frame = self:GetBaseFrame()
 
 		local displayButton = CreateFrame("Button", nil, frame)
+			displayButton:SetFrameLevel(frame:GetFrameLevel() + 1)
 			displayButton:SetHeight(42)
 			displayButton:SetWidth(42)
 			displayButton:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -2)
@@ -158,7 +162,7 @@ do
 	local function AddFrame(self, frame)
 		frame:SetParent(self.contentframe)
 		frame:SetFrameStrata(self:GetFrameStrata())
-		frame:SetFrameLevel(self:GetFrameLevel() + 100)
+		frame:SetFrameLevel(math.min(126, self:GetFrameLevel() + 80))
 
 		if next(self.contentRepo) then
 			frame:SetPoint("TOPLEFT", self.contentRepo[#self.contentRepo], "BOTTOMLEFT", 0, 0)
@@ -213,11 +217,13 @@ do
 				frame:EnableMouseWheel(true)
 
 			local contentframe = CreateFrame("Frame", nil, frame)
+				contentframe:SetFrameLevel(frame:GetFrameLevel() + 1)
 				contentframe:SetWidth(160)
 				contentframe:SetHeight(0)
 			frame.contentframe = contentframe
 
 			local scrollframe = CreateFrame("ScrollFrame", nil, frame)
+				scrollframe:SetFrameLevel(frame:GetFrameLevel() + 1)
 				scrollframe:SetWidth(160)
 				scrollframe:SetPoint("TOPLEFT", frame, "TOPLEFT", 14, -13)
 				scrollframe:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -14, 12)
@@ -236,6 +242,7 @@ do
 			frame.contentRepo = {} -- store all our frames in here so we can get rid of them later
 
 			local slider = CreateFrame("Slider", nil, scrollframe)
+				slider:SetFrameLevel(scrollframe:GetFrameLevel() + 1)
 				slider:SetOrientation("VERTICAL")
 				slider:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -14, -10)
 				slider:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -14, 10)

@@ -536,7 +536,7 @@ function Gladdy:SetupOptions()
                                         desc = L["General Font"],
                                         order = 11,
                                         dialogControl = "LSM30_Font",
-                                        values = AceGUIWidgetLSMlists.font,
+                                        values = GladdyAceGUIWidgetLSMlists.font,
                                         get = function(info)
                                             local a = Gladdy.db.auraFont
                                             local b = Gladdy.db.buffsFont
@@ -741,7 +741,7 @@ function Gladdy:SetupOptions()
                                         desc = L["This changes the texture of all statusbar frames"],
                                         order = 48,
                                         dialogControl = "LSM30_Statusbar",
-                                        values = AceGUIWidgetLSMlists.statusbar,
+                                        values = GladdyAceGUIWidgetLSMlists.statusbar,
                                         get = function(info)
                                             local a = Gladdy.db.healthBarTexture
                                             local b = Gladdy.db.powerBarTexture
@@ -768,7 +768,7 @@ function Gladdy:SetupOptions()
                                         desc = L["This changes the border style of all statusbar frames"],
                                         order = 49,
                                         dialogControl = "LSM30_Border",
-                                        values = AceGUIWidgetLSMlists.border,
+                                        values = GladdyAceGUIWidgetLSMlists.border,
                                         get = function(info)
                                             local a = Gladdy.db.healthBarBorderStyle
                                             local b = Gladdy.db.powerBarBorderStyle
@@ -858,14 +858,14 @@ function Gladdy:SetupOptions()
 
     self.options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.dbi) }
 
-    LibStub("AceConfig-3.0"):RegisterOptionsTable("Gladdy_blizz", self.options)
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Gladdy_blizz", "Gladdy")
+    LibStub("AceConfig-3.0-Gladdy"):RegisterOptionsTable("Gladdy_blizz", self.options)
+    LibStub("AceConfigDialog-3.0-Gladdy"):AddToBlizOptions("Gladdy_blizz", "Gladdy")
 
-    LibStub("AceConfig-3.0"):RegisterOptionsTable("Gladdy", self.options)
+    LibStub("AceConfig-3.0-Gladdy"):RegisterOptionsTable("Gladdy", self.options)
 
     self:UpdateLocalization()
 
-    local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+    local AceConfigRegistry = LibStub("AceConfigRegistry-3.0-Gladdy")
     if AceConfigRegistry.registeredNamespaces and not AceConfigRegistry.registeredNamespaces["Gladdy"] then
         AceConfigRegistry:RegisterOptionsTable("Gladdy", self.options)
     elseif not AceConfigRegistry.registeredNamespaces then
@@ -881,7 +881,7 @@ function Gladdy:SetupOptions()
 end
 
 function Gladdy:ShowOptions()
-    LibStub("AceConfigDialog-3.0"):Open("Gladdy")
+    LibStub("AceConfigDialog-3.0-Gladdy"):Open("Gladdy")
 end
 
 function Gladdy:GetAuras(auraType)

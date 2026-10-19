@@ -11,7 +11,7 @@
 -- @class file
 -- @name AceSerializer-3.0
 -- @release $Id$
-local MAJOR,MINOR = "AceSerializer-3.0", 4
+local MAJOR,MINOR = "AceSerializer-3.0", 3
 local AceSerializer, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceSerializer then return end
@@ -53,7 +53,7 @@ local function SerializeValue(v, res, nres)
 	-- We use "^" as a value separator, followed by one byte for type indicator
 	local t=type(v)
 
-	if t=="string" then		-- ^S = string (escaped to remove nonprints, "^"s, etc)
+	if t=="string" then		-- ^S = string (escaped to remove nonprints, '^'s, etc)
 		res[nres+1] = "^S"
 		res[nres+2] = gsub(v,"[%c \94\126\127]", SerializeStringHelper)
 		nres=nres+2

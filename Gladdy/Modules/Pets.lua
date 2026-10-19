@@ -472,7 +472,7 @@ function Pets:GetOptions()
                             desc = L["Texture of the bar"],
                             order = 7,
                             dialogControl = "LSM30_Statusbar",
-                            values = AceGUIWidgetLSMlists.statusbar,
+                            values = GladdyAceGUIWidgetLSMlists.statusbar,
                         }),
                         petHealthBarColor = Gladdy:colorOption({
                             type = "color",
@@ -530,7 +530,7 @@ function Pets:GetOptions()
                             desc = L["Font of the bar"],
                             order = 11,
                             dialogControl = "LSM30_Font",
-                            values = AceGUIWidgetLSMlists.font,
+                            values = GladdyAceGUIWidgetLSMlists.font,
                         }),
                         petHealthBarFontColor = Gladdy:colorOption({
                             type = "color",
@@ -565,7 +565,7 @@ function Pets:GetOptions()
                             name = L["Border style"],
                             order = 21,
                             dialogControl = "LSM30_Border",
-                            values = AceGUIWidgetLSMlists.border,
+                            values = GladdyAceGUIWidgetLSMlists.border,
                         }),
                         petHealthBarBorderSize = option({
                             type = "range",

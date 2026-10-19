@@ -696,7 +696,7 @@ function BuffsDebuffs:GetOptions()
 									desc = L["Font of the cooldown text"],
 									order = 2,
 									dialogControl = "LSM30_Font",
-									values = AceGUIWidgetLSMlists.font,
+									values = GladdyAceGUIWidgetLSMlists.font,
 								}),
 								buffsBuffsFontScale = Gladdy:option({
 									type = "range",
@@ -915,7 +915,7 @@ function BuffsDebuffs:GetOptions()
 									desc = L["Font of the cooldown text"],
 									order = 2,
 									dialogControl = "LSM30_Font",
-									values = AceGUIWidgetLSMlists.font,
+									values = GladdyAceGUIWidgetLSMlists.font,
 								}),
 								buffsDebuffsFontScale = Gladdy:option({
 									type = "range",

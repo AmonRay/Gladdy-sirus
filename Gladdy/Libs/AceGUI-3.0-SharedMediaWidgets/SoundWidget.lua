@@ -1,14 +1,16 @@
 -- Widget is based on the AceGUIWidget-DropDown.lua supplied with AceGUI-3.0
 -- Widget created by Yssaril
 
-local AceGUI = LibStub("AceGUI-3.0")
+local AceGUI = LibStub("AceGUI-3.0-Gladdy")
+local CreateFrame = AceGUI and AceGUI.CreateFrame
+local CreateFont = AceGUI and AceGUI.CreateFont
 local Media = LibStub("LibSharedMedia-3.0")
 
-local AGSMW = LibStub("AceGUISharedMediaWidgets-1.0")
+local AGSMW = LibStub("AceGUISharedMediaWidgets-1.0-Gladdy")
 
 do
 	local widgetType = "LSM30_Sound"
-	local widgetVersion = 12
+	local widgetVersion = 13
 
 	local contentFrameCache = {}
 	local function ReturnSelf(self)
@@ -51,6 +53,7 @@ do
 			frame.check = check
 
 			local soundbutton = CreateFrame("Button", nil, frame)
+				soundbutton:SetFrameLevel(frame:GetFrameLevel() + 1)
 				soundbutton:SetWidth(16)
 				soundbutton:SetHeight(16)
 				soundbutton:SetPoint("RIGHT",frame,"RIGHT",-1,0)
@@ -80,6 +83,7 @@ do
 	end
 
 	local function OnAcquire(self)
+		self:SetList()
 		self:SetHeight(44)
 		self:SetWidth(200)
 	end
@@ -219,6 +223,7 @@ do
 
 
 		local soundbutton = CreateFrame("Button", nil, frame)
+		soundbutton:SetFrameLevel(frame:GetFrameLevel() + 1)
 			soundbutton:SetWidth(16)
 			soundbutton:SetHeight(16)
 			soundbutton:SetPoint("LEFT",frame.DLeft,"LEFT",26,1)

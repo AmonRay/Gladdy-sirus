@@ -14,10 +14,14 @@ jobs:
       - name: Check Lua syntax
         run: find Gladdy tests -name '*.lua' -print0 | xargs -0 -n 1 luac5.1 -p
       - name: Check addon manifest
-        run: python3 tests/check_manifest.py
+        run: python3 tests/check_manifest.py && python3 tests/check_ace_sources.py
       - name: Run Sirus regression tests
         run: lua5.1 tests/sirus_spec.lua
       - name: Run library regression tests
         run: lua5.1 tests/libraries_spec.lua
+      - name: Run Ace3 core integration tests
+        run: lua5.1 tests/ace_core_spec.lua
+      - name: Check ElvUI and Gladdy UI isolation in both load orders
+        run: lua5.1 tests/ace_ui_spec.lua before && lua5.1 tests/ace_ui_spec.lua after
       - name: Run synthetic operation-count checks
         run: lua5.1 tests/bench_dispatch.lua && lua5.1 tests/bench_pets.lua

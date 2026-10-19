@@ -1,0 +1,515 @@
+[
+  {
+    "path": "Gladdy/Libs/Ace3/AceDB-3.0/AceDB-3.0.lua",
+    "source_sha256": "68109dc2c4b77f79e22753ed11e36b1b780d36abb8faff663ab38e8f52e628e9",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Libraries/Core/Ace3/AceDB-3.0/AceDB-3.0.lua",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Libraries/Core/Ace3/AceDB-3.0/AceDB-3.0.lua",
+    "installed_sha256": "862dbb6c36fbb6f0c3ae5e97ac5723c1314cbe4d3983059a81961f16146e4619"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceDB-3.0/AceDB-3.0.xml",
+    "source_sha256": "474da5baa67888d6440de73f27705ed2e75c8dce240d9ba2848cfa9583f16e49",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Libraries/Core/Ace3/AceDB-3.0/AceDB-3.0.xml",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Libraries/Core/Ace3/AceDB-3.0/AceDB-3.0.xml",
+    "installed_sha256": "db086e63b8af39bd4857394119324573868a8bf5815d4c6f3d1af1027cba0625"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceHook-3.0/AceHook-3.0.lua",
+    "source_sha256": "d7fe6854137fc2e38d5ee2a8a9c85de7175f2d4adeeff3e8d79f484e6f47d0b1",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Libraries/Core/Ace3/AceHook-3.0/AceHook-3.0.lua",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Libraries/Core/Ace3/AceHook-3.0/AceHook-3.0.lua",
+    "installed_sha256": "e26b72e45958889b0f14cea9e50ef6eae31386e2055467807142e1f8fdd7100c"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceHook-3.0/AceHook-3.0.xml",
+    "source_sha256": "7f61b277580c753dba119f9de6e7c930d8c62658c115a07580feea792330cde2",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Libraries/Core/Ace3/AceHook-3.0/AceHook-3.0.xml",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Libraries/Core/Ace3/AceHook-3.0/AceHook-3.0.xml",
+    "installed_sha256": "13d7aecc03651820a9b4eb17eaded026dea2848428879cc8898dd1d01fb06967"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceSerializer-3.0/AceSerializer-3.0.lua",
+    "source_sha256": "02eb5919477d443d639dc9992dd624decc0ed62356fb90bd15a016b70a561414",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Libraries/Core/Ace3/AceSerializer-3.0/AceSerializer-3.0.lua",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Libraries/Core/Ace3/AceSerializer-3.0/AceSerializer-3.0.lua",
+    "installed_sha256": "83b06bca7b3e8981f1fc48b750d716a99ddc81fca36902eaebba4feb12cf79df"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceSerializer-3.0/AceSerializer-3.0.xml",
+    "source_sha256": "de1ec9e6d77039f669997e1dba09dbf1748138424a079054bcbc98ce0bc2ba7f",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Libraries/Core/Ace3/AceSerializer-3.0/AceSerializer-3.0.xml",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Libraries/Core/Ace3/AceSerializer-3.0/AceSerializer-3.0.xml",
+    "installed_sha256": "5e346ce596cfe2e203dd8e8b8b45a3d2de960357b314b4a194de8f00d7d5ccff"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceTimer-3.0/AceTimer-3.0.lua",
+    "source_sha256": "993f83a697c375b1a227d8f5ad3d836c092ad04e82e8c2cbebb3af929bb2095c",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Libraries/Core/Ace3/AceTimer-3.0/AceTimer-3.0.lua",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Libraries/Core/Ace3/AceTimer-3.0/AceTimer-3.0.lua",
+    "installed_sha256": "91e5c6d4a86f1f29b43bb5268ecabe525957660b62491d63925c3b606f345a48"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceTimer-3.0/AceTimer-3.0.xml",
+    "source_sha256": "0d7db07cae9dcae62cb79d2071dd31460b561b3915c0187989ec6d2f40c2b60a",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Libraries/Core/Ace3/AceTimer-3.0/AceTimer-3.0.xml",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Libraries/Core/Ace3/AceTimer-3.0/AceTimer-3.0.xml",
+    "installed_sha256": "09b48d4fc537664bd052132a331fe88cfd673d5f957c893db7e3797350fb9441"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/LibStub/LibStub.lua",
+    "source_sha256": "2d978b1936d2a4bfd63cbdf66986616906ddbd73554dfd57f033be927ec7b55e",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Libraries/Core/LibStub/LibStub.lua",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Libraries/Core/LibStub/LibStub.lua",
+    "installed_sha256": "f378dd3e36f8c6cf6e72bdb79a41171649f59b07d6489ff3e7dab94403a2e9b1"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/CallbackHandler-1.0/CallbackHandler-1.0.lua",
+    "source_sha256": "28bf54c4072a6a32aeb47dcff9350955e798b62bac533442cda8bb6a82216c8f",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Libraries/Core/CallbackHandler-1.0/CallbackHandler-1.0.lua",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Libraries/Core/CallbackHandler-1.0/CallbackHandler-1.0.lua",
+    "installed_sha256": "da1f9284fd035c62c21c220f2a0daede8a43e2e52a0bd961c3f7007d0dc2e6ad"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceDBOptions-3.0/AceDBOptions-3.0.lua",
+    "source_sha256": "cc11036a7a769591d2e81b1e14ca845d200b2b5992f6044b8a799f379046b10e",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Options/Libraries/Ace3/AceDBOptions-3.0/AceDBOptions-3.0.lua",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Options/Libraries/Ace3/AceDBOptions-3.0/AceDBOptions-3.0.lua",
+    "installed_sha256": "22c421c9627da881e6cc90c5adaa62aaae609625b19c6a473ea3fdfdfa71e8a7"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceDBOptions-3.0/AceDBOptions-3.0.xml",
+    "source_sha256": "3b761587cc17f1c1e8c5265c9ac49e88a91c002c5c1e5fe79f8ba6cd7db30532",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Options/Libraries/Ace3/AceDBOptions-3.0/AceDBOptions-3.0.xml",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Options/Libraries/Ace3/AceDBOptions-3.0/AceDBOptions-3.0.xml",
+    "installed_sha256": "45538ee0179edfc1e2e64dbcc151ef40ef74846eec7075701460edf69c6feb3f"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceComm-3.0/AceComm-3.0.lua",
+    "source_sha256": "dbc13323fc0e88361cc7a8a5f21ec9fd5dffb3c182b8e223add65440fb1e3850",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAuras/Libs/AceComm-3.0/AceComm-3.0.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAuras/Libs/AceComm-3.0/AceComm-3.0.lua",
+    "installed_sha256": "dbc13323fc0e88361cc7a8a5f21ec9fd5dffb3c182b8e223add65440fb1e3850"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceComm-3.0/AceComm-3.0.xml",
+    "source_sha256": "a250107c2aa6c1474c881146f774c3797aee38e5ee4c0762b09461d316ba75ee",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAuras/Libs/AceComm-3.0/AceComm-3.0.xml",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAuras/Libs/AceComm-3.0/AceComm-3.0.xml",
+    "installed_sha256": "6466474a164193282764c0532cb25305a4bcaf2d03ad947ac51e2b91d6e9e0e2"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceComm-3.0/ChatThrottleLib.lua",
+    "source_sha256": "55f92d95a0bc3028461b69fcfd10421a2ad36b0189c03851198d3d1228fa6b5a",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAuras/Libs/AceComm-3.0/ChatThrottleLib.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAuras/Libs/AceComm-3.0/ChatThrottleLib.lua",
+    "installed_sha256": "55f92d95a0bc3028461b69fcfd10421a2ad36b0189c03851198d3d1228fa6b5a"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/AceGUI-3.0.lua",
+    "source_sha256": "73fa23c7a2d4804331981108fa2f474ac0d31b992957e3dd6358c3ba48fc8e7c",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/AceGUI-3.0.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/AceGUI-3.0.lua",
+    "installed_sha256": "e90acff796703e712d4623f2c6c53ce9f38912953fffab78b9eb42f3c1147149"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/AceGUI-3.0.xml",
+    "source_sha256": "e54bd15393700719dbec2b1b433e570a3f364fa5e927f9227f63037eb16ad522",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/AceGUI-3.0.xml",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/AceGUI-3.0.xml",
+    "installed_sha256": "e54bd15393700719dbec2b1b433e570a3f364fa5e927f9227f63037eb16ad522"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIContainer-BlizOptionsGroup.lua",
+    "source_sha256": "b6a3c2cebf4f3f35f8b0e69e80f63cc1fcf3955271719a1e6238a308a611514e",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-BlizOptionsGroup.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-BlizOptionsGroup.lua",
+    "installed_sha256": "d77f3a4fadd848a0b5b24fbdf7ccac65bc700e86db3a7e5f7269155574127aa0"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIContainer-DropDownGroup.lua",
+    "source_sha256": "a588f48ed5e203b838cf69c5020b3651c8963f45e8691d30b50cf69b368bfdfd",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-DropDownGroup.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-DropDownGroup.lua",
+    "installed_sha256": "2ab0de55b5c30ae8c50a0c35acdbf81c57d0ec0075dd142aa74b5a63fc50b521"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIContainer-Frame.lua",
+    "source_sha256": "20a0dad02b42c7afb88188d9d97f8c2b187669c8061adf77d2d8ea35201d5844",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-Frame.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-Frame.lua",
+    "installed_sha256": "8c35224874c3550a4cadddb2ec94affc90a2808a7ac1f140726850f99c6b99ed"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIContainer-InlineGroup.lua",
+    "source_sha256": "99346cd05ce74b7231e8c4f637ed14718a20d1e2ab0fe77c60e1079ab711d5ad",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-InlineGroup.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-InlineGroup.lua",
+    "installed_sha256": "c2e8987740277eae8504680b51d7dd60f642ca82a28c3133ad02a054a3498602"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIContainer-ScrollFrame.lua",
+    "source_sha256": "3ba3eb08f213b7a213288ca69389fe30c1e5f553a05f363e514abaf34f0a4462",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-ScrollFrame.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-ScrollFrame.lua",
+    "installed_sha256": "3d24a01fe2097938d243f60995e8f75f3c757ce24906ad95489939687a73af80"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIContainer-SimpleGroup.lua",
+    "source_sha256": "ff31528c3d070d51568aa0353de8e5dd6c0a5ea9166474a2882a764f474871d1",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-SimpleGroup.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-SimpleGroup.lua",
+    "installed_sha256": "1efb984a72575f5b322662a4c662c9375acf3a38794d1d8ecb06474fcc26f4da"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIContainer-TabGroup.lua",
+    "source_sha256": "e21231b9369a416d6ce57bf8634ebb9b98ba1d0e06f20905f1756c4e071402cc",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-TabGroup.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-TabGroup.lua",
+    "installed_sha256": "332bfa3d270d64167208144f15985ce62b41ce04c881cda8e4a98c079d19bb07"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIContainer-TreeGroup.lua",
+    "source_sha256": "3283261939916373929f4bbfa025635679a04f4af4612205ef1d374f66d65e52",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-TreeGroup.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-TreeGroup.lua",
+    "installed_sha256": "f4fff81622305fd8b00450bdedd69b5bb4ffb8f8f76265cc9b2040ab8e448f89"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIContainer-Window.lua",
+    "source_sha256": "d8057601dba305760e8a58c085b4f14f618faa920e3a4919311d987725f86475",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-Window.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIContainer-Window.lua",
+    "installed_sha256": "b08a79db2f1260384fef4cc6b699e0fe992d4e38e3717e866e889a364073560c"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-Button.lua",
+    "source_sha256": "aad26f805d4956de1ce179939a5e45d348d8a4a8242e32c21060cd82bea5790a",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Button.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Button.lua",
+    "installed_sha256": "c48747df5b49eeb07d59a4f12db9f67e2159d6158dff63bb0c76937f5497891b"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-CheckBox.lua",
+    "source_sha256": "da7e9cd428aca66a949730bd09b97e8c5f642073d172ce918e405ae6eec0fead",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-CheckBox.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-CheckBox.lua",
+    "installed_sha256": "3dce8237b6c64428e9732500945e50312e3e51de125f0a2812d6508979668080"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-ColorPicker.lua",
+    "source_sha256": "ce8776b71179106b6e9afbc0d5ba23670a357bfdbc995b551bd3c4aa575b38d0",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-ColorPicker.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-ColorPicker.lua",
+    "installed_sha256": "3326270fe33a86f73d20eb6f2f5676689870160c77712df01825a288d9bf0577"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-DropDown-Items.lua",
+    "source_sha256": "7858e07be8c66a6faed0d7a17262b01f29bda6e63232f86feb07ef58b201eae6",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-DropDown-Items.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-DropDown-Items.lua",
+    "installed_sha256": "619ffdcffa89dc96f82c75a83f8595ea286cff50790b727383040c66d96ef7b6"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-DropDown.lua",
+    "source_sha256": "edcb6858ec1a0750a4696e052bb58668d7df20554b20e170d5e89995a8776b78",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-DropDown.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-DropDown.lua",
+    "installed_sha256": "214dcd4a9deab4870f01db66bc3ba55592ff7e983a034a4f669c8ea1ca22102c"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-EditBox.lua",
+    "source_sha256": "b51e5e6d05785e09dbfef558c997c9f8a90daf575506e9e91f848c6027ba7596",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-EditBox.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-EditBox.lua",
+    "installed_sha256": "b60aa31f68a9d63496f1f222a68e7f92aca536af17d7395d619dd0a7dd9b9f36"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-Heading.lua",
+    "source_sha256": "7637faaec1b5a07be8f7843d0b99902745706867b15d68ddb2482694df3b784c",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Heading.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Heading.lua",
+    "installed_sha256": "63ad3b5001a9cd1859cddf883e5b233994eb9421abd0c187222605e94638b4b4"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-Icon.lua",
+    "source_sha256": "18afea9d67a562e2a7c0982a719e73ce662f89c0d0c1b71e7a2ab1c9f442f2c8",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Icon.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Icon.lua",
+    "installed_sha256": "a1872ea074ef86eeb4f202136c62436a603fb9ae907cf76df159fa56a93a60d1"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-InteractiveLabel.lua",
+    "source_sha256": "25ab508f7435ad190c169b65eb74c2f98750ef8f71c99009488df86e2ab3b321",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-InteractiveLabel.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-InteractiveLabel.lua",
+    "installed_sha256": "159f1e90d9bfea1b575d413c5a256d09cc7eccbd33f4c425cefa0a9cc1bd81b3"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-Keybinding.lua",
+    "source_sha256": "585fa29dca361a883c36318a3dcc95f4bfdfefbe3633b49a050130b6e1e27fe1",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Keybinding.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Keybinding.lua",
+    "installed_sha256": "07a52a73a55d6cf80b0fd29e5cf4b68a5823e4c2a7ea7237326061db13cf839c"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-Label.lua",
+    "source_sha256": "cd32a85c2a758bf65b5fa5c45d48232d3ab80760e3dda544b5e768fb402c29b7",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Label.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Label.lua",
+    "installed_sha256": "2ed124431e7efb27f6937bb465a7c75c6299cd6929810cfa9e29838696a707c5"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-MultiLineEditBox.lua",
+    "source_sha256": "74981af351755d2db2bcf479d023c19bf54007fd135521b283e1564c090716a2",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-MultiLineEditBox.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-MultiLineEditBox.lua",
+    "installed_sha256": "432bb9579ad1a0e80b0d453b769703b38a83a690e06716b7bb77d60c3d5c1f67"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceGUI-3.0/widgets/AceGUIWidget-Slider.lua",
+    "source_sha256": "e732bd0b05a3cf7e52df07a0c0bf2d7f8421e8ae92394fa57cb89fc26856e40c",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Slider.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0/widgets/AceGUIWidget-Slider.lua",
+    "installed_sha256": "aee33ddecc772cdb031e137c25861560112c1687b177a05adcfc60ceafc90f59"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceConfig-3.0/AceConfig-3.0.lua",
+    "source_sha256": "25d745c5a8b50cf4b145caa55b5aeb389762286690117f51341d4111f98ee462",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceConfig-3.0/AceConfig-3.0.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceConfig-3.0/AceConfig-3.0.lua",
+    "installed_sha256": "7543954815835ccfa36b3f080bca0adb66dc144aff66421c82341fe1b3c66aa8"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceConfig-3.0/AceConfig-3.0.xml",
+    "source_sha256": "95640308a21beeaf87eccf4d92424eb4de63b92baed51f8e43533156350f629b",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceConfig-3.0/AceConfig-3.0.xml",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceConfig-3.0/AceConfig-3.0.xml",
+    "installed_sha256": "95640308a21beeaf87eccf4d92424eb4de63b92baed51f8e43533156350f629b"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceConfig-3.0/AceConfigCmd-3.0/AceConfigCmd-3.0.lua",
+    "source_sha256": "936138368dd8fa2523937428b321dab6ac9b5e0e502c6b49d5faa66dc5d5c609",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceConfig-3.0/AceConfigCmd-3.0/AceConfigCmd-3.0.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceConfig-3.0/AceConfigCmd-3.0/AceConfigCmd-3.0.lua",
+    "installed_sha256": "3fb3de138c92f4919f2b2e6e5ac408a1a3efdfc6d75a2b33e65591849dd7bb50"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceConfig-3.0/AceConfigCmd-3.0/AceConfigCmd-3.0.xml",
+    "source_sha256": "32c6e2c5bc38a940b3c8e7f499a8d3e8dfc76da387a67c969f39b229e912109c",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceConfig-3.0/AceConfigCmd-3.0/AceConfigCmd-3.0.xml",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceConfig-3.0/AceConfigCmd-3.0/AceConfigCmd-3.0.xml",
+    "installed_sha256": "32c6e2c5bc38a940b3c8e7f499a8d3e8dfc76da387a67c969f39b229e912109c"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua",
+    "source_sha256": "df3fbea86790403bd67340f39288e64e6bbb38f25fe4d17571a535a0a9718b61",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua",
+    "installed_sha256": "2d401370d198d7ea8909a48202704b43a2dad9df667810fce7c8d4e3dc466698"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.xml",
+    "source_sha256": "589196f0f55bfb5587dc0d7647fff4839ac7625317f001970a1b390d10639f91",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.xml",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.xml",
+    "installed_sha256": "589196f0f55bfb5587dc0d7647fff4839ac7625317f001970a1b390d10639f91"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceConfig-3.0/AceConfigRegistry-3.0/AceConfigRegistry-3.0.lua",
+    "source_sha256": "dc0fa1aee9ac56690109078cd58045ae237635cf9dc7d80496242ab358e4d5fe",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceConfig-3.0/AceConfigRegistry-3.0/AceConfigRegistry-3.0.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceConfig-3.0/AceConfigRegistry-3.0/AceConfigRegistry-3.0.lua",
+    "installed_sha256": "6d632331642ad40f6131c2619cf8e09403d43f370e90f172a5c040d2f41b3909"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/AceConfig-3.0/AceConfigRegistry-3.0/AceConfigRegistry-3.0.xml",
+    "source_sha256": "bd9790653701c529d70a565ae509e441f6355b0fb228300cf152004f1b22f5a5",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceConfig-3.0/AceConfigRegistry-3.0/AceConfigRegistry-3.0.xml",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceConfig-3.0/AceConfigRegistry-3.0/AceConfigRegistry-3.0.xml",
+    "installed_sha256": "bd9790653701c529d70a565ae509e441f6355b0fb228300cf152004f1b22f5a5"
+  },
+  {
+    "path": "Gladdy/Libs/AceGUI-3.0-SharedMediaWidgets/BackgroundWidget.lua",
+    "source_sha256": "ee778cdbd045a8947725ad8169e74200280c3dc9c12ea9a7f05a9afaa18e0219",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/BackgroundWidget.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/BackgroundWidget.lua",
+    "installed_sha256": "adc86d63adfe28e58838fcf623da2b42a837f9cfae7fc4507e1e8651e5445284"
+  },
+  {
+    "path": "Gladdy/Libs/AceGUI-3.0-SharedMediaWidgets/BorderWidget.lua",
+    "source_sha256": "a00d00269cb139ae0465994d7076a5533c8d4795f27d6dd5c3c0f90ea0a77f6b",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/BorderWidget.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/BorderWidget.lua",
+    "installed_sha256": "f616c8f7847d528971a3ddc4e62323679d7d024f3c9c0c11a7b088387c1f41df"
+  },
+  {
+    "path": "Gladdy/Libs/AceGUI-3.0-SharedMediaWidgets/FontWidget.lua",
+    "source_sha256": "2855a05d6a0aa2d3c939c7f41c079ccf3f4adea506c3190707ac2d1bb6221403",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/FontWidget.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/FontWidget.lua",
+    "installed_sha256": "a0629058d2b35f74739573ef0ab1a7fade9e575ba03c21360efe1d5ac7955468"
+  },
+  {
+    "path": "Gladdy/Libs/AceGUI-3.0-SharedMediaWidgets/SoundWidget.lua",
+    "source_sha256": "d9a30ef28191acb90dc74b13ceab1769ab41f69f26648e75156bff1446034eec",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/SoundWidget.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/SoundWidget.lua",
+    "installed_sha256": "5f6c38ab4218a2628d240fd3c28f1b4934208f55dd56b8c6f52435539ff80de8"
+  },
+  {
+    "path": "Gladdy/Libs/AceGUI-3.0-SharedMediaWidgets/StatusbarWidget.lua",
+    "source_sha256": "0d9fe21f7c66d4de9b556125d2d6781b140ae1a0babdda3382f8e012160f8f68",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/StatusbarWidget.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/StatusbarWidget.lua",
+    "installed_sha256": "edf0bc7f20d52e91f030ffadf0a01e67dc44af424b82a581b2418c0a528da1dc"
+  },
+  {
+    "path": "Gladdy/Libs/AceGUI-3.0-SharedMediaWidgets/prototypes.lua",
+    "source_sha256": "f2978abe2873f7c630236e09a3e7226555843f624a36a1a44f16de5056458a86",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/prototypes.lua",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/prototypes.lua",
+    "installed_sha256": "aa4c836da680921e7d781a25064e1b6e1af563917d61055d60624179073eb949"
+  },
+  {
+    "path": "Gladdy/Libs/AceGUI-3.0-SharedMediaWidgets/widget.xml",
+    "source_sha256": "e3ff6572bc7d29da4f6591511c923bb9e22673e81883ba9df6683a6896212895",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/widget.xml",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAurasOptions/Libs/AceGUI-3.0-SharedMediaWidgets/widget.xml",
+    "installed_sha256": "6f6688df8c87a87dccfa76ffbdf54aa54b89a03aa7e7eda6f3864e15d8e3a06f"
+  },
+  {
+    "path": "tests/fixtures/elvui-acegui/core.lua",
+    "source_sha256": "e76a13e9eb762de48153a84bd427ae451ace1221a850ac0772f57a83d1bd074f",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Options/Libraries/Ace3/AceGUI-3.0/AceGUI-3.0.lua",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Options/Libraries/Ace3/AceGUI-3.0/AceGUI-3.0.lua",
+    "installed_sha256": "062560b2f5b9acc258921b17f8d010fdf451f69d0f151270cfa26082b4df5715"
+  },
+  {
+    "path": "tests/fixtures/elvui-acegui/tree.lua",
+    "source_sha256": "2c05fc3a1c028b11ef7e3211946279f3456bfd119570f186a74351264d365fdc",
+    "source_repository": "AmonRay/ElvUI-for-Sirus",
+    "source_commit": "1d4777f18c9fe10dcd031df0f77d0df962652fce",
+    "source_path": "ElvUI_Options/Libraries/Ace3/AceGUI-3.0/widgets/AceGUIContainer-TreeGroup.lua",
+    "source_url": "https://github.com/AmonRay/ElvUI-for-Sirus/blob/1d4777f18c9fe10dcd031df0f77d0df962652fce/ElvUI_Options/Libraries/Ace3/AceGUI-3.0/widgets/AceGUIContainer-TreeGroup.lua",
+    "installed_sha256": "1145817637fee96ba24697b2e16ea50c789f0790ac0c7d264472f83a98cf29ec"
+  },
+  {
+    "path": "Gladdy/Libs/Ace3/CallbackHandler-1.0/CallbackHandler-1.0.xml",
+    "source_sha256": "9310765c5310a395652e60a04f378e836785deb6f0b7181a448c74751d6f0185",
+    "source_repository": "Accidev-Addons/WeakAuras-Sirus.su",
+    "source_commit": "4196a715887f46316a773ff848e77dd7c2bb38b9",
+    "source_path": "WeakAuras/Libs/CallbackHandler-1.0/CallbackHandler-1.0.xml",
+    "source_url": "https://github.com/Accidev-Addons/WeakAuras-Sirus.su/blob/4196a715887f46316a773ff848e77dd7c2bb38b9/WeakAuras/Libs/CallbackHandler-1.0/CallbackHandler-1.0.xml",
+    "installed_sha256": "9310765c5310a395652e60a04f378e836785deb6f0b7181a448c74751d6f0185"
+  }
+]

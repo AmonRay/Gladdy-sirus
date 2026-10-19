@@ -1,6 +1,8 @@
---[[ $Id$ ]]--
+--[[ $Id: AceGUIWidget-DropDown-Items.lua 1272 2022-08-29 15:56:35Z nevcairiel $ ]]--
 
-local AceGUI = LibStub("AceGUI-3.0")
+local AceGUI = LibStub("AceGUI-3.0-Gladdy")
+local CreateFrame = AceGUI and AceGUI.CreateFrame
+local CreateFont = AceGUI and AceGUI.CreateFont
 
 -- Lua APIs
 local select, assert = select, assert
@@ -20,17 +22,6 @@ local function fixlevels(parent,...)
 	end
 end
 
-local function fixstrata(strata, parent, ...)
-	local i = 1
-	local child = select(i, ...)
-	parent:SetFrameStrata(strata)
-	while child do
-		fixstrata(strata, child, child:GetChildren())
-		i = i + 1
-		child = select(i, ...)
-	end
-end
-
 -- ItemBase is the base "class" for all dropdown items.
 -- Each item has to use ItemBase.Create(widgetType) to
 -- create an initial 'self' value.
@@ -41,7 +32,7 @@ local ItemBase = {
 	-- NOTE: The ItemBase version is added to each item's version number
 	--       to ensure proper updates on ItemBase changes.
 	--       Use at least 1000er steps.
-	version = 1000,
+	version = 2000,
 	counter = 0,
 }
 
@@ -178,7 +169,7 @@ function ItemBase.Create(type)
 	highlight:Hide()
 	self.highlight = highlight
 
-	local check = frame:CreateTexture("OVERLAY")
+	local check = frame:CreateTexture(nil, "OVERLAY")
 	check:SetWidth(16)
 	check:SetHeight(16)
 	check:SetPoint("LEFT",frame,"LEFT",3,-1)
@@ -186,7 +177,7 @@ function ItemBase.Create(type)
 	check:Hide()
 	self.check = check
 
-	local sub = frame:CreateTexture("OVERLAY")
+	local sub = frame:CreateTexture(nil, "OVERLAY")
 	sub:SetWidth(16)
 	sub:SetHeight(16)
 	sub:SetPoint("RIGHT",frame,"RIGHT",-3,-1)
@@ -216,7 +207,7 @@ function ItemBase.Create(type)
 end
 
 -- Register a dummy LibStub library to retrieve the ItemBase, so other addons can use it.
-local IBLib = LibStub:NewLibrary("AceGUI-3.0-DropDown-ItemBase", ItemBase.version)
+local IBLib = LibStub:NewLibrary("AceGUI-3.0-Gladdy-DropDown-ItemBase", ItemBase.version)
 if IBLib then
 	IBLib.GetItemBase = function() return ItemBase end
 end
@@ -246,7 +237,7 @@ end
 -- Special: Different text color and no highlight
 do
 	local widgetType = "Dropdown-Item-Header"
-	local widgetVersion = 1
+	local widgetVersion = 2
 
 	local function OnEnter(this)
 		local self = this.obj
@@ -295,7 +286,7 @@ end
 -- A simple button
 do
 	local widgetType = "Dropdown-Item-Execute"
-	local widgetVersion = 1
+	local widgetVersion = 2
 
 	local function Frame_OnClick(this, button)
 		local self = this.obj
@@ -323,7 +314,7 @@ end
 -- Does not close the pullout on click.
 do
 	local widgetType = "Dropdown-Item-Toggle"
-	local widgetVersion = 3
+	local widgetVersion = 5
 
 	local function UpdateToggle(self)
 		if self.value then
@@ -383,7 +374,7 @@ end
 -- Does not close the pullout on click
 do
 	local widgetType = "Dropdown-Item-Menu"
-	local widgetVersion = 2
+	local widgetVersion = 3
 
 	local function OnEnter(this)
 		local self = this.obj
@@ -440,7 +431,7 @@ end
 -- A single line to separate items
 do
 	local widgetType = "Dropdown-Item-Separator"
-	local widgetVersion = 1
+	local widgetVersion = 3
 
 	-- exported, override
 	local function SetDisabled(self, disabled)
