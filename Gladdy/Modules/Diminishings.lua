@@ -92,12 +92,15 @@ function Diminishings:ResetUnit(unit)
 	if (not drFrame) then return end
 
 	drFrame.tracked = {}
+    drFrame.effects = {}
 
 	for i = 1, 16 do
 		local icon = drFrame["icon" .. i]
 		icon.active = false
 		icon.running = false
 		icon.timeLeft = 0
+        icon.endTime = nil
+        icon:SetScript("OnUpdate", nil)
 		icon.timeText:SetText("")
 		icon:Hide()
 	end
@@ -119,24 +122,7 @@ function Diminishings:CreateFrame(unit)
 		icon:SetFrameLevel(Gladdy.db.drFrameLevel)
 		icon.texture = icon:CreateTexture(nil, "BACKGROUND")
 		icon.texture:SetAllPoints(icon)
-		icon:SetScript("OnUpdate", function(self, elapsed)
-			if (self.running) then
-				if (self.timeLeft <= 0) then
-					self.drFrame.tracked[self.dr] = nil
-					self.active = false
-					self.running = false
-					self.dr = nil
-					self.diminishing = 1.0
-					self.texture:SetTexture("")
-					self.timeText:SetText("")
-					self:Hide()
-					Diminishings:Positionate(unit)
-				else
-					self.timeLeft = self.timeLeft - elapsed
-					Gladdy:FormatTimer(self.timeText, self.timeLeft, self.timeLeft < 5)
-				end
-			end
-		end)
+
 
 		icon.cooldown = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
 		icon.cooldown.noCooldownCount = true
@@ -177,6 +163,7 @@ function Diminishings:CreateFrame(unit)
 	end
 
 	drFrame.tracked = {}
+    drFrame.effects = {}
 	Gladdy.buttons[unit].drFrame = drFrame
 	self.frames[unit] = drFrame
 	self:ResetUnit(unit)
@@ -228,6 +215,7 @@ function Diminishings:UpdateFrame(unit)
 
 	for i = 1, 16 do
 		local icon = drFrame["icon" .. i]
+		if icon.running then Diminishings.OnUpdate(icon) end
 		icon:SetWidth(Gladdy.db.drIconSize * Gladdy.db.drWidthFactor)
 		icon:SetHeight(Gladdy.db.drIconSize)
 
@@ -398,48 +386,74 @@ function Diminishings:PrepareIcon(unit, lastIcon, drCat, spellID)
 	lastIcon:Show()
 end
 
-function Diminishings:AuraGain(unit, spellID)
-	if (not Gladdy.db.drEnabled) then return end
-
-	local drFrame = self.frames[unit]
-	local drCat = DRData:GetSpellCategory(spellID)
-
-	if (not drFrame or not drCat) then return end
-	if not Gladdy.db.drCategories[drCat].enabled then return end
-
-	if not drFrame.tracked[drCat] or drFrame.tracked[drCat] == 0 then
-		drFrame.tracked[drCat] = DRData:NextDR(1)
-	else
-		drFrame.tracked[drCat] = DRData:NextDR(drFrame.tracked[drCat] == 1.0 and 1 or drFrame.tracked[drCat] == 0.5 and 2 or 3)
-	end
-
-	local lastIcon = Diminishings:FindLastIcon(unit, drCat)
-	if not lastIcon then return end
-
-	Diminishings:PrepareIcon(unit, lastIcon, drCat, spellID)
-
-	lastIcon.running = false
-	lastIcon.cooldown:Hide()
-	lastIcon.cooldown:SetCooldown(0, 0)
-	lastIcon.timeText:SetText("")
+function Diminishings:ExpireIcon(icon)
+    icon.drFrame.tracked[icon.dr] = nil
+    icon.drFrame.effects[icon.dr] = nil
+    icon.active, icon.running, icon.endTime = false, false, nil
+    icon.dr, icon.diminishing, icon.timeLeft = nil, 1, 0
+    icon.texture:SetTexture("")
+    icon.timeText:SetText("")
+    icon.cooldown:Hide()
+    icon:SetScript("OnUpdate", nil)
+    icon:Hide()
 end
 
-function Diminishings:AuraFade(unit, spellID)
-	local drFrame = self.frames[unit]
-	local drCat = DRData:GetSpellCategory(spellID)
+function Diminishings.OnUpdate(icon)
+    if not icon.running then icon:SetScript("OnUpdate", nil); return end
+    icon.timeLeft = Gladdy:CooldownRemaining(icon)
+    if icon.timeLeft <= 0 then
+        Diminishings:ExpireIcon(icon)
+        Diminishings:Positionate(icon.unit)
+    else
+        Gladdy:FormatTimer(icon.timeText, icon.timeLeft, icon.timeLeft < 5)
+    end
+end
 
-	if (not drFrame or not drCat) then return end
-	if not Gladdy.db.drCategories[drCat].enabled then return end
+function Diminishings:AuraGain(unit, spellID, sourceGUID, refresh, eventTime)
+    if not Gladdy.db.drEnabled then return end
+    local frame, category = self.frames[unit], DRData:GetSpellCategory(spellID)
+    local config = category and Gladdy.db.drCategories[category]
+    if not frame or not config or not config.enabled then return end
+    local icon = self:FindLastIcon(unit, category)
+    if not icon then return end
+    if icon.running and Gladdy:CooldownRemaining(icon) <= 0 then self:ExpireIcon(icon) end
+    frame.effects = frame.effects or {}
+    local effects = frame.effects[category] or {}
+    frame.effects[category] = effects
+    local key = tostring(spellID) .. ":" .. (sourceGUID or "")
+    if effects[key] and (not refresh or (eventTime and effects[key] == eventTime)) then return end
+    effects[key] = eventTime or true
+    local current = frame.tracked[category]
+    local level = current == nil and 1 or current == 0.5 and 2 or 3
+    frame.tracked[category] = DRData:NextDR(level)
+    self:PrepareIcon(unit, icon, category, spellID)
+    icon.unit, icon.running, icon.endTime = unit, false, nil
+    icon:SetScript("OnUpdate", nil)
+    icon.cooldown:Hide()
+    icon.cooldown:SetCooldown(0, 0)
+    icon.timeText:SetText("")
+end
 
-	local lastIcon = Diminishings:FindLastIcon(unit, drCat)
-	if not lastIcon then return end
-
-	Diminishings:PrepareIcon(unit, lastIcon, drCat, spellID)
-
-	lastIcon.timeLeft = Gladdy.db.drDuration
-	lastIcon.cooldown:Show()
-	lastIcon.cooldown:SetCooldown(GetTime(), Gladdy.db.drDuration)
-	lastIcon.running = true
+function Diminishings:AuraFade(unit, spellID, sourceGUID)
+    if not Gladdy.db.drEnabled then return end
+    local frame, category = self.frames[unit], DRData:GetSpellCategory(spellID)
+    local config = category and Gladdy.db.drCategories[category]
+    if not frame or not config or not config.enabled then return end
+    local effects = frame.effects and frame.effects[category]
+    local key = tostring(spellID) .. ":" .. (sourceGUID or "")
+    if not effects or not effects[key] then return end
+    effects[key] = nil
+    if next(effects) then return end
+    local icon = self:FindLastIcon(unit, category)
+    if not icon then return end
+    self:PrepareIcon(unit, icon, category, spellID)
+    icon.unit, icon.timeLeft = unit, Gladdy.db.drDuration
+    icon.endTime = GetTime() + icon.timeLeft
+    icon.cooldown:Show()
+    icon.cooldown:SetCooldown(GetTime(), icon.timeLeft)
+    icon.running = true
+    icon:SetScript("OnUpdate", Diminishings.OnUpdate)
+    Diminishings.OnUpdate(icon)
 end
 
 function Diminishings:Positionate(unit)

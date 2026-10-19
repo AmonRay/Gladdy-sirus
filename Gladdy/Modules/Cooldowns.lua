@@ -128,31 +128,29 @@ function Cooldowns:Initialize()
 	self.spellTextures = {}
 	self.iconCache = {}
 
-	if Gladdy.db.cooldown then
-		for _,spellTable in pairs(Gladdy:GetCooldownList()) do
-			for spellId,val in pairs(spellTable) do
-				local spellName, _, texture = GetSpellInfo(spellId)
-				if type(val) == "table" then
-					if val.icon then
-						texture = val.icon
-					end
-					if val.altName then
-						spellName = val.altName
-					end
+	for _,spellTable in pairs(Gladdy:GetCooldownList()) do
+		for spellId,val in pairs(spellTable) do
+			local spellName, _, texture = GetSpellInfo(spellId)
+			if type(val) == "table" then
+				if val.icon then
+					texture = val.icon
 				end
-				if spellName then
-					self.cooldownSpellIds[spellName] = spellId
-					self.spellTextures[spellId] = texture
-				else
-					Gladdy:Debug("ERROR", "spellid does not exist  " .. spellId)
+				if val.altName then
+					spellName = val.altName
 				end
 			end
+			if spellName then
+				self.cooldownSpellIds[spellName] = spellId
+				self.spellTextures[spellId] = texture
+			else
+				Gladdy:Debug("ERROR", "spellid does not exist  " .. spellId)
+			end
 		end
-		self:RegisterMessage("ENEMY_SPOTTED")
-		self:RegisterMessage("UNIT_SPEC")
-		self:RegisterMessage("UNIT_DEATH")
-		self:RegisterMessage("AURA_GAIN")
 	end
+	self:RegisterMessage("ENEMY_SPOTTED")
+	self:RegisterMessage("UNIT_SPEC")
+	self:RegisterMessage("UNIT_DEATH")
+	self:RegisterMessage("AURA_GAIN")
 end
 
 function Cooldowns:UpdateFrameOnce()
@@ -230,6 +228,8 @@ function Cooldowns:UpdateFrame(unit)
 			0, 0, "cooldown")
 	end
 
+    local button = Gladdy.buttons[unit]
+    if button and button.opponentKnown then self:UpdateCooldowns(button) end
     for _, icon in pairs(cooldownFrame.icons) do self:UpdateIcon(icon) end
 end
 
@@ -270,6 +270,7 @@ end
 function Cooldowns:UpdateIcon(icon)
     icon.timerFontPath = Gladdy:SMFetch("font", "cooldownFont")
     icon.cooldownFont.timerFont = nil
+    icon.cooldownFont.timerR = nil
 	icon:SetFrameStrata(Gladdy.db.cooldownFrameStrata)
 	icon:SetFrameLevel(Gladdy.db.cooldownFrameLevel)
 	icon.cooldown:SetFrameStrata(Gladdy.db.cooldownFrameStrata)
@@ -330,22 +331,20 @@ function Cooldowns:UpdateIcon(icon)
 end
 
 function Cooldowns:ClearIcon(button, index, spellId, icon)
-	if index then
-		icon = tremove(button.spellCooldownFrame.icons, index)
-	else
-		for i=#button.spellCooldownFrame.icons,1,-1 do
-			if icon then
-				if button.spellCooldownFrame.icons[i] == icon then
-					icon = tremove(button.spellCooldownFrame.icons, index)
-				end
-			end
-			if not icon and spellId then
-				if button.spellCooldownFrame.icons[i].spellId == spellId then
-					icon = tremove(button.spellCooldownFrame.icons, index)
-				end
-			end
-		end
-	end
+    local icons = button.spellCooldownFrame.icons
+    if index then
+        icon = tremove(icons, index)
+    else
+        local found
+        for i = #icons, 1, -1 do
+            if (icon and icons[i] == icon) or (not icon and icons[i].spellId == spellId) then
+                found = tremove(icons, i)
+                break
+            end
+        end
+        icon = found
+    end
+    if not icon then return end
 	icon:Show()
 	LCG.PixelGlow_Stop(icon.glow)
 	if icon.timer then

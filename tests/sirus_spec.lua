@@ -149,7 +149,7 @@ dofile('Gladdy/Modules/Racial.lua')
 dofile('Gladdy/Modules/Trinket.lua')
 local R,T=G.modules.Racial,G.modules.Trinket
 local function frame()
-    return {cooldown={SetCooldown=noop},SetIcon=noop,Show=noop}
+    return {cooldown={SetCooldown=noop},SetIcon=noop,Show=noop,StartTimer=function(self) self.active=true end}
 end
 R.frames={arena1=frame()}; T.frames={arena1=frame()}
 T.Used=function(self,unit,start,duration)
@@ -350,9 +350,9 @@ end
 CreateFrame=fake; G.SMFetch=function() return 'font' end
 test('icon expiry emits READY once and stops before rendering expired data',function()
     local f=G:CreateIconFrame(nil,nil,{frameLevel=1,fontScale=1,hasBackdrop=true})
-    f.unit='arena1'; f.timeLeft=0.01; f.endTime=now+0.01; f.active=true; clear(); now=now+0.02
-    f.scripts.OnUpdate(f,0.02); eq(f.active,false); eq(count('TRINKET_READY'),1)
-    f.scripts.OnUpdate(f,0.02); eq(count('TRINKET_READY'),1)
+    f.unit='arena1'; f.timeLeft=0.01; f.endTime=now+0.01; f:StartTimer(); clear(); now=now+0.02
+    local update=f.scripts.OnUpdate; update(f,0.02); eq(f.active,false); eq(count('TRINKET_READY'),1); eq(f.scripts.OnUpdate,nil)
+    update(f,0.02); eq(count('TRINKET_READY'),1)
 end)
 dofile('Gladdy/Modules/Castbar.lua')
 local Cast=G.modules['Cast Bar']; local cb=fake()

@@ -29,6 +29,7 @@ gui.Create=function(self,kind) local obj=originalCreate(self,kind);if kind=='Fra
 local ser=LibStub('AceSerializer-3.0');local deflate=LibStub('LibDeflate')
 local function encode(value) return deflate:EncodeForPrint(deflate:CompressZlib(ser:Serialize(value))) end
 local function encodeRaw(raw) return deflate:EncodeForPrint(deflate:CompressZlib(raw)) end
+dofile('Gladdy/ImportValidation.lua')
 dofile('Gladdy/Modules/ExportImport.lua');local module=modules['Export Import']
 local valid=encode({version_major_num=2,scale=1.3,expansion='Wrath',appearance={r=0.5}})
 test('file load and background decoding create no UI objects',function()
@@ -144,6 +145,15 @@ test('language changes preserve imported numeric cooldown maps and custom user t
     G.db=target;G:ApplyLanguage('enUS');G:ApplyLanguage('ruRU')
     assert(target.cooldownCooldowns.MAGE['44572']==false and target.cooldownCooldowns.MAGE['45438']==true)
     assert(target.cooldownCooldownsOrder.MAGE['44572']==2 and target.cooldownCooldownsOrder.MAGE['45438']==1 and target.customText=='Лёд')
+end)
+test('oversized compressed profiles are rejected before shared decompression runs',function()
+    local encoded=encodeRaw(string.rep('x',module.IMPORT_LIMITS.serialized+1))
+    assert(#encoded<module.IMPORT_LIMITS.encoded)
+    local original=deflate.DecompressZlib;local calls=0
+    deflate.DecompressZlib=function(...) calls=calls+1;return original(...) end
+    local result,err=module:Decode(encoded)
+    deflate.DecompressZlib=original
+    assert(result==nil and err:find('size limit') and calls==0)
 end)
 test('import and export integration reports no swallowed UI errors',function() assert(#wow.errors==0,table.concat(wow.errors,'\n')) end)
 print('PASS: '..n..' import hardening tests')

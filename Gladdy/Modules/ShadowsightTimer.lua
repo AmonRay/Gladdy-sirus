@@ -1,5 +1,6 @@
 local floor, str_find, pairs = math.floor, string.find, pairs
 local CreateFrame = CreateFrame
+local GetTime = GetTime
 
 local Gladdy = LibStub("Gladdy")
 local L = Gladdy.L
@@ -39,8 +40,10 @@ function ShadowsightTimer:Reset()
     for i=1,2 do
         if self["timerFrame" .. i] then
             self["timerFrame" .. i].active = false
+            self["timerFrame" .. i].endTime = nil
+            self["timerFrame" .. i].timeLeft = nil
             self["timerFrame" .. i]:SetScript("OnUpdate", nil)
-            self["timerFrame" .. i].font:SetTextColor(1, 0.8, 0)
+            Gladdy:SetTimerColor(self["timerFrame" .. i].font, 1, 0.8, 0)
         end
     end
 
@@ -101,8 +104,23 @@ end
 function ShadowsightTimer:UpdateFrameOnce()
     if Gladdy.db.shadowsightTimerEnabled then
         self:RegisterMessage("JOINED_ARENA")
+        if Gladdy.curBracket and not (Gladdy.frame and Gladdy.frame.testing) then
+            self:RegisterEvent("CHAT_MSG_BG_SYSTEM_NEUTRAL")
+            self:SetScript("OnEvent", ShadowsightTimer.OnEvent)
+        end
+        for i = 1, 2 do
+            local frame = self["timerFrame" .. i]
+            if frame.active then
+                frame:SetScript("OnUpdate", ShadowsightTimer.OnUpdate)
+                ShadowsightTimer.OnUpdate(frame)
+            end
+        end
     else
         self:UnregisterAllMessages()
+        self:UnregisterEvent("CHAT_MSG_BG_SYSTEM_NEUTRAL")
+        self:SetScript("OnEvent", nil)
+        self.timerFrame1:SetScript("OnUpdate", nil)
+        self.timerFrame2:SetScript("OnUpdate", nil)
     end
 
     self.anchor:EnableMouse(not Gladdy.db.shadowsightTimerLocked)
@@ -118,7 +136,7 @@ function ShadowsightTimer:UpdateFrameOnce()
         self.anchor:SetScale(Gladdy.db.shadowsightTimerScale)
         self.anchor:ClearAllPoints()
         self.anchor:SetPoint(Gladdy.db.shadowsightTimerRelPoint1, nil, Gladdy.db.shadowsightTimerRelPoint2, Gladdy.db.shadowsightTimerX, Gladdy.db.shadowsightTimerY)
-        if Gladdy.frame.testing or Gladdy.curBracket then
+        if (Gladdy.frame and Gladdy.frame.testing) or Gladdy.curBracket then
             self.anchor:Show()
         end
         if Gladdy.db.shadowsightTimerShowTwoTimer then
@@ -149,8 +167,10 @@ function ShadowsightTimer:JOINED_ARENA()
 
         for i=1,2 do
             if self["timerFrame" .. i] then
-                self["timerFrame" .. i].font:SetText("0:90")
-                self["timerFrame" .. i].font:SetTextColor(1, 0.8, 0)
+                if not self["timerFrame" .. i].active then
+                    self["timerFrame" .. i].font:SetText("0:00")
+                    Gladdy:SetTimerColor(self["timerFrame" .. i].font, 1, 0.8, 0)
+                end
             end
         end
 
@@ -196,36 +216,31 @@ function ShadowsightTimer:Test()
 end
 
 function ShadowsightTimer:Start(time, frame)
-    frame.endTime = time or Gladdy.db.shadowsightTimerStartTime
-    frame.active = true
-    ShadowsightTimer:NotifyStart()
-    frame.announced = nil
-    frame.timeSinceLastUpdate = 0
-    frame.font:SetTextColor(1, 0.8, 0)
+    local duration = time or Gladdy.db.shadowsightTimerStartTime
+    if not frame or type(duration) ~= "number" or duration <= 0 then return end
+    frame.endTime, frame.timeLeft = GetTime() + duration, duration
+    frame.active, frame.announced, frame.warnAt15 = true, false, duration >= 15
+    Gladdy:SetTimerColor(frame.font, 1, 0.8, 0)
     frame:SetScript("OnUpdate", ShadowsightTimer.OnUpdate)
+    self:NotifyStart()
+    ShadowsightTimer.OnUpdate(frame)
 end
 
-function ShadowsightTimer.OnUpdate(self, elapsed)
-    self.timeSinceLastUpdate = self.timeSinceLastUpdate + elapsed;
-    self.endTime = self.endTime - elapsed
-
-    if (self.timeSinceLastUpdate > 0.01) then
-        self.font:SetFormattedText(floor(self.endTime / 60) .. ":" ..  "%02d", self.endTime - floor(self.endTime / 60) * 60)
-        self.timeSinceLastUpdate = 0;
-        if floor(self.endTime) == 15 and Gladdy.db.shadowsightAnnounce and not self.announced then
-            self.announced = true
-            Gladdy:SendMessage("SHADOWSIGHT", L["Shadowsight up in %ds"]:format(15))
-        end
-    end
-    if self.endTime <= 0 then
-        if Gladdy.db.shadowsightAnnounce then
-            Gladdy:SendMessage("SHADOWSIGHT", L["Shadowsight up!"])
-        end
+function ShadowsightTimer.OnUpdate(self)
+    if not self.active or not Gladdy.db.shadowsightTimerEnabled then self:SetScript("OnUpdate", nil); return end
+    self.timeLeft = Gladdy:CooldownRemaining(self)
+    local seconds = floor(self.timeLeft)
+    local text = floor(seconds / 60) .. ":" .. string.format("%02d", seconds % 60)
+    if self.font:GetText() ~= text then self.font:SetText(text) end
+    if self.timeLeft <= 0 then
         self:SetScript("OnUpdate", nil)
-        self.font:SetText("0:00")
-        self.font:SetTextColor(0, 1, 0)
-        self.active = false
+        self.active, self.endTime = false, nil
+        Gladdy:SetTimerColor(self.font, 0, 1, 0)
+        if Gladdy.db.shadowsightAnnounce then Gladdy:SendMessage("SHADOWSIGHT", L["Shadowsight up!"]) end
         ShadowsightTimer:NotifyEnd()
+    elseif self.timeLeft <= 15 and self.warnAt15 and not self.announced then
+        self.announced = true
+        if Gladdy.db.shadowsightAnnounce then Gladdy:SendMessage("SHADOWSIGHT", L["Shadowsight up in %ds"]:format(math.ceil(self.timeLeft))) end
     end
 end
 
@@ -237,22 +252,22 @@ function ShadowsightTimer:NotifyStart()
     local show = Gladdy.db.shadowsightTimerShowTwoTimer
     if self.timerFrame1.active and self.timerFrame2.active then
         if self.timerFrame1.endTime < self.timerFrame2.endTime then
-            self.timerFrame1:SetAlpha(1)
-            self.timerFrame2:SetAlpha(show and 1 or 0)
+            Gladdy:SetTimerAlpha(self.timerFrame1, 1)
+            Gladdy:SetTimerAlpha(self.timerFrame2, show and 1 or 0)
         else
-            self.timerFrame1:SetAlpha(show and 1 or 0)
-            self.timerFrame2:SetAlpha(1)
+            Gladdy:SetTimerAlpha(self.timerFrame1, show and 1 or 0)
+            Gladdy:SetTimerAlpha(self.timerFrame2, 1)
         end
     else
         if self.timerFrame1.active then
-            self.timerFrame1:SetAlpha(1)
-            self.timerFrame2:SetAlpha(show and 1 or 0)
+            Gladdy:SetTimerAlpha(self.timerFrame1, 1)
+            Gladdy:SetTimerAlpha(self.timerFrame2, show and 1 or 0)
         elseif self.timerFrame2.active then
-            self.timerFrame1:SetAlpha(show and 1 or 0)
-            self.timerFrame2:SetAlpha(1)
+            Gladdy:SetTimerAlpha(self.timerFrame1, show and 1 or 0)
+            Gladdy:SetTimerAlpha(self.timerFrame2, 1)
         else
-            self.timerFrame1:SetAlpha(1)
-            self.timerFrame2:SetAlpha(show and 1 or 0)
+            Gladdy:SetTimerAlpha(self.timerFrame1, 1)
+            Gladdy:SetTimerAlpha(self.timerFrame2, show and 1 or 0)
         end
     end
 end
@@ -263,14 +278,14 @@ function ShadowsightTimer:NotifyEnd()
 
     local show = Gladdy.db.shadowsightTimerShowTwoTimer
     if self.timerFrame1.active then
-        self.timerFrame1:SetAlpha(1)
-        self.timerFrame2:SetAlpha(show and 1 or 0)
+        Gladdy:SetTimerAlpha(self.timerFrame1, 1)
+        Gladdy:SetTimerAlpha(self.timerFrame2, show and 1 or 0)
     elseif self.timerFrame2.active then
-        self.timerFrame1:SetAlpha(show and 1 or 0)
-        self.timerFrame2:SetAlpha(1)
+        Gladdy:SetTimerAlpha(self.timerFrame1, show and 1 or 0)
+        Gladdy:SetTimerAlpha(self.timerFrame2, 1)
     else
-        self.timerFrame1:SetAlpha(1)
-        self.timerFrame2:SetAlpha(show and 1 or 0)
+        Gladdy:SetTimerAlpha(self.timerFrame1, 1)
+        Gladdy:SetTimerAlpha(self.timerFrame2, show and 1 or 0)
     end
 end
 function ShadowsightTimer:GetHiddenTimer()

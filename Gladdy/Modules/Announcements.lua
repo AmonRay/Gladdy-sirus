@@ -171,11 +171,11 @@ function Announcements:AURA_GAIN(unit, auraType, spellID, spellName, texture, du
     end
 end
 
-function Announcements:SHADOWSIGHT()
+function Announcements:SHADOWSIGHT(message)
     if not Gladdy.db.announcements.shadowsight then
         return
     end
-    self:Send(L["Shadowsight Buff active!"], 2)
+    self:Send(message or L["Shadowsight Buff active!"], 2)
 end
 
 function Announcements:Send(msg, throttle, color, unit)

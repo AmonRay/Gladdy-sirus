@@ -149,6 +149,7 @@ function BuffsDebuffs:ResetUnit(unit)
 		local i = #self.frames[unit].auras[auraType]
 		while (#self.frames[unit].auras[auraType] > 0) do
 			self.frames[unit].auras[auraType][i]:Hide()
+            self.frames[unit].auras[auraType][i]:SetScript("OnUpdate", nil)
 			tinsert(self.framePool, tremove(self.frames[unit].auras[auraType], i))
 			i = i - 1
 		end
@@ -230,6 +231,7 @@ local function setAuraSize(aura, auraType)
 end
 
 function BuffsDebuffs:styleIcon(aura, auraType)
+    aura.cooldown.timerR = nil
 	setAuraSize(aura, auraType)
 
 	if auraType == AURA_TYPE_BUFF then
@@ -333,36 +335,17 @@ local function iconTimer(auraFrame, elapsed)
 		local timeLeftSec = ceil(timeLeftMilliSec)
 		auraFrame.timeLeft = timeLeftMilliSec
 
-		if auraFrame.type == AURA_TYPE_BUFF then
-			if Gladdy.db.buffsBuffsDynamicColor then
-				if timeLeftSec >= 60 then
-					auraFrame.cooldown:SetTextColor(0.7, 1, 0, Gladdy.db.buffsBuffsFontColor.a)
-				elseif timeLeftSec < 60 and timeLeftSec >= 11 then
-					auraFrame.cooldown:SetTextColor(0.7, 1, 0, Gladdy.db.buffsBuffsFontColor.a)
-				elseif timeLeftSec <= 10 and timeLeftSec >= 5 then
-					auraFrame.cooldown:SetTextColor(1, 0.7, 0, Gladdy.db.buffsBuffsFontColor.a)
-				elseif timeLeftSec <= 4 and timeLeftSec >= 3 then
-					auraFrame.cooldown:SetTextColor(1, 0, 0, Gladdy.db.buffsBuffsFontColor.a)
-				elseif timeLeftMilliSec <= 3 and timeLeftMilliSec > 0 then
-					auraFrame.cooldown:SetTextColor(1, 0, 0, Gladdy.db.buffsBuffsFontColor.a)
-				end
-			end
-		else
-			if Gladdy.db.buffsDebuffsDynamicColor then
-				if timeLeftSec >= 60 then
-					auraFrame.cooldown:SetTextColor(0.7, 1, 0, Gladdy.db.buffsDebuffsFontColor.a)
-				elseif timeLeftSec < 60 and timeLeftSec >= 11 then
-					auraFrame.cooldown:SetTextColor(0.7, 1, 0, Gladdy.db.buffsDebuffsFontColor.a)
-				elseif timeLeftSec <= 10 and timeLeftSec >= 5 then
-					auraFrame.cooldown:SetTextColor(1, 0.7, 0, Gladdy.db.buffsDebuffsFontColor.a)
-				elseif timeLeftSec <= 4 and timeLeftSec >= 3 then
-					auraFrame.cooldown:SetTextColor(1, 0, 0, Gladdy.db.buffsDebuffsFontColor.a)
-				elseif timeLeftMilliSec <= 3 and timeLeftMilliSec > 0 then
-					auraFrame.cooldown:SetTextColor(1, 0, 0, Gladdy.db.buffsDebuffsFontColor.a)
-				end
-			end
-		end
-		if timeLeftMilliSec < 0 then
+        local dynamic = auraFrame.type == AURA_TYPE_BUFF and Gladdy.db.buffsBuffsDynamicColor
+            or auraFrame.type == AURA_TYPE_DEBUFF and Gladdy.db.buffsDebuffsDynamicColor
+        if dynamic then
+            local color = auraFrame.type == AURA_TYPE_BUFF and Gladdy.db.buffsBuffsFontColor or Gladdy.db.buffsDebuffsFontColor
+            local r, g, b = 0.7, 1, 0
+            if timeLeftSec < 5 then r, g, b = 1, 0, 0
+            elseif timeLeftSec < 11 then r, g, b = 1, 0.7, 0 end
+            Gladdy:SetTimerColor(auraFrame.cooldown, r, g, b, color.a)
+        end
+		if timeLeftMilliSec <= 0 then
+            auraFrame:SetScript("OnUpdate", nil)
 			auraFrame:Hide()
 		end
 		Gladdy:FormatTimer(auraFrame.cooldown, timeLeftMilliSec, timeLeftMilliSec <= 3)
@@ -415,9 +398,12 @@ function BuffsDebuffs:AddAura(unit, spellID, auraType, duration, timeLeft, stack
 	aura.startTime = GetTime() - (duration - timeLeft)
 	if duration == 0 then
 		aura.endtime = "undefined"
+        aura:SetScript("OnUpdate", nil)
+        aura.cooldown:SetText("")
 		aura.cooldowncircle:Hide()
 	else
 		aura.endtime = GetTime() + timeLeft
+        aura:SetScript("OnUpdate", iconTimer)
 		aura.cooldowncircle:SetCooldown(GetTime() - (duration - timeLeft), duration)
 		aura.cooldowncircle:Show()
 	end
@@ -425,7 +411,7 @@ function BuffsDebuffs:AddAura(unit, spellID, auraType, duration, timeLeft, stack
 	aura.type = auraType
 	aura.unit = unit
 	aura.dispelType = dispelType
-	aura.border:SetVertexColor(dispelTypeToOptionValue(dispelType))
+	aura.border:SetVertexColor(dispelTypeToOptionValue(dispelType, auraType))
 	aura:Show()
 end
 
@@ -433,9 +419,12 @@ function BuffsDebuffs:AddOrRefreshAura(unit, spellID, auraType, duration, timeLe
 	if self.frames[unit].auras[auraType][index] and self.frames[unit].auras[auraType][index].spellID == spellID then
 		if duration == 0 then
 			self.frames[unit].auras[auraType][index].endtime = "undefined"
+            self.frames[unit].auras[auraType][index]:SetScript("OnUpdate", nil)
+            self.frames[unit].auras[auraType][index].cooldown:SetText("")
 			self.frames[unit].auras[auraType][index].cooldowncircle:Hide()
 		else
 			self.frames[unit].auras[auraType][index].endtime = GetTime() + timeLeft
+            self.frames[unit].auras[auraType][index]:SetScript("OnUpdate", iconTimer)
 			self.frames[unit].auras[auraType][index].cooldowncircle:SetCooldown(GetTime() - (duration - timeLeft), duration)
 			self.frames[unit].auras[auraType][index].cooldowncircle:Show()
 		end
@@ -490,6 +479,7 @@ function BuffsDebuffs:AURA_GAIN_LIMIT(unit, auraType, limit)
 	end
 	for i=numAura + 1, #self.frames[unit].auras[auraType] do
 		self.frames[unit].auras[auraType][i]:Hide()
+            self.frames[unit].auras[auraType][i]:SetScript("OnUpdate", nil)
 	end
 end
 

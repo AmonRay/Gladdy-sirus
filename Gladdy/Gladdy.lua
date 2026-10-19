@@ -108,9 +108,20 @@ function Gladdy:SetTimerStyle(font, path, size, r, g, b, alpha)
         font:SetFont(path, size, "OUTLINE")
         font.timerFont, font.timerSize = path, size
     end
+    self:SetTimerColor(font, r, g, b, alpha)
+end
+
+function Gladdy:SetTimerColor(font, r, g, b, alpha)
     if font.timerR ~= r or font.timerG ~= g or font.timerB ~= b or font.timerAlpha ~= alpha then
         font:SetTextColor(r, g, b, alpha)
         font.timerR, font.timerG, font.timerB, font.timerAlpha = r, g, b, alpha
+    end
+end
+
+function Gladdy:SetTimerAlpha(frame, alpha)
+    if frame.timerAlpha ~= alpha then
+        frame:SetAlpha(alpha)
+        frame.timerAlpha = alpha
     end
 end
 
@@ -673,6 +684,7 @@ function Gladdy:PLAYER_REGEN_ENABLED()
 		if self.frame then self.frame:Hide() end
 		self.hideFrame = nil
 	end
+    if self.pendingUpdateFrame then self:UpdateFrame() end
 end
 
 function Gladdy:Reset()

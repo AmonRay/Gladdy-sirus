@@ -228,7 +228,7 @@ function Trinket:Used(unit, startTime, duration)
 		trinket.cooldownFont:SetText("")
 	end
 
-	trinket.active = true
+	trinket:StartTimer()
 
 	if Gladdy.db.trinketColored then
 		trinket:SetBackdropColor(Gladdy:SetColor(Gladdy.db.trinketColoredCd))

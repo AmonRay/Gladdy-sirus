@@ -73,15 +73,13 @@ local Auras = Gladdy:NewModule("Auras", nil, {
 function Auras:Initialize()
 	self.frames = {}
 
-	if Gladdy.db.auraEnabled then
-		self.auras = Gladdy:GetImportantAuras()
+	self.auras = Gladdy:GetImportantAuras()
 
-		self:RegisterMessage("JOINED_ARENA")
-		self:RegisterMessage("UNIT_DEATH")
-		self:RegisterMessage("AURA_GAIN")
-		self:RegisterMessage("AURA_FADE")
-		self:RegisterMessage("SPELL_INTERRUPT")
-	end
+	self:RegisterMessage("JOINED_ARENA")
+	self:RegisterMessage("UNIT_DEATH")
+	self:RegisterMessage("AURA_GAIN")
+	self:RegisterMessage("AURA_FADE")
+	self:RegisterMessage("SPELL_INTERRUPT")
 end
 
 function Auras:CreateFrame(unit)
@@ -118,6 +116,15 @@ end
 function Auras:UpdateFrame(unit)
 	local auraFrame = self.frames[unit]
 	if (not auraFrame) then return end
+    if not Gladdy.db.auraEnabled then
+        auraFrame:Hide()
+        auraFrame.interruptFrame:Hide()
+        return
+    end
+    if Gladdy.curBracket or (Gladdy.frame and Gladdy.frame.testing) then
+        auraFrame:Show()
+        auraFrame.interruptFrame:Show()
+    end
 
 	local borderColor =  { r = 0, g = 0, b = 0, a = 1 }
 
@@ -139,6 +146,7 @@ function Auras:UpdateFrame(unit)
 		fontScale = Gladdy.db.auraFontSizeScale,
 		fontAlpha = Gladdy.db.auraFontColor.a,
 		detached = Gladdy.db.auraDetached,
+        interruptDetached = Gladdy.db.auraInterruptDetached,
 		disableCircle = Gladdy.db.auraDisableCircle,
 	})
 
@@ -411,6 +419,7 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 	local specialSpells = Gladdy.db.specialSpells
 	if specialSpells[spellID] then
 		auraFrame.timeLeft = specialSpells[spellID]
+        auraFrame.endTime = GetTime() + auraFrame.timeLeft
 	else
 		auraFrame.timeLeft = expirationTime - GetTime()
 	end
@@ -421,10 +430,11 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 	else
 		auraFrame.cooldown:Hide()
 	end
+    auraFrame:StartTimer()
 end
 
 function Auras:AURA_FADE(unit, auraType, force)
-	if not Gladdy.db.auraEnabled then
+	if not Gladdy.db.auraEnabled and not force then
 		return
 	end
 
@@ -520,26 +530,22 @@ function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,e
 		interruptFrame.cooldown:Show()
 		interruptFrame.cooldown:SetCooldown(interruptFrame.startTime, duration)
 	end
+    interruptFrame:StartTimer()
 end
 
 function Auras:ResetUnit(unit)
-	if not self.frames[unit] then return end
-
-	if self.frames[unit].interruptFrame then
-		self.frames[unit].interruptFrame.active = false
-		self.frames[unit].interruptFrame:Hide()
-		self.frames[unit].interruptFrame.priority = nil
-		self.frames[unit].interruptFrame.spellSchool = nil
-	end
-
-	if self.frames[unit].active ~= nil then
-		self.frames[unit].active = false
-	end
-
-	self:AURA_FADE(unit, AURA_TYPE_DEBUFF)
-	self:AURA_FADE(unit, AURA_TYPE_BUFF)
-	self.frames[unit]:UnregisterAllEvents()
-	self.frames[unit]:Hide()
+    local aura = self.frames[unit]
+    if not aura then return end
+    if aura.interruptFrame then
+        aura.interruptFrame:StopCooldown()
+        aura.interruptFrame.priority, aura.interruptFrame.spellSchool = nil, nil
+        aura.interruptFrame:Hide()
+    end
+    aura:StopCooldown()
+    aura.name, aura.priority, aura.startTime, aura.track = nil, nil, nil, nil
+    aura:SetIcon(nil)
+    aura:UnregisterAllEvents()
+    aura:Hide()
 end
 
 function Auras:Test(unit)

@@ -146,7 +146,7 @@ local combatEvents = {
 }
 
 function EventListener:COMBAT_LOG_EVENT_UNFILTERED(...)
-	local _, eventType, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellID, spellName, spellSchool, extraSpellId, extraSpellName,extraSpellSchool = ...
+	local timestamp, eventType, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellID, spellName, spellSchool, extraSpellId, extraSpellName,extraSpellSchool = ...
 
     if not combatEvents[eventType] and not Gladdy.specSpells[spellName] then return end
 
@@ -178,13 +178,13 @@ function EventListener:COMBAT_LOG_EVENT_UNFILTERED(...)
 	if destUnit then
 		if Gladdy.buttons[destUnit] and Gladdy.db.drEnabled and extraSpellId == AURA_TYPE_DEBUFF then
 			if (eventType == "SPELL_AURA_REMOVED") then
-				Diminishings:AuraFade(destUnit, spellID)
+				Diminishings:AuraFade(destUnit, spellID, sourceGUID)
 			end
 			if (eventType == "SPELL_AURA_REFRESH") then
-				Diminishings:AuraGain(destUnit, spellID)
+				Diminishings:AuraGain(destUnit, spellID, sourceGUID, true, timestamp)
 			end
 			if (eventType == "SPELL_AURA_APPLIED") then
-				Diminishings:AuraGain(destUnit, spellID)
+				Diminishings:AuraGain(destUnit, spellID, sourceGUID, false, timestamp)
 			end
 		end
 

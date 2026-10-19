@@ -1,5 +1,7 @@
 local tinsert = table.insert
 local pairs = pairs
+local ipairs = ipairs
+local InCombatLockdown = InCombatLockdown
 local tonumber = tonumber
 local tostring = tostring
 
@@ -66,7 +68,19 @@ function Clicks:UpdateFrame(unit)
     self:SetupAttributes(unit)
 end
 
+function Clicks:DeferUpdates()
+    self:RegisterEvent("PLAYER_REGEN_ENABLED")
+    self:SetScript("OnEvent", function(module)
+        if InCombatLockdown() then return end
+        module:UnregisterEvent("PLAYER_REGEN_ENABLED")
+        module:SetScript("OnEvent", nil)
+        module:UpdateFrameOnce()
+        for unit in pairs(Gladdy.buttons) do module:SetupAttributes(unit) end
+    end)
+end
+
 function Clicks:UpdateFrameOnce()
+    if InCombatLockdown() then self:DeferUpdates(); return end
     for _, v in pairs(Gladdy.buttons) do
         local left = GetBindingKey(("GLADDYBUTTON%d_LEFT"):format(v.id))
         local right = GetBindingKey(("GLADDYBUTTON%d_RIGHT"):format(v.id))
@@ -104,34 +118,33 @@ function Clicks:SetupAttributes(unit)
         return
     end
 
-    for _, v in pairs(Gladdy.db.attributes) do
+    if InCombatLockdown() then self:DeferUpdates(); return end
+    for attr in pairs(button.clickAttributes or {}) do button.secure:SetAttribute(attr, nil) end
+    button.clickAttributes = {}
+    for _, v in ipairs(Gladdy.db.attributes) do
         self:SetupAttribute(button, v.button, v.modifier, v.action, v.spell)
     end
 end
 
 function Clicks:SetupAttribute(button, key, mod, action, spell)
-    local attr = ""
-    local text = ""
-
-    if (action == "macro") then
-        attr = mod .. "macrotext" .. key
-        text = spell:gsub("%*arena%*", button.unit)
-        button.secure:SetAttribute(mod .. "type" .. key, "macro")
-    elseif (action ~= "disabled") then
-        if (action == "target") then
-            attr = mod .. "type" .. key
-            text = "target"
-        elseif (action == "focus") then
-            attr = mod .. "type" .. key
-            text = "focus"
-        elseif (action == "spell") then
-            attr = mod .. "type" .. key
-            text = "spell"
-            button.secure:SetAttribute(mod .. "spell" .. key, spell)
-        end
+    if InCombatLockdown() then self:DeferUpdates(); return end
+    if type(key) ~= "string" or not key:match("^[1-5]$") or type(mod) ~= "string" then return end
+    if mod ~= "" and mod ~= "*" and mod ~= "ctrl-" and mod ~= "shift-" and mod ~= "alt-" then return end
+    button.clickAttributes = button.clickAttributes or {}
+    for _, kind in ipairs({"type", "spell", "macrotext"}) do
+        local attr = mod .. kind .. key
+        button.secure:SetAttribute(attr, nil)
+        button.clickAttributes[attr] = true
     end
-
-    button.secure:SetAttribute(attr, text)
+    if action == "target" or action == "focus" then
+        button.secure:SetAttribute(mod .. "type" .. key, action)
+    elseif action == "macro" and type(spell) == "string" then
+        button.secure:SetAttribute(mod .. "macrotext" .. key, spell:gsub("%*arena%*", button.unit))
+        button.secure:SetAttribute(mod .. "type" .. key, "macro")
+    elseif action == "spell" and type(spell) == "string" then
+        button.secure:SetAttribute(mod .. "spell" .. key, spell)
+        button.secure:SetAttribute(mod .. "type" .. key, "spell")
+    end
 end
 
 local buttons = { ["1"] = L["Left button"], ["2"] = L["Right button"], ["3"] = L["Middle button"], ["4"] = L["Button 4"], ["5"] = L["Button 5"] }

@@ -116,7 +116,7 @@ test('Gladdy import-export dialogs reuse the shared stack',function()
     local G=LibStub:NewLibrary('Gladdy',1); G.L={}; G.expansion='Wrath'; G.version_major_num=2
     G.defaults={profile={scale=1}}; G.Debug=function() end
     local modules={}; G.NewModule=function(_,name) local m={}; modules[name]=m; return m end
-    local count=gui:GetWidgetCount('Frame'); dofile('Gladdy/Modules/ExportImport.lua')
+    local count=gui:GetWidgetCount('Frame'); dofile('Gladdy/ImportValidation.lua'); dofile('Gladdy/Modules/ExportImport.lua')
     assert(gui:GetWidgetCount('Frame')==count)
     local ser=LibStub('AceSerializer-3.0'); local deflate=LibStub('LibDeflate')
     local encoded=deflate:EncodeForPrint(deflate:CompressZlib(ser:Serialize({version_major_num=2,scale=1.2})))

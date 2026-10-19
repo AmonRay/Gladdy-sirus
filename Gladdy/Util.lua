@@ -303,8 +303,6 @@ function Gladdy:CreateIconFrame(parent, name, config)
     frame.cooldown:SetFrameLevel(config.frameLevel + 1)
     frame.cooldown:SetDrawEdge(true)
     frame.cooldown:SetAlpha(config.cooldownAlpha)
-    frame.cooldown:SetScript("OnShow", function() frame.active = true end)
-    frame.cooldown:SetScript("OnHide", function() frame.active = false end)
 
     frame.cooldownFrame = CreateFrame("Frame", nil, frame)
     frame.cooldownFrame:SetAllPoints(frame)
@@ -336,8 +334,8 @@ function Gladdy:CreateIconFrame(parent, name, config)
     end
 
     local timerFontPath = self:SMFetch("font", config.fontOption)
-    frame:SetScript("OnUpdate", function(self)
-        if not self.active then return end
+    local function OnUpdate(self)
+        if not self.active then self:SetScript("OnUpdate", nil); return end
         if type(self.endTime) ~= "number" then
             if type(self.timeLeft) ~= "number" then return end
             self.endTime = GetTime() + self.timeLeft
@@ -363,7 +361,12 @@ function Gladdy:CreateIconFrame(parent, name, config)
         elseif timeLeft < 30 then r, g, b = 1, 0.7, 0 end
         Gladdy:SetTimerStyle(self.cooldownFont, timerFontPath, size, r, g, b, config.fontAlpha)
         Gladdy:FormatTimer(self.cooldownFont, timeLeft, timeLeft < 10, true)
-    end)
+    end
+
+    function frame:StartTimer()
+        self.active = true
+        self:SetScript("OnUpdate", OnUpdate)
+    end
 
     function frame:UpdateConfig(newConfig)
         self:SetFrameStrata(newConfig.frameStrata)
@@ -407,6 +410,7 @@ function Gladdy:CreateIconFrame(parent, name, config)
     end
 
     function frame:StopCooldown()
+        self:SetScript("OnUpdate", nil)
         self.active = false
         self.endTime = nil
         self.timeLeft = nil
@@ -464,8 +468,6 @@ function Gladdy:CreateSomeFrame(parent, name, config)
     frame.cooldown:SetReverse(true)
     frame.cooldown:SetDrawEdge(true)
     frame.cooldown:SetAlpha(config.cooldownAlpha)
-    frame.cooldown:SetScript("OnShow", function() frame.active = true end)
-    frame.cooldown:SetScript("OnHide", function() frame.active = false end)
 
     frame.cooldownFrame = CreateFrame("Frame", nil, frame.frame)
     frame.cooldownFrame:SetAllPoints(frame.frame)
@@ -501,54 +503,34 @@ function Gladdy:CreateSomeFrame(parent, name, config)
     frame.text:SetAlpha(config.fontAlpha)
     frame.unit = config.unit
 
-    if config.type == "aura" then
-        local specialSpells = config.specialSpells or {}
-        frame:SetScript("OnUpdate", function(self, elapsed)
-            if (self.active) then
-                if (not config.interruptDetached and not config.detached and self.interruptFrame.priority and self.priority < self.interruptFrame.priority) then
-                    self.frame:SetAlpha(0.001)
-                else
-                    self.frame:SetAlpha(1)
-                end
+    local function OnUpdate(self)
+        if not self.active then self:SetScript("OnUpdate", nil); return end
+        self.timeLeft = Gladdy:CooldownRemaining(self)
+        if self.timeLeft <= 0 then
+            if config.type == "aura" then
+                Gladdy.modules["Auras"]:AURA_FADE(self.unit, self.track, true)
+            else
+                self.priority, self.spellSchool = nil, nil
+                self:StopCooldown()
+            end
+            return
+        end
+        local other = config.type == "aura" and self.interruptFrame or Gladdy.modules["Auras"].frames[self.unit]
+        local obscured = not config.interruptDetached and (config.type ~= "aura" or not config.detached)
+            and other and other.active and other.priority and self.priority
+            and (config.type == "aura" and self.priority < other.priority or config.type ~= "aura" and self.priority <= other.priority)
+        Gladdy:SetTimerAlpha(self.frame, obscured and 0.001 or 1)
+        if config.type == "aura" and (config.specialSpells or {})[self:GetSpellID()] then
+            if self.text:GetText() ~= "" then self.text:SetText("") end
+        else
+            Gladdy:FormatTimer(self.text, self.timeLeft, self.timeLeft < 10)
+        end
+    end
 
-                if self.timeLeft <= 0 then
-                    Gladdy.modules["Auras"]:AURA_FADE(self.unit, self.track, true)
-                else
-                    if specialSpells[self:GetSpellID()] then
-                        self.text:SetText("")
-                    else
-                        Gladdy:FormatTimer(self.text, self.timeLeft, self.timeLeft < 10)
-                    end
-                    self.timeLeft = self.timeLeft - elapsed
-                end
-            else
-                self.frame:SetAlpha(0.001)
-            end
-        end)
-    elseif config.type == "interrupt" then
-        frame:SetScript("OnUpdate", function(self, elapsed)
-            if (self.active) then
-                if (not config.interruptDetached and Gladdy.modules["Auras"].frames[self.unit].priority and self.priority <= Gladdy.modules["Auras"].frames[self.unit].priority) then
-                    self.frame:SetAlpha(0.001)
-                else
-                    self.frame:SetAlpha(1)
-                end
-                if (self.timeLeft <= 0) then
-                    self.active = false
-                    self.priority = nil
-                    self.spellSchool = nil
-                    self:StopCooldown()
-                    self.frame:SetAlpha(0.001)
-                else
-                    self.timeLeft = self.timeLeft - elapsed
-                    Gladdy:FormatTimer(self.text, self.timeLeft, self.timeLeft < 10)
-                end
-            else
-                self.priority = nil
-                self.spellSchool = nil
-                self.frame:SetAlpha(0.001)
-            end
-        end)
+    function frame:StartTimer()
+        self.active = true
+        self:SetScript("OnUpdate", OnUpdate)
+        OnUpdate(self)
     end
 
     function frame:GetSpellID()
@@ -604,14 +586,12 @@ function Gladdy:CreateSomeFrame(parent, name, config)
     end
 
     function frame:StopCooldown()
-        if self.cooldown then
-            self.cooldown:SetCooldown(0, 0)
-            self.cooldown:Hide()
-        end
-
-        if self.cooldownFont then
-            self.cooldownFont:SetText("")
-        end
+        self.active, self.endTime, self.timeLeft = false, nil, 0
+        self:SetScript("OnUpdate", nil)
+        self.cooldown:SetCooldown(0, 0)
+        self.cooldown:Hide()
+        self.text:SetText("")
+        Gladdy:SetTimerAlpha(self.frame, 0.001)
     end
 
     function frame:SetIcon(texture)

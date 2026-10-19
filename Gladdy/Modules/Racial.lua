@@ -232,7 +232,7 @@ function Racial:Used(unit, startTime, duration)
     if not Gladdy.db.racialDisableCircle then
         racial.cooldown:SetCooldown(startTime, duration)
     end
-    racial.active = true
+    racial:StartTimer()
 end
 
 function Racial:Test(unit)

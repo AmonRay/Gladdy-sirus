@@ -121,12 +121,14 @@ end
 
 function Gladdy:UpdateFrame()
     if (InCombatLockdown()) then
+        self.pendingUpdateFrame = true
         return
     end
 
     if (not self.frame) then
         self:CreateFrame()
     end
+    self.pendingUpdateFrame = nil
     local teamSize = self.curBracket or 0
 
     local highlightBorderSize = (self.db.highlightInset and 0 or self.db.highlightBorderSize * 2)

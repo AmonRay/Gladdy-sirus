@@ -314,9 +314,12 @@ function ExportImport:Decode(str, showError)
     if #str > limits.encoded then return ImportError("Import string size limit exceeded", showError) end
     local ok, decoded = pcall(LibDeflate.DecodeForPrint, LibDeflate, str)
     if not ok or not decoded then return ImportError("Invalid import encoding", showError) end
+    local checked, expected, sizeError = pcall(Gladdy.ValidateZlibSize, Gladdy, decoded, limits.serialized)
+    if not checked then return ImportError("Invalid compressed profile", showError) end
+    if not expected then return ImportError(sizeError, showError) end
     local raw, remaining
     ok, raw, remaining = pcall(LibDeflate.DecompressZlib, LibDeflate, decoded)
-    if not ok or not raw or (remaining and remaining ~= 0) then return ImportError("Invalid compressed profile", showError) end
+    if not ok or not raw or #raw ~= expected or (remaining and remaining ~= 0) then return ImportError("Invalid compressed profile", showError) end
     local err
     ok, err = ValidateSerialized(raw)
     if not ok then return ImportError(err, showError) end
