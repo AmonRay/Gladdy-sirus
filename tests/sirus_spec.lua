@@ -338,7 +338,7 @@ end)
 test('600 timer ticks do not repeat identical UI text writes',function()
     local f=font(); G.db.timerFormat='seconds'
     for i=0,599 do G:FormatTimer(f,20-i/60) end
-    eq(f.writes,10) -- Values displayed: 20 through 11.
+    eq(f.writes,10)
 end)
 local fake
 fake=function()

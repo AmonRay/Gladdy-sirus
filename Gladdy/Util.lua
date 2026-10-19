@@ -23,10 +23,10 @@ local tags = {
 }
 
 local function str_extract(s, pattern)
-    local t = {} -- table to store the indices
+    local t = {}
     local i, j = 0,0
     while true do
-        i, j = str_find(s, pattern, i+1) -- find 'next' occurrence
+        i, j = str_find(s, pattern, i+1)
         if i == nil then break end
         tinsert(t, str_sub(s, i, j))
     end
@@ -80,7 +80,7 @@ function Gladdy:SetTag(unit, tagOption, current, max, status)
     local t = str_extract(returnStr, "%[[^%[].-%]")
     for _, tag in ipairs(t) do
         local replace
-        if str_find(tag, "|") then -- or operator
+        if str_find(tag, "|") then
             local indicators = str_extract(tag, "[%[|%|]%a+[%||%]]")
             local replaces = {}
             for _, indicator in ipairs(indicators) do
@@ -184,7 +184,7 @@ function Gladdy:ShallowCopy(table)
         for k,v in pairs(table) do
             copy[k] = v
         end
-    else -- number, string, boolean, etc
+    else
         copy = table
     end
     return copy
@@ -197,11 +197,11 @@ function Gladdy:DeepCopy(table)
         for k,v in pairs(table) do
             if type(v) == 'table' then
                 copy[k] = self:DeepCopy(v)
-            else -- number, string, boolean, etc
+            else
                 copy[k] = v
             end
         end
-    else -- number, string, boolean, etc
+    else
         copy = table
     end
     return copy

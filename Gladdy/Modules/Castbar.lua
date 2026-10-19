@@ -125,9 +125,9 @@ function Castbar:CreateFrame(unit)
 
     castBar.icon:ClearAllPoints()
     if (Gladdy.db.castBarIconPos == "LEFT") then
-        castBar.icon:SetPoint("RIGHT", castBar, "LEFT", -3, 0) -- Icon of castbar
+        castBar.icon:SetPoint("RIGHT", castBar, "LEFT", -3, 0)
     else
-        castBar.icon:SetPoint("LEFT", castBar, "RIGHT", 3, 0) -- Icon of castbar
+        castBar.icon:SetPoint("LEFT", castBar, "RIGHT", 3, 0)
     end
 
     castBar.spellText = castBar:CreateFontString(nil, "OVERLAY")
@@ -136,7 +136,7 @@ function Castbar:CreateFrame(unit)
     castBar.spellText:SetShadowOffset(1, -1)
     castBar.spellText:SetShadowColor(0, 0, 0, 1)
     castBar.spellText:SetJustifyH("CENTER")
-    castBar.spellText:SetPoint("LEFT", 10, 0) -- Text of the spell
+    castBar.spellText:SetPoint("LEFT", 10, 0)
 
     castBar.timeText = castBar:CreateFontString(nil, "OVERLAY")
     castBar.timeText:SetFont(Gladdy:SMFetch("font", "auraFont"), Gladdy.db.castBarFontSize, Gladdy.db.castBarFontOutline and "OUTLINE")
@@ -144,7 +144,7 @@ function Castbar:CreateFrame(unit)
     castBar.timeText:SetShadowOffset(1, -1)
     castBar.timeText:SetShadowColor(0, 0, 0, 1)
     castBar.timeText:SetJustifyH("CENTER")
-    castBar.timeText:SetPoint("RIGHT", -4, 0) -- text of cast timer
+    castBar.timeText:SetPoint("RIGHT", -4, 0)
 
     Gladdy.buttons[unit].castBar = castBar
     self.frames[unit] = castBar
@@ -209,10 +209,10 @@ function Castbar:UpdateFrame(unit)
     local rightMargin = 0
     local leftMargin = 0
     if (Gladdy.db.castBarIconPos == "LEFT") then
-        castBar.icon:SetPoint("RIGHT", castBar, "LEFT", -1, 0) -- Icon of castbar
+        castBar.icon:SetPoint("RIGHT", castBar, "LEFT", -1, 0)
         rightMargin = Gladdy.db.castBarIconSize + 1
     else
-        castBar.icon:SetPoint("LEFT", castBar, "RIGHT", 1, 0) -- Icon of castbar
+        castBar.icon:SetPoint("LEFT", castBar, "RIGHT", 1, 0)
         leftMargin = Gladdy.db.castBarIconSize + 1
     end
 

@@ -156,8 +156,8 @@ function EventListener:COMBAT_LOG_EVENT_UNFILTERED(...)
 		)
 	end
 
-	local srcUnit = Gladdy.guids[sourceGUID] -- can be a PET
-	local destUnit = Gladdy.guids[destGUID] -- can be a PET
+	local srcUnit = Gladdy.guids[sourceGUID]
+	local destUnit = Gladdy.guids[destGUID]
 
 	if (Gladdy.db.shadowsightTimerEnabled and eventType == "SPELL_AURA_APPLIED" and spellID == 34709) then
 		Gladdy.modules["Shadowsight Timer"]:AURA_GAIN(nil, nil, 34709)
@@ -313,25 +313,25 @@ function EventListener:ARENA_OPPONENT_UPDATE(unit, updateReason)
 end
 
 Gladdy.cooldownBuffs = {
-	[GetSpellInfo(6346)] = { cd = function(expTime) -- 180s uptime == cd
+	[GetSpellInfo(6346)] = { cd = function(expTime)
 		return expTime
-	end, spellId = 6346 }, -- Fear Ward
-	[GetSpellInfo(11305)] = { cd = function(expTime) -- 15s uptime
+	end, spellId = 6346 },
+	[GetSpellInfo(11305)] = { cd = function(expTime)
 		return 300 - (15 - expTime)
-	end, spellId = 11305 }, -- Sprint
-	[36554] = { cd = function(expTime) -- 3s uptime
+	end, spellId = 11305 },
+	[36554] = { cd = function(expTime)
 		return 30 - (3 - expTime)
-	end, spellId = 36554 }, -- Shadowstep speed buff
-	[36563] = { cd = function(expTime) -- 10s uptime
+	end, spellId = 36554 },
+	[36563] = { cd = function(expTime)
 		return 30 - (10 - expTime)
-	end, spellId = 36554 }, -- Shadowstep dmg buff
-	[GetSpellInfo(26889)] = { cd = function(expTime) -- 3s uptime
+	end, spellId = 36554 },
+	[GetSpellInfo(26889)] = { cd = function(expTime)
 		return 180 - (10 - expTime)
-	end, spellId = 26889 }, -- Vanish
+	end, spellId = 26889 },
 	racials = {
-		[GetSpellInfo(20600)] = { cd = function(expTime) -- 20s uptime
+		[GetSpellInfo(20600)] = { cd = function(expTime)
 			return GetTime() - (20 - expTime)
-		end, spellId = 20600 }, -- Perception
+		end, spellId = 20600 },
 	}
 }
 function EventListener:UNIT_AURA(unit)

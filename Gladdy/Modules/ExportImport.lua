@@ -87,7 +87,7 @@ end)
 import:AddChild(importClearButton)
 import.clearButton = importClearButton
 
-local deletedOptions = { -- backwards compatibility
+local deletedOptions = {
     repentance = true,
     sleep = true,
     impconc = true,
@@ -108,8 +108,8 @@ local deletedOptions = { -- backwards compatibility
     padding = true,
     growUp = true,
     powerBarFontSize = true,
-    ["38373"] = true, -- The Beast Within (Auras)
-    ["34692"] = true, -- The Beast Within (Cooldowns)
+    ["38373"] = true,
+    ["34692"] = true,
 }
 
 local expansionSpecific = {

@@ -39,7 +39,7 @@ end
 
 Gladdy.defaults = {
     profile = {
-        locale = "auto", -- "auto", "enUS", "ruRU", etc.
+        locale = "auto",
         locked = false,
         hideBlizzard = "arena",
         x = 0,

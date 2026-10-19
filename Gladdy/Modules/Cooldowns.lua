@@ -528,7 +528,7 @@ function Cooldowns:CooldownStart(button, spellId, duration, start)
 	for _,icon in pairs(button.spellCooldownFrame.icons) do
 		if (icon.spellId == spellId) then
 			if not start and icon.active and icon.timeLeft > cooldown/2 then
-				return -- do not trigger cooldown again
+				return
 			end
 			icon.active = true
 			icon.timeLeft = start and start - GetTime() + duration or duration

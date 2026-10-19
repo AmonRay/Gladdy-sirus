@@ -139,7 +139,7 @@ function Diminishings:CreateFrame(unit)
 		end)
 
 		icon.cooldown = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
-		icon.cooldown.noCooldownCount = true --Gladdy.db.trinketDisableOmniCC
+		icon.cooldown.noCooldownCount = true
 		icon.cooldown:SetFrameStrata(Gladdy.db.drFrameStrata)
 		icon.cooldown:SetFrameLevel(Gladdy.db.drFrameLevel + 1)
 		icon.cooldown:SetDrawEdge(true)

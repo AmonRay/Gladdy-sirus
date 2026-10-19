@@ -5,7 +5,7 @@ local UnitName, GetSpellInfo, CreateFrame, WorldFrame = UnitName, GetSpellInfo, 
 local totemData, totemNameTotemData = Gladdy:GetTotemData()
 
 local NAMEPLATE_LOGIN = -.4
-local NAMEPLATE_THROTTLE = .5 -- .04 = instant
+local NAMEPLATE_THROTTLE = .5
 local NAMEPLATE_THROTTLE_CURRENT = NAMEPLATE_LOGIN
 local NAMEPLATE_NUM = 0
 local NAMEPLATE_NUM_PREVIOUS = 0
@@ -213,7 +213,7 @@ end
 function TotemPlates:NAME_PLATE_UNIT_ADDED(nameplate)
 	if ( Gladdy.db.npTotems ) then
 		if ( not nameplate ) then
-			nameplate = self -- OnShow
+			nameplate = self
 		end
 
 		local totem = nameplate.gladdyTotemFrame
@@ -250,7 +250,7 @@ end
 
 function TotemPlates:NAME_PLATE_UNIT_REMOVED(nameplate)
 	if ( not nameplate ) then
-		nameplate = self -- OnHide
+		nameplate = self
 	end
 
 	local totem = nameplate.gladdyTotemFrame
@@ -325,7 +325,7 @@ function TotemPlates:UpdateFrameOnce()
 end
 
 function TotemPlates:CreateTotemFrame(nameplate, test)
-	local Frame = CreateFrame("Frame", nil, WorldFrame) -- Parent prevents parental alpha.
+	local Frame = CreateFrame("Frame", nil, WorldFrame)
 	Frame:SetPoint("BOTTOM", nameplate, "TOP", 0, -35)
 	Frame:SetSize(Gladdy.db.npTotemPlatesSize * Gladdy.db.npTotemPlatesWidthFactor, Gladdy.db.npTotemPlatesSize)
 	Frame:Hide()
@@ -356,7 +356,7 @@ function TotemPlates:CreateTotemFrame(nameplate, test)
 		Highlight:SetAlpha(0)
 		Frame.selectionHighlight = Highlight
 
-		local threatglow, castbar, castbarborder, castbarinterrupt, castbaricon -- Unused
+		local threatglow, castbar, castbarborder, castbarinterrupt, castbaricon
 		Frame.healthbar, castbar = nameplate:GetChildren()
 		threatglow, Frame.healthborder, castborder, castinterrupt, casticon, Frame.highlighttexture, Frame.nametext, Frame.leveltext, Frame.bossicon, Frame.raidicon, Frame.mobicon = nameplate:GetRegions()
 
@@ -463,16 +463,16 @@ end
 
 function TotemPlates:SetTotemAlpha(totem, nameplateText)
 	if ( NAMEPLATE_TARGET ) then
-		if ( NAMEPLATE_TARGET == nameplateText ) then -- is target
+		if ( NAMEPLATE_TARGET == nameplateText ) then
 			if ( Gladdy.db.npTotemPlatesAlphaAlwaysTargeted ) then
 				totem:SetAlpha(Gladdy.db.npTotemColors["totem" .. totem.active.id].alpha)
 			else
 				totem:SetAlpha(1)
 			end
-		else -- is not target
+		else
 			totem:SetAlpha(Gladdy.db.npTotemColors["totem" .. totem.active.id].alpha)
 		end
-	else -- no target
+	else
 		if ( Gladdy.db.npTotemPlatesAlphaAlways ) then
 			totem:SetAlpha(Gladdy.db.npTotemColors["totem" .. totem.active.id].alpha)
 		else

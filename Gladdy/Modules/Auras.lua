@@ -65,8 +65,8 @@ local Auras = Gladdy:NewModule("Auras", nil, {
 	auraInterruptGroup = false,
 	auraInterruptGroupDirection = "DOWN",
 	specialSpells = {
-		[8178] = 45,  -- Grounding Totem Effect
-		[50461] = 10,  -- Anti-Magic Zone
+		[8178] = 45,
+		[50461] = 10,
 	},
 })
 

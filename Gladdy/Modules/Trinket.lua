@@ -23,8 +23,8 @@ local Trinket = Gladdy:NewModule("Trinket", 80, {
 	trinketFrameStrata = "MEDIUM",
 	trinketFrameLevel = 5,
 	trinketColored = false,
-	trinketColoredCd = { r = 1, g = 0, b = 0, a = 1 }, -- Red when on cooldown
-	trinketColoredNoCd = { r = 0, g = 1, b = 0, a = 1 }, -- Green when ready
+	trinketColoredCd = { r = 1, g = 0, b = 0, a = 1 },
+	trinketColoredNoCd = { r = 0, g = 1, b = 0, a = 1 },
 	trinketGroup = false,
 	trinketGroupDirection = "DOWN",
 	trinketIcon = select(10, GetItemInfo(51377)),
@@ -195,7 +195,7 @@ function Trinket:TRINKET_USED(unit)
 	end
 end
 
-function Trinket:RACIAL_USED(unit) -- Wrath only
+function Trinket:RACIAL_USED(unit)
 	if (not Gladdy.db.trinketEnabled) then return end
 
 	local trinket = self.frames[unit]

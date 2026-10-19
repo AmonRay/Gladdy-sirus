@@ -386,7 +386,7 @@ function BuffsDebuffs:AddAura(unit, spellID, auraType, duration, timeLeft, stack
 			aura.texture:SetAllPoints(aura)
 			aura.cooldowncircle = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate")
 			aura.cooldowncircle:SetFrameLevel(Gladdy.db.buffsFrameLevel + 1)
-			aura.cooldowncircle.noCooldownCount = true -- disable OmniCC
+			aura.cooldowncircle.noCooldownCount = true
 			aura.cooldowncircle:SetAllPoints(aura)
 			aura.cooldowncircle:SetReverse(true)
 			aura.cooldowncircle:SetDrawEdge(true)
@@ -430,7 +430,7 @@ function BuffsDebuffs:AddAura(unit, spellID, auraType, duration, timeLeft, stack
 end
 
 function BuffsDebuffs:AddOrRefreshAura(unit, spellID, auraType, duration, timeLeft, stacks, dispelType, icon, index)
-	if self.frames[unit].auras[auraType][index] and self.frames[unit].auras[auraType][index].spellID == spellID then -- refresh
+	if self.frames[unit].auras[auraType][index] and self.frames[unit].auras[auraType][index].spellID == spellID then
 		if duration == 0 then
 			self.frames[unit].auras[auraType][index].endtime = "undefined"
 			self.frames[unit].auras[auraType][index].cooldowncircle:Hide()

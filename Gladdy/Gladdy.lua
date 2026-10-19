@@ -68,7 +68,7 @@ end
 local MAJOR, MINOR = "Gladdy", 11
 local Gladdy = LibStub:NewLibrary(MAJOR, MINOR)
 local L = {}
-Gladdy.L = L  -- Initialize Gladdy.L early
+Gladdy.L = L
 Gladdy.version_major_num = 2
 Gladdy.version_minor_num = 0.40
 Gladdy.version_num = Gladdy.version_major_num + Gladdy.version_minor_num
@@ -298,7 +298,7 @@ end
 
 function Gladdy:PixelPerfectScale(update)
 	local physicalWidth, physicalHeight = GetPhysicalScreenSize()
-	local perfectUIScale = 768.0/physicalHeight--768/select(2, strsplit("x",({ GetScreenResolutions()})[GetCurrentResolution()]))
+	local perfectUIScale = 768.0/physicalHeight
 	if self.db and self.db.pixelPerfect and self.frame then
 		self.frame:SetIgnoreParentScale(true)
 		self.frame:SetScale(perfectUIScale)
@@ -411,7 +411,7 @@ function Gladdy:OnInitialize()
 	self:SetupOptions()
 
 	for _, module in self:IterModules() do
-		self:Call(module, "Initialize") -- B.E > A.E :D
+		self:Call(module, "Initialize")
 	end
 	if Gladdy.db.hideBlizzard == "always" then
 		Gladdy:BlizzArenaSetAlpha(0)
@@ -731,7 +731,7 @@ function Gladdy:SMFetch(lsmType, key)
     if type(styleValue) == "string" and styleValue:find("^Interface\\") then
         for _, name in pairs(self.LSM:List(lsmType)) do
             if self.LSM:Fetch(lsmType, name) == styleValue then
-                return styleValue -- Return the direct path
+                return styleValue
             end
         end
 

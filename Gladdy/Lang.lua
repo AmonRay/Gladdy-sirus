@@ -22,7 +22,7 @@ function Gladdy:ApplyLanguage(lang)
             L[k] = v
         end
         Gladdy:Debug("INFO", "Applied Russian localization")
-    else -- enUS или любой другой язык
+    else
         for k, v in pairs(enUS) do
             L[k] = v
         end
