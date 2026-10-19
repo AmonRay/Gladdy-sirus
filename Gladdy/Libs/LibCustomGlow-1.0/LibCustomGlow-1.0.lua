@@ -9,9 +9,9 @@ local ceil, floor, min, mod = math.ceil, math.floor, math.min, mod
 local tinsert, tremove = table.insert, table.remove
 
 local textureList = {
-	["empty"] = [[Interface\AddOns\WeakAuras\Libs\LibCustomGlow-1.0\AM_29]],
+	["empty"] = [[Interface\AddOns\Gladdy\Libs\LibCustomGlow-1.0\am_29]],
 	["white"] = [[Interface\BUTTONS\WHITE8X8]],
-	["shine"] = [[Interface\AddOns\WeakAuras\Libs\LibCustomGlow-1.0\Artifacts]]
+	["shine"] = [[Interface\AddOns\Gladdy\Libs\LibCustomGlow-1.0\artifacts]]
 }
 
 function lib.RegisterTextures(texture, id)

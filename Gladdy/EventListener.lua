@@ -99,7 +99,8 @@ function Gladdy:SpotEnemy(unit, auraScan)
 		button.classLoc = select(1, UnitClass(unit))
 		button.class = select(2, UnitClass(unit))
 		button.name = UnitName(unit)
-		Gladdy.guids[UnitGUID(unit)] = unit
+		local guid = UnitGUID(unit)
+		if guid then Gladdy.guids[guid] = unit end
 	end
 	if button.class and button.race then
 		Gladdy:Debug("INFO", "SpotEnemy", "ENEMY_SPOTTED", unit)
@@ -211,7 +212,7 @@ function EventListener:COMBAT_LOG_EVENT_UNFILTERED(...)
 	end
 
 	if srcUnit then
-		if (not UnitExists(srcUnit)) then
+		if not Gladdy.buttons[srcUnit] or not UnitExists(srcUnit) then
 			return
 		end
 
@@ -230,7 +231,8 @@ function EventListener:COMBAT_LOG_EVENT_UNFILTERED(...)
 					spellId = spellID
 				end
 				if Gladdy.db.cooldownCooldowns[tostring(spellId)] and (eventType == "SPELL_CAST_SUCCESS" or eventType == "SPELL_MISSED" or eventType == "SPELL_DODGED") then
-					if (Gladdy:GetCooldownList()[Gladdy.buttons[srcUnit].class][spellId]) then
+					local classCooldowns = Gladdy:GetCooldownList()[Gladdy.buttons[srcUnit].class]
+					if classCooldowns and classCooldowns[spellId] then
 						unitClass = Gladdy.buttons[srcUnit].class
 					else
 						unitClass = Gladdy.buttons[srcUnit].race
@@ -242,6 +244,9 @@ function EventListener:COMBAT_LOG_EVENT_UNFILTERED(...)
 				end
 			end
 
+            if eventType == "SPELL_CAST_SUCCESS" and spellID == 42292 then
+                Gladdy:SendMessage("TRINKET_USED", srcUnit)
+            end
             local button = Gladdy.buttons[srcUnit]
             local constellation = button.constellation
             if constellation and (constellation.id == spellID or (constellation.alt and constellation.alt[tostring(spellID)])) then
@@ -266,7 +271,8 @@ function EventListener:COMBAT_LOG_EVENT_UNFILTERED(...)
 		end
 	end
 
-	if( eventType == "SPELL_AURA_APPLIED" and bit.band(sourceFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) == COMBATLOG_OBJECT_REACTION_HOSTILE ) then
+	if srcUnit and Gladdy.buttons[srcUnit] and sourceFlags and eventType == "SPELL_AURA_APPLIED"
+		and bit.band(sourceFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) == COMBATLOG_OBJECT_REACTION_HOSTILE then
 		if( spellID == 51514 or spellID == 17928 ) then
 			Gladdy:Debug("INFO", "SPELL_AURA_REMOVED - CooldownUsed", srcUnit, "spellID:", spellID)
 			Cooldowns:CooldownUsed(srcUnit, Gladdy.buttons[srcUnit].class, spellID)
@@ -280,6 +286,7 @@ function EventListener:ARENA_OPPONENT_UPDATE(unit, updateReason)
 	unit = Gladdy:GetArenaUnit(unit)
 	if not unit then
 		Gladdy:Debug("WARN", "ARENA_OPPONENT_UPDATE", "Invalid unit after GetArenaUnit")
+        return
 	end
 
 	local button = Gladdy.buttons[unit]
@@ -380,6 +387,13 @@ function EventListener:UNIT_AURA(unit)
 	Gladdy:SendMessage("AURA_FADE", unit, AURA_TYPE_BUFF)
 	Gladdy:SendMessage("AURA_FADE", unit, AURA_TYPE_DEBUFF)
 
+    -- A constellation may arrive after ARENA_OPPONENT_UPDATE. Resolve once per
+    -- update rather than rescanning every debuff for every aura.
+    if not button.constellation then
+        button.constellation = self:detectConstellation(unit)
+        if button.constellation then Gladdy:SendMessage("ENEMY_SPOTTED", unit) end
+    end
+
 	-- Проверяем баффы (HELPFUL) и дебаффы (HARMFUL)
 	for i = 1, 2 do
 		if not Gladdy.buttons[unit].class or not Gladdy.buttons[unit].race then
@@ -402,11 +416,6 @@ function EventListener:UNIT_AURA(unit)
 			-- Проверка на исключения в именах спеллов
 			if Gladdy.exceptionNames[spellID] then
 				spellName = Gladdy.exceptionNames[spellID]
-			end
-
-			if not button.constellation then
-				button.constellation = EventListener:detectConstellation(unit)
-				Gladdy:SendMessage("ENEMY_SPOTTED", unit)
 			end
 
 			-- Сохраняем информацию об ауре
@@ -469,11 +478,11 @@ end
 
 function EventListener:UpdateAuras(unit)
 	local button = Gladdy.buttons[unit]
-	if not button or button.lastAuras then
+	if not button or not button.lastAuras then
 		return
 	end
-	for i=1, #button.lastAuras do
-		Gladdy.modules["Auras"]:AURA_GAIN(unit, unpack(button.lastAuras[i]))
+	for _, aura in pairs(button.lastAuras) do
+		Gladdy.modules["Auras"]:AURA_GAIN(unit, unpack(aura))
 	end
 end
 
@@ -495,53 +504,48 @@ function EventListener:UNIT_SPELLCAST_CHANNEL_START(unit)
 	end
 end
 
-function EventListener:UNIT_SPELLCAST_SUCCEEDED(...)
-	--local unit, castGUID, spellID = ...
-	local unit, spellID, pvp = ...
+-- Sirus FrameXML uses the 3.3.5 signature: unit, spellName, spellRank,
+-- castID. Also accept numeric spell IDs without mistaking castID for spellID.
+function EventListener:UNIT_SPELLCAST_SUCCEEDED(unit, spell, rank, castID, spellID)
+    -- Pet casts must never consume the owner's trinket/racial cooldown.
+    unit = Gladdy:GetArenaUnit(unit)
+    local button = unit and Gladdy.buttons[unit]
+    if not button then return end
 
-	unit = Gladdy:GetArenaUnit(unit, true) or unit
-	local Button = Gladdy.buttons[unit]
-	if Button then
-		local unitRace = Button.race
-		local constellation = Button.constellation
-		--local spellName = GetSpellInfo(spellID)
-		local spellName = spellID
+    if type(spell) == "number" then
+        spellID = spell
+    elseif type(rank) == "number" and type(spell) == "string" and spell:match("^Cast%-") then
+        spellID = rank
+    end
+    local spellName = type(spellID) == "number" and GetSpellInfo(spellID) or spell
+    spellName = Gladdy.exceptionNames[spellID] or spellName
+    if not spellName then return end
 
-		if Gladdy.exceptionNames[spellID] then
-			spellName = Gladdy.exceptionNames[spellID]
-		end
+    if not button.spec then self:DetectSpec(unit, Gladdy.specSpells[spellName]) end
+    if spellID == 42292 or spellName == PVP_TRINKET then
+        Gladdy:SendMessage("TRINKET_USED", unit)
+    end
 
-		-- spec detection
-		if spellName and  Gladdy.specSpells[spellName] and not Button.spec then
-			self:DetectSpec(unit, Gladdy.specSpells[spellName])
-		end
-
-		-- trinket
-		--if spellID == 42292 then
-		if spellID == PVP_TRINKET then
-			Gladdy:Debug("INFO", "UNIT_SPELLCAST_SUCCEEDED - TRINKET_USED", unit, spellID)
-			Gladdy:SendMessage("TRINKET_USED", unit)
-		end
-
-        -- racial
-        if spellID == GetSpellInfo(375040) or spellID == GetSpellInfo(374994) or spellID == GetSpellInfo(375010) then
-            Gladdy:Debug("INFO", "UNIT_SPELLCAST_SUCCEEDED - RACIAL_USED", unit, spellID)
-            Gladdy:SendMessage("RACIAL_USED", unit)
+    local constellation = button.constellation
+    if constellation then
+        local racialUsed = spellID == constellation.id or spellName == GetSpellInfo(constellation.id)
+        if not racialUsed and constellation.alt then
+            for id in pairs(constellation.alt) do
+                if tonumber(id) == spellID or spellName == GetSpellInfo(tonumber(id)) then
+                    racialUsed = true
+                    break
+                end
+            end
         end
+        if racialUsed then Gladdy:SendMessage("RACIAL_USED", unit) end
+    end
 
-		--cooldown
-		local unitClass
-		if (Gladdy:GetCooldownList()[Button.class][unit]) then
-			unitClass = Button.class
-		else
-			unitClass = Button.race
-		end
-		--if spellID ~= 16188 and spellID ~= 17116 and spellID ~= 16166 and spellID ~= 12043 and spellID ~= 5384 then -- Nature's Swiftness CD starts when buff fades
-		if spellID ~= NS and spellID ~= EM and spellID ~= POM and spellID ~= FD then -- Nature's Swiftness CD starts when buff fades
-			Gladdy:Debug("INFO", "UNIT_SPELLCAST_SUCCEEDED", "- CooldownUsed", unit, "spellID:", spellID)
-			Cooldowns:CooldownUsed(unit, unitClass, spellID)
-		end
-	end
+    local cooldownId = Cooldowns.cooldownSpellIds[spellName]
+    if not Gladdy.db.cooldown or not cooldownId or not Gladdy.db.cooldownCooldowns[tostring(cooldownId)] then return end
+    if spellName == NS or spellName == EM or spellName == POM or spellName == FD then return end
+    local classCooldowns = Gladdy:GetCooldownList()[button.class]
+    local unitClass = classCooldowns and classCooldowns[cooldownId] and button.class or button.race
+    Cooldowns:CooldownUsed(unit, unitClass, cooldownId)
 end
 
 function EventListener:DetectSpec(unit, spec)
@@ -579,14 +583,27 @@ function EventListener:Test(unit)
 end
 
 function EventListener:detectConstellation(unit)
-	local constellations = Gladdy:Constellations()
-	for key = 1, 40 do
-		local arg1, _, icon, _, _, duration, expirationTime, _, _, _, spellID = UnitAura(unit, key, "HARMFUL")
-		if spellID ~= nil and constellations[spellID] then
-			Gladdy:Debug("INFO", "detectConstellation", "Found constellation:", spellID)
-			return constellations[spellID]
-		end
-	end
-
-	return;
+    if not unit or not UnitExists(unit) then return end
+    local constellations = Gladdy:Constellations()
+    -- Prefer the same client API as ElvUI's Sirus tooltips. It returns a zodiac
+    -- raceID, NOT an aura or active ability ID; translate via FrameXML's map.
+    if C_Unit and C_Unit.GetZodiacByDebuff and ZODIAC_DEBUFFS then
+        local raceID = C_Unit.GetZodiacByDebuff(unit)
+        if raceID then
+            for auraID, zodiacRaceID in pairs(ZODIAC_DEBUFFS) do
+                if raceID == zodiacRaceID and constellations[auraID] then
+                    return constellations[auraID]
+                end
+            end
+        end
+    end
+    -- Older Sirus clients may lack C_Unit. Scan until UnitAura ends so a
+    -- persistent constellation after the 40th debuff is not silently lost.
+    local index = 1
+    while true do
+        local name, _, _, _, _, _, _, _, _, _, auraID = UnitAura(unit, index, "HARMFUL")
+        if not name then return end
+        if constellations[auraID] then return constellations[auraID] end
+        index = index + 1
+    end
 end

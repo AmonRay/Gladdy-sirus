@@ -9,7 +9,7 @@ local enUS = {}
 local ruRU = {}
 
 -- Создаем таблицу локализации с метатаблицей для fallback
-Gladdy.L = {}
+Gladdy.L = Gladdy.L or {}
 local L = Gladdy.L
 local mt = {__index = function(self, key) return key end}
 setmetatable(L, mt)
@@ -1224,3 +1224,6 @@ ruRU["Y Offset"] = "Смещение по Y"
 ruRU["Zoomed Icon"] = "Увеличенная иконка"
 ruRU["Zoom Icons"] = "Увеличить иконки"
 ruRU["Zooms the icon to remove borders"] = "Увеличивает иконку, убирая границы"
+
+-- Constants and module defaults are evaluated before PLAYER_LOGIN.
+Gladdy:ApplyLanguage(GetLocale())
