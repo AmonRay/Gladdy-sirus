@@ -17,3 +17,7 @@ jobs:
         run: python3 tests/check_manifest.py
       - name: Run Sirus regression tests
         run: lua5.1 tests/sirus_spec.lua
+      - name: Run library regression tests
+        run: lua5.1 tests/libraries_spec.lua
+      - name: Run synthetic operation-count checks
+        run: lua5.1 tests/bench_dispatch.lua && lua5.1 tests/bench_pets.lua

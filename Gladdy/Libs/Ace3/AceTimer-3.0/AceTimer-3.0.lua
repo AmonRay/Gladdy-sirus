@@ -2,7 +2,8 @@
 -- AceTimer supports one-shot timers and repeating timers. All timers are stored in an efficient
 -- data structure that allows easy dispatching and fast rescheduling. Timers can be registered
 -- or canceled at any time, even from within a running timer, without conflict or large overhead.\\
--- AceTimer is currently limited to firing timers at a frequency of 0.01s.
+-- AceTimer is currently limited to firing timers at a frequency of 0.01s as this is what the WoW timer API
+-- restricts us to.
 --
 -- All `:Schedule` functions will return a handle to the current timer, which you will need to store if you
 -- need to cancel the timer you just registered.
@@ -16,7 +17,7 @@
 -- @name AceTimer-3.0
 -- @release $Id$
 
-local MAJOR, MINOR = "AceTimer-3.0", 1018 -- Bump minor on changes
+local MAJOR, MINOR = "AceTimer-3.0", 1020 -- Bump minor on changes
 local AceTimer, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceTimer then return end -- No upgrade needed
@@ -31,7 +32,8 @@ local type, unpack, next, error, select = type, unpack, next, error, select
 local GetTime = GetTime
 
 --[[
-	 xpcall safecall implementation
+	xpcall safecall implementation
+	Required for 3.3.5a as C_Timer.After is not available.
 ]]
 local xpcall = xpcall
 
@@ -76,7 +78,7 @@ end
 
 local function new(self, loop, func, delay, ...)
 	if delay < 0.01 then
-		delay = 0.01 -- Restrict to the lowest time
+		delay = 0.01 -- Restrict to the lowest time that the OnUpdate API allows us
 	end
 
 	local timer = {
@@ -85,19 +87,24 @@ local function new(self, loop, func, delay, ...)
 		looping = loop,
 		argsCount = select("#", ...),
 		delay = delay,
-		timeleft = delay,
 		ends = GetTime() + delay,
 		...
 	}
 
 	activeTimers[timer] = timer
 
+	local frame = AceTimer.frame
+	if not frame.nextFire or timer.ends < frame.nextFire then
+		frame.nextFire = timer.ends
+	end
+	frame:Show()
+
 	return timer
 end
 
 --- Schedule a new one-shot timer.
 -- The timer will fire once in `delay` seconds, unless canceled before.
--- @param callback Callback function for the timer pulse (funcref or method name).
+-- @param func Callback function for the timer pulse (funcref or method name).
 -- @param delay Delay for the timer, in seconds.
 -- @param ... An optional, unlimited amount of arguments to pass to the callback function.
 -- @usage
@@ -126,7 +133,7 @@ end
 
 --- Schedule a repeating timer.
 -- The timer will fire every `delay` seconds, until canceled.
--- @param callback Callback function for the timer pulse (funcref or method name).
+-- @param func Callback function for the timer pulse (funcref or method name).
 -- @param delay Delay for the timer, in seconds.
 -- @param ... An optional, unlimited amount of arguments to pass to the callback function.
 -- @usage
@@ -171,6 +178,10 @@ function AceTimer:CancelTimer(id)
 	else
 		timer.cancelled = true
 		activeTimers[id] = nil
+		if not next(activeTimers) then
+			AceTimer.frame.nextFire = nil
+			AceTimer.frame:Hide()
+		end
 		return true
 	end
 end
@@ -191,7 +202,7 @@ end
 function AceTimer:TimeLeft(id)
 	local timer = activeTimers[id]
 	if not timer then
-		return
+		return 0  -- Match retail behavior: return 0 for invalid/expired timers
 	else
 		return timer.ends - GetTime()
 	end
@@ -201,7 +212,7 @@ end
 -- ---------------------------------------------------------------------
 -- Upgrading
 
--- Upgrade from old hash-bucket based timers to C_Timer.After timers.
+-- Upgrade from old hash-bucket based timers to OnUpdate timers.
 if oldminor and oldminor < 10 then
 	-- disable old timer logic
 	AceTimer.frame:SetScript("OnUpdate", nil)
@@ -228,7 +239,8 @@ if oldminor and oldminor < 10 then
 	AceTimer.hash = nil
 	AceTimer.debug = nil
 elseif oldminor and oldminor < 17 then
-	-- Upgrade from old animation based timers to C_Timer.After timers.
+	-- Upgrade from old animation based timers to OnUpdate timers.
+	-- Note: we intentionally keep AceTimer.frame alive here; 3.3.5a has no C_Timer.After.
 	AceTimer.inactiveTimers = nil
 	local oldTimers = AceTimer.activeTimers
 	-- Clear old timer table and update upvalue
@@ -261,6 +273,61 @@ elseif oldminor and oldminor < 17 then
 			end
 		end
 		AceTimer.hashCompatTable = nil
+	end
+elseif oldminor then
+	AceTimer.frame:SetScript("OnUpdate", nil)
+	AceTimer.frame:SetScript("OnEvent", nil)
+	AceTimer.frame:UnregisterAllEvents()
+	AceTimer.inactiveTimers = nil
+
+	local oldTimers = AceTimer.activeTimers
+	AceTimer.activeTimers = {}
+	activeTimers = AceTimer.activeTimers
+
+	local function StopTicker(ticker)
+		ticker:Cancel()
+	end
+
+	for handle, timer in next, oldTimers do
+		if type(timer) == "table" and not timer.cancelled then
+			local object, func = timer.object, timer.func
+			local valid = type(func) == "function" or (type(func) == "string" and type(object) == "table" and object[func] ~= nil)
+
+			timer.cancelled = true
+			oldTimers[handle] = nil
+
+			local ticker = timer.ticker
+			if ticker then
+				timer.ticker = nil
+				pcall(StopTicker, ticker)
+			end
+
+			if valid then
+				local delay = timer.delay
+				if type(delay) ~= "number" or delay < 0.01 then
+					delay = 0.01
+				end
+
+				local ends = timer.ends
+				local left = (type(ends) == "number" and ends - GetTime()) or delay
+				if left < 0.01 then
+					left = 0.01
+				end
+
+				local argsCount = timer.argsCount or 0
+				local newTimer
+				if timer.looping then
+					newTimer = AceTimer.ScheduleRepeatingTimer(object, func, delay, unpack(timer, 1, argsCount))
+					newTimer.ends = GetTime() + left
+				else
+					newTimer = AceTimer.ScheduleTimer(object, func, left, unpack(timer, 1, argsCount))
+				end
+
+				activeTimers[newTimer] = nil
+				activeTimers[handle] = newTimer
+				newTimer.handle = handle
+			end
+		end
 	end
 end
 
@@ -295,33 +362,77 @@ for addon in next, AceTimer.embeds do
 	AceTimer:Embed(addon)
 end
 
-AceTimer.frame:SetScript("OnUpdate", function(self, elapsed)
-	for _, timer in next, activeTimers do
-		if not timer.cancelled then
-			if timer.timeleft > elapsed then
-				timer.timeleft = timer.timeleft - elapsed
-			else
-				if type(timer.func) == "string" then
-					-- We manually set the unpack count to prevent issues with an arg set that contains nil and ends with nil
-					-- e.g. local t = {1, 2, nil, 3, nil} print(#t) will result in 2, instead of 5. This fixes said issue.
-					safecall(timer.object[timer.func], timer.object, unpack(timer, 1, timer.argsCount))
-				else
-					safecall(timer.func, unpack(timer, 1, timer.argsCount))
-				end
+-- ---------------------------------------------------------------------
+-- OnUpdate dispatcher
+-- 3.3.5a does not have C_Timer.After, so we drive all timers from a
+-- single frame OnUpdate, compensating each repeating timer's delay to
+-- maintain a consistent average fire rate regardless of framerate.
+local pending = {}
+AceTimer.frame:SetScript("OnUpdate", function(self)
+	local now = GetTime()
+	if self.nextFire and now < self.nextFire then
+		return
+	end
 
-				if timer.looping and not timer.cancelled then
-					-- Compensate delay to get a perfect average delay, even if individual times don't match up perfectly
-					-- due to fps differences
-					local time = GetTime()
-					local delay = timer.delay - (time - timer.ends)
-					-- Ensure the delay doesn't go below the threshold
-					if delay < 0.01 then delay = 0.01 end
-					timer.ends = time + delay
-					timer.timeleft = timer.delay
-				else
-					activeTimers[timer.handle or timer] = nil
-				end
+	local count = 0
+	for handle in next, activeTimers do
+		count = count + 1
+		pending[count] = handle
+	end
+
+	for i = 1, count do
+		local handle = pending[i]
+		pending[i] = nil
+
+		local timer = activeTimers[handle]
+		if timer and not timer.cancelled and timer.ends <= now then
+			if type(timer.func) == "string" then
+				-- We manually set the unpack count to prevent issues with an arg set that contains nil and ends with nil
+				-- e.g. local t = {1, 2, nil, 3, nil} print(#t) will result in 2, instead of 5. This fixes said issue.
+				safecall(timer.object[timer.func], timer.object, unpack(timer, 1, timer.argsCount))
+			else
+				safecall(timer.func, unpack(timer, 1, timer.argsCount))
+			end
+
+			if timer.looping and not timer.cancelled then
+				-- Compensate delay to get a perfect average delay, even if individual times don't match up perfectly
+				-- due to fps differences
+				local time = GetTime()
+				local delay = timer.delay - (time - timer.ends)
+				-- Ensure the delay doesn't go below the threshold
+				if delay < 0.01 then delay = 0.01 end
+				timer.ends = time + delay
+			else
+				activeTimers[timer.handle or timer] = nil
 			end
 		end
 	end
+
+	local earliest
+	for _, timer in next, activeTimers do
+		if not timer.cancelled and (not earliest or timer.ends < earliest) then
+			earliest = timer.ends
+		end
+	end
+
+	self.nextFire = earliest
+
+	if not next(activeTimers) then
+		self:Hide()
+	end
 end)
+
+local earliest
+for _, timer in next, activeTimers do
+	if not timer.cancelled and (not earliest or timer.ends < earliest) then
+		earliest = timer.ends
+	end
+end
+
+AceTimer.frame.nextFire = earliest
+
+if next(activeTimers) then
+	AceTimer.frame:Show()
+else
+	AceTimer.frame:Hide()
+end
