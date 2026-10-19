@@ -35,6 +35,7 @@ Modules\BuffsDebuffs.lua
 Modules\VersionCheck.lua
 Modules\XiconProfiles.lua
 Modules\Pets.lua
+ImportValidation.lua
 Modules\ExportImport.lua
 Modules\CombatIndicator.lua
 Modules\RangeCheck.lua

@@ -29,14 +29,21 @@ gui.Create=function(self,kind) local obj=originalCreate(self,kind);if kind=='Fra
 local ser=LibStub('AceSerializer-3.0');local deflate=LibStub('LibDeflate')
 local function encode(value) return deflate:EncodeForPrint(deflate:CompressZlib(ser:Serialize(value))) end
 local function encodeRaw(raw) return deflate:EncodeForPrint(deflate:CompressZlib(raw)) end
-dofile('Gladdy/Modules/ExportImport.lua');local module=modules['Export Import']
+dofile('Gladdy/ImportValidation.lua'); dofile('Gladdy/Modules/ExportImport.lua');local module=modules['Export Import']
 local valid=encode({version_major_num=2,scale=1.3,expansion='Wrath',appearance={r=0.5}})
-test('existing import module provides its own size validator without a separate TOC file',function()
-    assert(type(G.ValidateZlibSize)=='function')
+test('separate validator loads before import and a missing validator fails without decompression',function()
+    assert(type(G.ValidateZlibSize)=='function' and module:Decode(valid))
+    local validator, original = G.ValidateZlibSize, deflate.DecompressZlib
+    G.ValidateZlibSize = nil
+    dofile('Gladdy/Modules/ExportImport.lua')
+    local missing = modules['Export Import']
+    deflate.DecompressZlib = function() error('decompression must not run without the validator') end
+    local decoded, err = missing:Decode(valid)
+    assert(decoded == nil and err == 'Profile size validator is unavailable; update the entire Gladdy folder and reload', tostring(err))
+    assert(G.db.scale == 1 and changes == 0)
+    G.ValidateZlibSize, deflate.DecompressZlib = validator, original
+    modules['Export Import'] = module
     assert(module:Decode(valid))
-    local validator=G.ValidateZlibSize
-    dofile('Gladdy/ImportValidation.lua')
-    assert(G.ValidateZlibSize==validator and module:Decode(valid))
 end)
 test('decompression failures retain diagnostic stages without changing the profile',function()
     local original=deflate.DecompressZlib
