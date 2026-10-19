@@ -176,7 +176,7 @@ function EventListener:COMBAT_LOG_EVENT_UNFILTERED(...)
 	end
 
 	if destUnit then
-		if Gladdy.buttons[destUnit] and Gladdy.db.drEnabled and extraSpellId == AURA_TYPE_DEBUFF then
+		if Gladdy.buttons[destUnit] and extraSpellId == AURA_TYPE_DEBUFF then
 			if (eventType == "SPELL_AURA_REMOVED") then
 				Diminishings:AuraFade(destUnit, spellID, sourceGUID)
 			end

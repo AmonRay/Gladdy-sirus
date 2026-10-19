@@ -63,10 +63,17 @@ function RangeCheck:UpdateFrameOnce()
     if Gladdy.db.rangeCheckEnabled then
         self:RegisterMessage("JOINED_ARENA")
         if Gladdy.curBracket and not (Gladdy.frame and Gladdy.frame.testing) then self:JOINED_ARENA() end
+        for unit, button in pairs(Gladdy.buttons) do
+            local state = button.lastState
+            button.lastState = nil
+            if self.test then self:Test(unit)
+            else self:SetRangeAlpha(button, state == nil or state == 1) end
+        end
     else
         self:UnregisterAllMessages()
         for _, button in pairs(Gladdy.buttons) do
             self:CancelTimer(button)
+            button.lastState = nil
             self:SetColor(button, 1)
         end
     end

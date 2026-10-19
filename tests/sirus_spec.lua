@@ -358,7 +358,7 @@ dofile('Gladdy/Modules/Castbar.lua')
 local Cast=G.modules['Cast Bar']; local cb=fake()
 cb.unit='arena1'; cb.bar=fake(); cb.icon=fake(); cb.icon.texture=fake()
 cb.spellText=fake(); cb.timeText=fake(); cb.bg=fake(); cb.backdrop=fake(); cb.spark=fake(); cb.shield=fake()
-Cast.frames={arena1=cb}; G.db.castBarColor={}
+Cast.frames={arena1=cb}; G.db.castBarColor={}; G.db.castBarEnabled=true
 test('cast update runs only during a cast or fade and restarts on next cast',function()
     Cast:CAST_START('arena1','spell','icon',0,2,false,'cast'); eq(cb.scripts.OnUpdate,Cast.OnUpdate)
     cb.fadeOut=false; Cast:CAST_STOP('arena1'); eq(cb.scripts.OnUpdate,nil)

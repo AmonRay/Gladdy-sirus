@@ -54,8 +54,12 @@ function Castbar:UpdateFrameOnce()
     if Gladdy.db.castBarEnabled then
         self:RegisterMessage("UNIT_DEATH")
         self:RegisterMessage("JOINED_ARENA")
+        if Gladdy.curBracket and not (Gladdy.frame and Gladdy.frame.testing) then
+            for i = 1, Gladdy.curBracket do self:EnableUnit("arena" .. i) end
+        end
     else
         self:UnregisterAllMessages()
+        for unit in pairs(self.frames) do self:ResetUnit(unit) end
     end
 end
 
@@ -65,6 +69,7 @@ end
 
 function Castbar:ResetUnit(unit)
     local castBar = self.frames[unit]
+    if not castBar then return end
     castBar:UnregisterAllEvents()
     castBar:SetScript("OnEvent", nil)
     castBar:SetScript("OnUpdate", nil)
@@ -240,10 +245,10 @@ function Castbar:UpdateFrame(unit)
                 0, 0, "castBarEnabled")
     end
     if not Gladdy.db.castBarEnabled then
-        self:CAST_STOP(unit)
+        self:ResetUnit(unit)
     end
 
-    if Gladdy.db.castBarIconEnabled then
+    if Gladdy.db.castBarEnabled and Gladdy.db.castBarIconEnabled then
         castBar.icon:Show()
         if testAgain then
             self:ResetUnit(unit)
@@ -266,6 +271,7 @@ Castbar.TimerFormatFunc.BOTH = function(castBar)
 end
 
 function Castbar.OnUpdate(castBar, elapsed)
+    if not Gladdy.db.castBarEnabled then Castbar:ResetUnit(castBar.unit); return end
     if castBar.channeling or castBar.casting then
         if ((castBar.casting and castBar.value >= castBar.maxValue) or (castBar.channeling and castBar.value <= 0)) then
             castBar.holdTime = castBar.casting and (GetTime() + 0.25) or 0
@@ -444,6 +450,7 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_CHANNEL_UPDATE"] = function(castBar, even
 end
 
 function Castbar.OnEvent(self, event, ...)
+    if not Gladdy.db.castBarEnabled then return end
     local unit = ...
 
     if ( unit ~= self.unit ) then
@@ -458,6 +465,7 @@ function Castbar.OnEvent(self, event, ...)
 end
 
 function Castbar:CAST_START(unit, spell, icon, value, maxValue, notInterruptible, test)
+    if not Gladdy.db.castBarEnabled then return end
     local castBar = self.frames[unit]
     if (not castBar) then
         return
@@ -527,25 +535,24 @@ function Castbar:CAST_STOP(unit, ...)
     end
 end
 
-function Castbar:JOINED_ARENA()
-    if Gladdy.db.castBarEnabled then
-        for i=1, Gladdy.curBracket do
-            local unit = "arena" .. i
-            local castBar = self.frames[unit]
-            castBar:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", unit)
-            castBar:RegisterUnitEvent("UNIT_SPELLCAST_DELAYED", unit)
-            castBar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", unit)
-            castBar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", unit)
-            castBar:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", unit)
-            castBar:RegisterUnitEvent("UNIT_SPELLCAST_START", unit)
-            castBar:RegisterUnitEvent("UNIT_SPELLCAST_STOP", unit)
-            castBar:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", unit)
-            castBar:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", unit)
+function Castbar:EnableUnit(unit)
+    local castBar = self.frames[unit]
+    if not Gladdy.db.castBarEnabled or not castBar or castBar:GetScript("OnEvent") == Castbar.OnEvent then return end
+    for event in pairs(Castbar.CastEventsFunc) do castBar:RegisterUnitEvent(event, unit) end
+    castBar:SetScript("OnEvent", Castbar.OnEvent)
+    if UnitCastingInfo(unit) then
+        Castbar.CastEventsFunc.UNIT_SPELLCAST_START(castBar, "UNIT_SPELLCAST_START", unit)
+    elseif UnitChannelInfo(unit) then
+        Castbar.CastEventsFunc.UNIT_SPELLCAST_CHANNEL_START(castBar, "UNIT_SPELLCAST_CHANNEL_START", unit)
+    end
+end
 
-            castBar:SetScript("OnEvent", Castbar.OnEvent)
-            castBar.fadeOut = nil
-            self:CAST_STOP(unit)
-        end
+function Castbar:JOINED_ARENA()
+    if not Gladdy.db.castBarEnabled or not Gladdy.curBracket then return end
+    for i = 1, Gladdy.curBracket do
+        local unit = "arena" .. i
+        self:ResetUnit(unit)
+        self:EnableUnit(unit)
     end
 end
 

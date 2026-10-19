@@ -82,9 +82,7 @@ end
 
 function Diminishings:Initialize()
 	self.frames = {}
-	if Gladdy.db.drEnabled then
-		self:RegisterMessage("UNIT_DESTROYED")
-	end
+	self:RegisterMessage("UNIT_DESTROYED")
 end
 
 function Diminishings:ResetUnit(unit)
@@ -294,10 +292,10 @@ function Diminishings:UpdateFrame(unit)
 			icon.texture:SetTexCoord(0,1,0,1)
 		end
 	end
+    self:Positionate(unit)
 end
 
 function Diminishings:UNIT_DESTROYED(unit)
-	if (not Gladdy.db.drEnabled) then return end
 	Diminishings:ResetUnit(unit)
 end
 
@@ -336,9 +334,7 @@ end
 function Diminishings:FindLastIcon(unit, drCat)
 	local drFrame = self.frames[unit]
 	if (not drFrame or not drCat) then return end
-	if not Gladdy.db.drCategories[drCat].enabled then
-		return
-	end
+	if not Gladdy.db.drCategories[drCat] then return end
 	local lastIcon
 	for i = 1, 16 do
 		local icon = drFrame["icon" .. i]
@@ -383,7 +379,6 @@ function Diminishings:PrepareIcon(unit, lastIcon, drCat, spellID)
 	lastIcon.drLevelText:SetText(getDiminishText(lastIcon.diminishing))
 	lastIcon.active = true
 	self:Positionate(unit)
-	lastIcon:Show()
 end
 
 function Diminishings:ExpireIcon(icon)
@@ -410,10 +405,9 @@ function Diminishings.OnUpdate(icon)
 end
 
 function Diminishings:AuraGain(unit, spellID, sourceGUID, refresh, eventTime)
-    if not Gladdy.db.drEnabled then return end
     local frame, category = self.frames[unit], DRData:GetSpellCategory(spellID)
     local config = category and Gladdy.db.drCategories[category]
-    if not frame or not config or not config.enabled then return end
+    if not frame or not config then return end
     local icon = self:FindLastIcon(unit, category)
     if not icon then return end
     if icon.running and Gladdy:CooldownRemaining(icon) <= 0 then self:ExpireIcon(icon) end
@@ -435,10 +429,9 @@ function Diminishings:AuraGain(unit, spellID, sourceGUID, refresh, eventTime)
 end
 
 function Diminishings:AuraFade(unit, spellID, sourceGUID)
-    if not Gladdy.db.drEnabled then return end
     local frame, category = self.frames[unit], DRData:GetSpellCategory(spellID)
     local config = category and Gladdy.db.drCategories[category]
-    if not frame or not config or not config.enabled then return end
+    if not frame or not config then return end
     local effects = frame.effects and frame.effects[category]
     local key = tostring(spellID) .. ":" .. (sourceGUID or "")
     if not effects or not effects[key] then return end
@@ -465,7 +458,9 @@ function Diminishings:Positionate(unit)
 	for i = 1, 16 do
 		local icon = drFrame["icon" .. i]
 
-		if (icon.active) then
+        local category = icon.dr and Gladdy.db.drCategories[icon.dr]
+        if icon.active and Gladdy.db.drEnabled and category and category.enabled then
+            icon:Show()
 			icon:ClearAllPoints()
 			if Gladdy.db.drGrowDirection == "LEFT" then
 				if (not lastIcon) then
@@ -482,6 +477,8 @@ function Diminishings:Positionate(unit)
 			end
 
 			lastIcon = icon
+        else
+            icon:Hide()
 		end
 	end
 end

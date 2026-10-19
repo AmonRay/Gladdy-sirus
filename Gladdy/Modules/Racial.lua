@@ -109,6 +109,7 @@ function Racial:CreateFrame(unit)
 	racial:SetHeight(Gladdy.db.racialSize)
 
 	self.frames[unit] = racial
+	Gladdy.buttons[unit].racial = racial
 end
 
 function Racial:UpdateFrame(unit)

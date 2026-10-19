@@ -43,6 +43,8 @@ end
 function Trinket:UpdateFrameOnce()
 	if Gladdy.db.trinketEnabled then
 		self:RegisterMessage("JOINED_ARENA")
+		self:RegisterMessage("ENEMY_SPOTTED")
+		self:RegisterMessage("TRINKET_USED")
 		self:RegisterMessage("RACIAL_USED")
 	else
 		self:UnregisterAllMessages()
@@ -87,6 +89,7 @@ function Trinket:CreateFrame(unit)
 	trinket:SetHeight(Gladdy.db.trinketSize)
 
 	self.frames[unit] = trinket
+	Gladdy.buttons[unit].trinket = trinket
 end
 
 function Trinket:UpdateFrame(unit)
