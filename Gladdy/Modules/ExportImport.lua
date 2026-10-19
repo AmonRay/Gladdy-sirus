@@ -1,4 +1,4 @@
-local type, pairs, str_match = type, pairs, string.match
+local type, pairs = type, pairs
 
 local Gladdy = LibStub("Gladdy")
 local AceSerializer = LibStub("AceSerializer-3.0")
@@ -25,8 +25,6 @@ end
 local ExportImport = Gladdy:NewModule("Export Import", nil, {
     expansion = Gladdy.expansion,
 })
-
-local ValidateZlibSize = Gladdy.ValidateZlibSize
 
 local export, import
 
@@ -143,90 +141,16 @@ local expansionSpecific = {
     "cooldownCooldownsOrder",
 }
 
-local limits = { encoded = 524288, serialized = 2097152, depth = 32, entries = 50000, tokens = 120000 }
-ExportImport.IMPORT_LIMITS = limits
-
-local function FiniteNumber(value)
-    return value == value and value > -math.huge and value < math.huge
-end
-
-local function TextureTypeCompatible(path, key, expected, value)
-    local texture = path == "Gladdy.db" and key == "trinketIcon"
-        or key == "icon" and path:match("^Gladdy%.db%.drCategories%.[^.]+$")
-    if not texture then return false end
-    local a, b = type(expected), type(value)
-    if a ~= "string" and a ~= "number" then return false end
-    return b == "string" or b == "number" and value > 0 and value % 1 == 0
-end
-
-local function ValidateTree(tbl, refTbl, depth, state, path)
-    if depth > limits.depth then return false, "Profile nesting limit exceeded" end
-    if state.seen[tbl] then return false, "Cyclic profile table" end
-    state.seen[tbl] = true
-    for key, value in pairs(tbl) do
-        state.entries = state.entries + 1
-        if state.entries > limits.entries then return false, "Profile entry limit exceeded" end
-        local keyType, valueType = type(key), type(value)
-        if keyType ~= "string" and (keyType ~= "number" or not FiniteNumber(key)) then
-            return false, "Invalid profile key at " .. path
-        end
-        state.bytes = (state.bytes or 0) + (keyType == "string" and #key or 8) + (valueType == "string" and #value or 8)
-        if state.bytes > limits.serialized then return false, "Profile data size limit exceeded" end
-        local field = path .. "." .. tostring(key)
-        if valueType ~= "table" and valueType ~= "string" and valueType ~= "boolean" and valueType ~= "number" then
-            return false, "Invalid profile value at " .. field
-        end
-        if valueType == "number" and not FiniteNumber(value) then return false, "Invalid number at " .. field end
-        local expected = refTbl and refTbl[key]
-        if expected ~= nil and type(expected) ~= valueType and not deletedOptions[tostring(key)]
-            and not TextureTypeCompatible(path, key, expected, value) then
-            return false, field .. " type error. Expected " .. type(expected) .. " found " .. valueType
-        end
-        if valueType == "table" then
-            local ok, err = ValidateTree(value, type(expected) == "table" and expected or nil, depth + 1, state, field)
-            if not ok then return false, err end
-        end
-    end
-    state.seen[tbl] = nil
-    return true
-end
-
 function ExportImport:CheckDeserializedOptions(tbl, refTbl, str)
     if type(tbl) ~= "table" then return false, "Profile root must be a table" end
-    if tbl.expansion ~= nil and type(tbl.expansion) ~= "string" then return false, "Invalid profile expansion" end
     if not str then
-        local version = tbl.version_major_num
-        if type(version) ~= "number" or not FiniteNumber(version) or version < 1 or version % 1 ~= 0 then
-            return false, "Invalid or missing profile version"
+        if type(tbl.version_major_num) ~= "number" then
+            return false, "Version conflict: version_major_num not seen"
         end
-        if version > Gladdy.version_major_num then return false, "Profile version is newer than Gladdy" end
-    end
-    if type(refTbl) ~= "table" then return false, "Profile defaults are unavailable" end
-    return ValidateTree(tbl, refTbl, 1, {seen = {}, entries = 0}, str or "Gladdy.db")
-end
-
-local function ValidateSerialized(str)
-    if #str > limits.serialized then return false, "Serialized profile size limit exceeded" end
-    str = str:gsub("[%c ]", "")
-    if str:sub(1,4) ~= "^1^T" or str:sub(-2) ~= "^^" then return false, "Invalid serialized profile root" end
-    local depth, tokens, closed, ended = 0, 0, false, false
-    for ctl in str:sub(3):gmatch("%^(.)") do
-        tokens = tokens + 1
-        if tokens > limits.tokens then return false, "Serialized profile token limit exceeded" end
-        if ended or (closed and ctl ~= "^") then return false, "Unexpected data after profile" end
-        if ctl == "T" then
-            depth = depth + 1
-            if depth > limits.depth then return false, "Profile nesting limit exceeded" end
-        elseif ctl == "t" then
-            depth = depth - 1
-            if depth < 0 then return false, "Invalid profile table boundary" end
-            if depth == 0 then closed = true end
-        elseif ctl == "^" then
-            if not closed or depth ~= 0 then return false, "Invalid profile terminator" end
-            ended = true
+        if tbl.version_major_num > Gladdy.version_major_num then
+            return false, "Version conflict: profile major version is newer than Gladdy"
         end
     end
-    if not closed or not ended then return false, "Incomplete serialized profile" end
     return true
 end
 
@@ -313,8 +237,6 @@ end
 
 function ExportImport:ApplyImport(tbl, target)
     if type(tbl) ~= "table" or type(target) ~= "table" then return false, "Invalid profile table" end
-    local ok, err = ValidateTree(tbl, target, 1, {seen = {}, entries = 0}, "Gladdy.db")
-    if not ok then return false, err end
     local expansion = tbl.expansion or "BCC"
     if not tbl.newLayout then target.newLayout = false end
     ApplyTable(tbl, target, expansion ~= target.expansion)
@@ -323,27 +245,16 @@ end
 
 function ExportImport:Decode(str, showError)
     if type(str) ~= "string" or #str == 0 then return ImportError("Invalid import string", showError) end
-    if #str > limits.encoded then return ImportError("Import string size limit exceeded", showError) end
     local ok, decoded = pcall(LibDeflate.DecodeForPrint, LibDeflate, str)
-    if not ok or not decoded then return ImportError("Invalid import encoding", showError) end
-    if type(ValidateZlibSize) ~= "function" then return ImportError("Profile size validator is unavailable; update the entire Gladdy folder and reload", showError) end
-    local checked, expected, sizeError = pcall(ValidateZlibSize, Gladdy, decoded, limits.serialized)
-    if not checked then return ImportError("Profile size validation failed: " .. tostring(expected):sub(1, 300), showError) end
-    if not expected then return ImportError(sizeError, showError) end
-    local raw, remaining
-    ok, raw, remaining = pcall(LibDeflate.DecompressZlib, LibDeflate, decoded)
-    if not ok then return ImportError("Profile decompression failed: " .. tostring(raw):sub(1, 300), showError) end
-    if not raw then return ImportError("Profile decompression failed (LibDeflate status: " .. tostring(remaining) .. ")", showError) end
-    if type(raw) ~= "string" then return ImportError("Invalid decompressed profile type", showError) end
-    if #raw ~= expected then return ImportError("Profile decompressed size mismatch: expected " .. expected .. ", got " .. #raw, showError) end
-    if remaining and remaining ~= 0 then return ImportError("Unexpected trailing compressed profile data", showError) end
-    local err
-    ok, err = ValidateSerialized(raw)
-    if not ok then return ImportError(err, showError) end
-    local success, deserialized = AceSerializer:Deserialize(raw)
-    if not success then return ImportError("Invalid serialized profile", showError) end
-    ok, err = self:CheckDeserializedOptions(deserialized, Gladdy.defaults.profile)
-    if not ok then return ImportError(err, showError) end
+    if not ok or not decoded then return ImportError("Invalid Import String FAILED LibDeflate:DecodeForPrint", showError) end
+    local raw
+    ok, raw = pcall(LibDeflate.DecompressZlib, LibDeflate, decoded)
+    if not ok or not raw then return ImportError("Invalid Import String FAILED LibDeflate:DecompressZlib", showError) end
+    local success, deserialized
+    ok, success, deserialized = pcall(AceSerializer.Deserialize, AceSerializer, raw)
+    if not ok or not success then return ImportError("Invalid Import String FAILED AceSerializer:Deserialize", showError) end
+    local valid, err = self:CheckDeserializedOptions(deserialized, Gladdy.defaults.profile)
+    if not valid then return ImportError(err, showError) end
     deserialized.version_major_num = nil
     return deserialized
 end

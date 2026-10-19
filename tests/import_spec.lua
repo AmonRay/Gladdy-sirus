@@ -29,39 +29,58 @@ gui.Create=function(self,kind) local obj=originalCreate(self,kind);if kind=='Fra
 local ser=LibStub('AceSerializer-3.0');local deflate=LibStub('LibDeflate')
 local function encode(value) return deflate:EncodeForPrint(deflate:CompressZlib(ser:Serialize(value))) end
 local function encodeRaw(raw) return deflate:EncodeForPrint(deflate:CompressZlib(raw)) end
-dofile('Gladdy/ImportValidation.lua'); dofile('Gladdy/Modules/ExportImport.lua');local module=modules['Export Import']
+dofile('Gladdy/Modules/ExportImport.lua');local module=modules['Export Import']
 local valid=encode({version_major_num=2,scale=1.3,expansion='Wrath',appearance={r=0.5}})
-test('separate validator loads before import and a missing validator fails without decompression',function()
-    assert(type(G.ValidateZlibSize)=='function' and module:Decode(valid))
-    local validator, original = G.ValidateZlibSize, deflate.DecompressZlib
-    G.ValidateZlibSize = nil
-    dofile('Gladdy/Modules/ExportImport.lua')
-    local missing = modules['Export Import']
-    deflate.DecompressZlib = function() error('decompression must not run without the validator') end
-    local decoded, err = missing:Decode(valid)
-    assert(decoded == nil and err == 'Profile size validator is unavailable; update the entire Gladdy folder and reload', tostring(err))
-    assert(G.db.scale == 1 and changes == 0)
-    G.ValidateZlibSize, deflate.DecompressZlib = validator, original
-    modules['Export Import'] = module
+test('decode delegates directly to LibDeflate and AceSerializer in the original order',function()
+    local decode, decompress, deserialize = deflate.DecodeForPrint, deflate.DecompressZlib, ser.Deserialize
+    local calls = {}
+    deflate.DecodeForPrint = function(...) calls[#calls + 1] = 'decode'; return decode(...) end
+    deflate.DecompressZlib = function(...) calls[#calls + 1] = 'decompress'; return decompress(...) end
+    ser.Deserialize = function(...) calls[#calls + 1] = 'deserialize'; return deserialize(...) end
     assert(module:Decode(valid))
+    deflate.DecodeForPrint, deflate.DecompressZlib, ser.Deserialize = decode, decompress, deserialize
+    assert(table.concat(calls, ',') == 'decode,decompress,deserialize')
+    assert(module.IMPORT_LIMITS == nil and G.ValidateZlibSize == nil)
 end)
-test('decompression failures retain diagnostic stages without changing the profile',function()
-    local original=deflate.DecompressZlib
-    local cases={
-        {function() error('decoder failure') end,'Profile decompression failed:'},
-        {function() return nil,-15 end,'LibDeflate status: -15'},
-        {function() return 'short',0 end,'Profile decompressed size mismatch:'},
-        {function() return {},0 end,'Invalid decompressed profile type'},
-    }
-    for _,case in ipairs(cases) do
-        deflate.DecompressZlib=case[1]
-        local decoded,err=module:Decode(valid)
-        assert(decoded==nil and err:find(case[2],1,true),tostring(err))
+test('library failures report their stage without modifying the active profile',function()
+    local before = G.db.scale
+    for _,case in ipairs({
+        {deflate, 'DecodeForPrint', 'LibDeflate:DecodeForPrint'},
+        {deflate, 'DecompressZlib', 'LibDeflate:DecompressZlib'},
+        {ser, 'Deserialize', 'AceSerializer:Deserialize'},
+    }) do
+        local original = case[1][case[2]]
+        for _,replacement in ipairs({function() return nil end, function() error('library failure') end}) do
+            case[1][case[2]] = replacement
+            local result, err = module:Decode(valid)
+            assert(result == nil and err:find(case[3], 1, true), tostring(err))
+        end
+        case[1][case[2]] = original
     end
-    deflate.DecompressZlib=function(self,input) local raw=original(self,input);return raw,1 end
-    local decoded,err=module:Decode(valid);assert(decoded==nil and err=='Unexpected trailing compressed profile data')
-    deflate.DecompressZlib=original
-    assert(G.db.scale==1 and changes==0 and module:Decode(valid))
+    assert(G.db.scale == before and changes == 0 and module:Decode(valid))
+end)
+test('profiles are not constrained by the removed custom size and depth limits',function()
+    local profile = {version_major_num = 2, customText = string.rep('a', 2097153)}
+    local cursor = profile
+    for _ = 1, 35 do cursor.child = {}; cursor = cursor.child end
+    local decoded = assert(module:Decode(encode(profile)))
+    assert(#decoded.customText == 2097153)
+    cursor = decoded
+    for _ = 1, 35 do cursor = assert(cursor.child) end
+    local original = deflate.DecodeForPrint
+    local largeInput = string.rep('a', 524289)
+    deflate.DecodeForPrint = function(self, input)
+        assert(input == largeInput)
+        return original(self, valid)
+    end
+    assert(module:Decode(largeInput))
+    deflate.DecodeForPrint = original
+end)
+test('legacy field types are not rejected by custom schema validation',function()
+    local decoded = assert(module:Decode(encode({version_major_num = 2, scale = 'legacy', appearance = {r = 'legacy'}})))
+    assert(decoded.scale == 'legacy' and decoded.appearance.r == 'legacy')
+    local target = {scale = 1, appearance = {r = 1}}
+    assert(module:ApplyImport(decoded, target) and target.scale == 'legacy' and target.appearance.r == 'legacy')
 end)
 test('file load and background decoding create no UI objects',function()
     assert(#created==0 and gui:GetWidgetCount('Frame')==0)
@@ -94,42 +113,17 @@ test('valid import applies known values without retaining version metadata',func
     assert(G.db.scale==1.3 and G.db.appearance.r==0.5 and G.db.version_major_num==nil and changes==1)
 end)
 test('root and version types are rejected without Lua exceptions',function()
-    for _,root in ipairs({true,7,'profile',{scale=1},{version_major_num='2'},{version_major_num=0},{version_major_num=1.5},{version_major_num=3},{version_major_num=math.huge}}) do
+    for _,root in ipairs({true,7,'profile',{scale=1},{version_major_num='2'},{version_major_num=3},{version_major_num=math.huge}}) do
         local ok,result=pcall(module.Decode,module,encode(root));assert(ok and result==nil)
     end
     assert(module:Decode(nil)==nil and module:Decode({})==nil)
-end)
-test('known nested field mismatches cannot partially modify a profile',function()
-    local before=G.db.scale;local bad={scale=9,appearance={r='wrong'}}
-    local ok,err=module:ApplyImport(bad,G.db);assert(not ok and err and G.db.scale==before and G.db.appearance.r==0.5)
-    assert(module:Decode(encode({version_major_num=2,scale='wrong'}))==nil)
 end)
 test('validation leaves the source profile and version intact',function()
     local source={version_major_num=2,scale=1.1}
     assert(module:CheckDeserializedOptions(source,G.defaults.profile))
     assert(source.version_major_num==2 and source.scale==1.1)
 end)
-test('cycles table keys and non-finite values are rejected at apply boundary',function()
-    local cyclic={};cyclic.loop=cyclic
-    assert(not module:ApplyImport(cyclic,G.db))
-    assert(not module:ApplyImport({[{}]=1},G.db))
-    assert(not module:ApplyImport({scale=0/0},G.db))
-    assert(not module:ApplyImport({custom=math.huge},G.db))
-end)
-test('nesting and encoded size limits reject before recursive deserialize',function()
-    local root={version_major_num=2};local cursor=root
-    for _=1,module.IMPORT_LIMITS.depth+1 do cursor.child={};cursor=cursor.child end
-    assert(module:Decode(encode(root))==nil)
-    assert(module:Decode(string.rep('x',module.IMPORT_LIMITS.encoded+1))==nil)
-end)
-test('serialized size entry and token limits are enforced',function()
-    local limits=module.IMPORT_LIMITS;local old=limits.serialized;limits.serialized=20
-    assert(module:Decode(valid)==nil);limits.serialized=old
-    old=limits.entries;limits.entries=1;assert(not module:ApplyImport({a=1,b=2},G.db));limits.entries=old
-    old=limits.tokens;limits.tokens=2;assert(module:Decode(valid)==nil);limits.tokens=old
-end)
-test('extra roots incomplete tables and corrupt compression are rejected',function()
-    assert(module:Decode(encodeRaw(ser:Serialize({version_major_num=2},{second=true})))==nil)
+test('library deserializer and decompressor reject malformed data',function()
     assert(module:Decode(encodeRaw('^1^T^Sversion_major_num^N2^^'))==nil)
     assert(module:Decode(deflate:EncodeForPrint('not zlib'))==nil)
 end)
@@ -153,16 +147,7 @@ test('texture fields accept numeric IDs and string paths across defaults',functi
     assert(module:ApplyImport({expansion='Wrath',trinketIcon='trinket-path',drCategories={root={icon='root-path'}}},target))
     assert(target.trinketIcon=='trinket-path' and target.drCategories.root.icon=='root-path')
 end)
-test('texture compatibility does not relax unrelated field validation',function()
-    local target={appearance={icon='string'},scale=1,trinketIcon='path',drCategories={root={icon='path'}}}
-    assert(not module:ApplyImport({appearance={icon=123}},target))
-    assert(not module:ApplyImport({scale='1'},target))
-    assert(not module:ApplyImport({trinketIcon=true},target))
-    assert(not module:ApplyImport({drCategories={root={icon={}}}},target))
-    assert(not module:ApplyImport({trinketIcon=-1},target))
-    assert(not module:ApplyImport({trinketIcon=1.5},target))
-end)
-test('all nine bundled historical profiles decode within the limits',function()
+test('all nine bundled historical profiles decode through the original library pipeline',function()
     dofile('Gladdy/ImportStrings.lua')
     for _,name in ipairs({'GetKlimpProfile','GetClassicProfile','GetClassicProfileNoPet','GetKnallProfile','GetBlizzardProfile','GetRukkProfile','GetMirProfile','GetMirEditedProfile','GetLikeGladius'}) do
         local decoded,err=module:Decode(G[name](G));assert(decoded,name..': '..tostring(err))
@@ -193,14 +178,18 @@ test('language changes preserve imported numeric cooldown maps and custom user t
     assert(target.cooldownCooldowns.MAGE['44572']==false and target.cooldownCooldowns.MAGE['45438']==true)
     assert(target.cooldownCooldownsOrder.MAGE['44572']==2 and target.cooldownCooldownsOrder.MAGE['45438']==1 and target.customText=='Лёд')
 end)
-test('oversized compressed profiles are rejected before shared decompression runs',function()
-    local encoded=encodeRaw(string.rep('x',module.IMPORT_LIMITS.serialized+1))
-    assert(#encoded<module.IMPORT_LIMITS.encoded)
-    local original=deflate.DecompressZlib;local calls=0
-    deflate.DecompressZlib=function(...) calls=calls+1;return original(...) end
-    local result,err=module:Decode(encoded)
-    deflate.DecompressZlib=original
-    assert(result==nil and err:find('size limit') and calls==0)
+test('exported configuration round-trips through the original library pipeline',function()
+    options.export.func()
+    local output = assert(created[1].eb:GetText())
+    local decoded = assert(module:Decode(output))
+    local function same(a, b)
+        if type(a) ~= 'table' then return a == b end
+        if type(b) ~= 'table' then return false end
+        for key, value in pairs(a) do if not same(value, b[key]) then return false end end
+        for key in pairs(b) do if a[key] == nil then return false end end
+        return true
+    end
+    assert(same(G.db, decoded) and G.db.version_major_num == nil)
 end)
 test('import and export integration reports no swallowed UI errors',function() assert(#wow.errors==0,table.concat(wow.errors,'\n')) end)
-print('PASS: '..n..' import hardening tests')
+print('PASS: '..n..' import compatibility tests')

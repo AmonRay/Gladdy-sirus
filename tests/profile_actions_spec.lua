@@ -74,7 +74,7 @@ end
 LibStub.GetLibrary = function(_, name) return libs[name] end
 dofile('Gladdy/Libs/Ace3/AceSerializer-3.0/AceSerializer-3.0.lua')
 dofile('Gladdy/Libs/LibDeflate/LibDeflate.lua')
-dofile('Gladdy/ImportStrings.lua'); dofile('Gladdy/ImportValidation.lua'); dofile('Gladdy/Modules/ExportImport.lua'); dofile('Gladdy/Modules/XiconProfiles.lua')
+dofile('Gladdy/ImportStrings.lua'); dofile('Gladdy/Modules/ExportImport.lua'); dofile('Gladdy/Modules/XiconProfiles.lua')
 local X = G.modules.XiconProfiles
 local T = G.modules.Trinket
 local mt = getmetatable(T)
