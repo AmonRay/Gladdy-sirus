@@ -607,7 +607,7 @@ function TotemPlates:GetOptions()
 							desc = L["Font of the custom totem name"],
 							order = 11,
 							dialogControl = "LSM30_Font",
-							values = GladdyAceGUIWidgetLSMlists.font,
+							values = AceGUIWidgetLSMlists.font,
 						}),
 						npTremorFontSize = Gladdy:option({
 							type = "range",

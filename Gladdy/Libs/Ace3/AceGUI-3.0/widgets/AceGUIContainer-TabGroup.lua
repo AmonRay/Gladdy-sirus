@@ -3,9 +3,7 @@ TabGroup Container
 Container that uses tabs on top to switch between groups.
 -------------------------------------------------------------------------------]]
 local Type, Version = "TabGroup", 40
-local AceGUI = LibStub and LibStub("AceGUI-3.0-Gladdy", true)
-local CreateFrame = AceGUI and AceGUI.CreateFrame
-local CreateFont = AceGUI and AceGUI.CreateFont
+local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
@@ -13,7 +11,7 @@ local pairs, ipairs, assert, type, wipe = pairs, ipairs, assert, type, table.wip
 
 -- WoW APIs
 local PlaySound = PlaySound
-local UIParent = UIParent
+local CreateFrame, UIParent = CreateFrame, UIParent
 local _G = _G
 
 -- local upvalue storage used by BuildTabs

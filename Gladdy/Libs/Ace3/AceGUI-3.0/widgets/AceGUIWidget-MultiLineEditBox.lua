@@ -1,7 +1,5 @@
 local Type, Version = "MultiLineEditBox", 35
-local AceGUI = LibStub and LibStub("AceGUI-3.0-Gladdy", true)
-local CreateFrame = AceGUI and AceGUI.CreateFrame
-local CreateFont = AceGUI and AceGUI.CreateFont
+local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
@@ -9,21 +7,21 @@ local pairs = pairs
 
 -- WoW APIs
 local GetCursorInfo, GetSpellInfo, ClearCursor = GetCursorInfo, GetSpellInfo, ClearCursor
-local UIParent = UIParent
+local CreateFrame, UIParent = CreateFrame, UIParent
 local _G = _G
 
 --[[-----------------------------------------------------------------------------
 Support functions
 -------------------------------------------------------------------------------]]
 
-if not GladdyAceGUIMultiLineEditBoxInsertLink then
+if not AceGUIMultiLineEditBoxInsertLink then
 	-- upgradeable hook
-	hooksecurefunc("ChatEdit_InsertLink", function(...) return _G.GladdyAceGUIMultiLineEditBoxInsertLink(...) end)
+	hooksecurefunc("ChatEdit_InsertLink", function(...) return _G.AceGUIMultiLineEditBoxInsertLink(...) end)
 end
 
-function _G.GladdyAceGUIMultiLineEditBoxInsertLink(text)
+function _G.AceGUIMultiLineEditBoxInsertLink(text)
 	for i = 1, AceGUI:GetWidgetCount(Type) do
-		local editbox = _G[("GladdyMultiLineEditBox%uEdit"):format(i)]
+		local editbox = _G[("MultiLineEditBox%uEdit"):format(i)]
 		if editbox and editbox:IsVisible() and editbox:HasFocus() then
 			editbox:Insert(text)
 			return true

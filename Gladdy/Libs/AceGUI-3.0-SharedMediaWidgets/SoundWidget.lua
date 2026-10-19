@@ -1,16 +1,14 @@
 -- Widget is based on the AceGUIWidget-DropDown.lua supplied with AceGUI-3.0
 -- Widget created by Yssaril
 
-local AceGUI = LibStub("AceGUI-3.0-Gladdy")
-local CreateFrame = AceGUI and AceGUI.CreateFrame
-local CreateFont = AceGUI and AceGUI.CreateFont
+local AceGUI = LibStub("AceGUI-3.0")
 local Media = LibStub("LibSharedMedia-3.0")
 
-local AGSMW = LibStub("AceGUISharedMediaWidgets-1.0-Gladdy")
+local AGSMW = LibStub("AceGUISharedMediaWidgets-1.0")
 
 do
 	local widgetType = "LSM30_Sound"
-	local widgetVersion = 13
+	local widgetVersion = 14
 
 	local contentFrameCache = {}
 	local function ReturnSelf(self)

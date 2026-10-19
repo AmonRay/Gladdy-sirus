@@ -2,10 +2,8 @@
 TreeGroup Container
 Container that uses a tree control to switch between groups.
 -------------------------------------------------------------------------------]]
-local Type, Version = "TreeGroup", 50
-local AceGUI = LibStub and LibStub("AceGUI-3.0-Gladdy", true)
-local CreateFrame = AceGUI and AceGUI.CreateFrame
-local CreateFont = AceGUI and AceGUI.CreateFont
+local Type, Version = "TreeGroup", 51
+local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
@@ -14,7 +12,7 @@ local math_min, math_max, floor = math.min, math.max, math.floor
 local select, tremove, unpack, tconcat = select, table.remove, unpack, table.concat
 
 -- WoW APIs
-local UIParent = UIParent
+local CreateFrame, UIParent = CreateFrame, UIParent
 
 -- Recycling functions
 local new, del
@@ -157,7 +155,9 @@ end
 local function FirstFrameUpdate(frame)
 	local self = frame.obj
 	frame:SetScript("OnUpdate", nil)
+	self.refreshFromOnUpdate = true
 	self:RefreshTree(nil, true)
+	self.refreshFromOnUpdate = nil
 end
 
 local function BuildUniqueValue(...)
@@ -321,7 +321,7 @@ local methods = {
 		local num = AceGUI:GetNextWidgetNum("TreeGroupButton")
 		local button = CreateFrame("Button", ("AceGUI30TreeButton%d"):format(num), self.treeframe, "OptionsListButtonTemplate")
 		button.obj = self
-		button.text = button.text or button.Text or _G[button:GetName() .. "Text"]
+		button.text = _G[button:GetName() .. "Text"] or button.Text or button.text
 
 		local icon = button:CreateTexture(nil, "OVERLAY")
 		icon:SetWidth(14)
@@ -415,7 +415,7 @@ local methods = {
 		local maxlines = (floor(((self.treeframe:GetHeight()or 0) - 20 ) / 18))
 		if maxlines <= 0 then return end
 
-		if self.frame:GetParent() == UIParent and not fromOnUpdate then
+		if self.frame:GetParent() == UIParent and not fromOnUpdate and not self.refreshFromOnUpdate then
 			self.frame:SetScript("OnUpdate", FirstFrameUpdate)
 			return
 		end

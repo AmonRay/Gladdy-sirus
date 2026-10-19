@@ -282,7 +282,7 @@ function Highlight:GetOptions()
                             name = L["Border style"],
                             order = 5,
                             dialogControl = "LSM30_Border",
-                            values = GladdyAceGUIWidgetLSMlists.border,
+                            values = AceGUIWidgetLSMlists.border,
                         }),
                     },
                 },

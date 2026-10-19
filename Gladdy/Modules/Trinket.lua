@@ -400,7 +400,7 @@ function Trinket:GetOptions()
 							desc = L["Font of the cooldown"],
 							order = 11,
 							dialogControl = "LSM30_Font",
-							values = GladdyAceGUIWidgetLSMlists.font,
+							values = AceGUIWidgetLSMlists.font,
 						}),
 						trinketFontScale = Gladdy:option({
 							type = "range",

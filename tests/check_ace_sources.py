@@ -18,8 +18,8 @@ for directory in ('Gladdy/Libs/Ace3', 'Gladdy/Libs/AceGUI-3.0-SharedMediaWidgets
         if path.is_file():
             assert str(path.relative_to(root)) in paths, f'Untracked Ace source: {path}'
 for path in (root / 'Gladdy').rglob('*.lua'):
-    if 'Libs' not in path.parts:
-        text = path.read_text()
-        for name in ('AceGUI-3.0', 'AceConfig-3.0', 'AceConfigRegistry-3.0', 'AceConfigDialog-3.0'):
-            assert 'LibStub("' + name + '")' not in text, f'Shared UI reference: {path}'
-print(f'PASS: {len(rows)} Ace source and fixture hashes; addon UI references are private')
+    text = path.read_text()
+    assert '-Gladdy"' not in text and "-Gladdy'" not in text, f'Private UI library: {path}'
+    assert 'GladdyAceGUI' not in text, f'Private UI global: {path}'
+    assert 'AceGUI.CreateFrame' not in text and 'AceGUI.CreateFont' not in text, f'Private UI wrapper: {path}'
+print(f'PASS: {len(rows)} source and fixture hashes; Ace UI uses shared registrations')

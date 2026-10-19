@@ -2,16 +2,14 @@
 ColorPicker Widget
 -------------------------------------------------------------------------------]]
 local Type, Version = "ColorPicker", 30
-local AceGUI = LibStub and LibStub("AceGUI-3.0-Gladdy", true)
-local CreateFrame = AceGUI and AceGUI.CreateFrame
-local CreateFont = AceGUI and AceGUI.CreateFont
+local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
 local pairs = pairs
 
 -- WoW APIs
-local UIParent = UIParent
+local CreateFrame, UIParent = CreateFrame, UIParent
 
 -- Unfortunately we have no way to realistically detect if a client uses inverted alpha
 -- as no API will tell you. Wrath uses the old colorpicker, era uses the new one, both are inverted

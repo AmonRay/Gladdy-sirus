@@ -11,7 +11,7 @@ local BackdropTemplateMixin = BackdropTemplateMixin
 
 local Gladdy = LibStub("Gladdy")
 local L = Gladdy.L
-local GladdyAceGUIWidgetLSMlists = GladdyAceGUIWidgetLSMlists
+local AceGUIWidgetLSMlists = AceGUIWidgetLSMlists
 local Castbar = Gladdy:NewModule("Cast Bar", 70, {
     castBarEnabled = true,
     castBarHeight = 20,
@@ -664,7 +664,7 @@ function Castbar:GetOptions()
                             desc = L["Texture of the bar"],
                             order = 9,
                             dialogControl = "LSM30_Statusbar",
-                            values = GladdyAceGUIWidgetLSMlists.statusbar,
+                            values = AceGUIWidgetLSMlists.statusbar,
                         }),
                         castBarColor = Gladdy:colorOption({
                             type = "color",
@@ -699,7 +699,7 @@ function Castbar:GetOptions()
                             name = L["Status Bar border"],
                             order = 51,
                             dialogControl = "LSM30_Border",
-                            values = GladdyAceGUIWidgetLSMlists.border,
+                            values = AceGUIWidgetLSMlists.border,
                         }),
                         castBarBorderColor = Gladdy:colorOption({
                             type = "color",
@@ -800,7 +800,7 @@ function Castbar:GetOptions()
                             desc = L["Font of the castbar"],
                             order = 2,
                             dialogControl = "LSM30_Font",
-                            values = GladdyAceGUIWidgetLSMlists.font,
+                            values = AceGUIWidgetLSMlists.font,
                         }),
                         castBarFontColor = Gladdy:colorOption({
                             type = "color",

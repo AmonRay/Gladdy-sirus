@@ -685,7 +685,7 @@ function Auras:GetOptions()
 							desc = L["Font of the cooldown"],
 							order = 2,
 							dialogControl = "LSM30_Font",
-							values = GladdyAceGUIWidgetLSMlists.font,
+							values = AceGUIWidgetLSMlists.font,
 						}),
 						auraFontSizeScale = Gladdy:option({
 							type = "range",

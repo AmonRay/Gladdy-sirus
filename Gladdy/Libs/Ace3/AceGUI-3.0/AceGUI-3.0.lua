@@ -8,7 +8,7 @@
 -- to misbehave. If you think some part of a widget should be modifiable, please open a ticket, and we"ll
 -- implement a proper API to modify it.
 -- @usage
--- local AceGUI = LibStub("AceGUI-3.0-Gladdy")
+-- local AceGUI = LibStub("AceGUI-3.0")
 -- -- Create a container frame
 -- local f = AceGUI:Create("Frame")
 -- f:SetCallback("OnClose",function(widget) AceGUI:Release(widget) end)
@@ -24,22 +24,11 @@
 -- f:AddChild(btn)
 -- @class file
 -- @name AceGUI-3.0
--- @release $Id: AceGUI-3.0.lua 1288 2022-09-25 14:19:00Z funkehdude $
-local ACEGUI_MAJOR, ACEGUI_MINOR = "AceGUI-3.0-Gladdy", 42
+-- @release $Id$
+local ACEGUI_MAJOR, ACEGUI_MINOR = "AceGUI-3.0", 10041
 local AceGUI, oldminor = LibStub:NewLibrary(ACEGUI_MAJOR, ACEGUI_MINOR)
 
 if not AceGUI then return end -- No upgrade needed
-
-local function CreateFrame(frameType, name, ...)
-	return _G.CreateFrame(frameType, name and ("Gladdy" .. name), ...)
-end
-
-local function CreateFont(name)
-	return _G.CreateFont("Gladdy" .. name)
-end
-
-AceGUI.CreateFrame = CreateFrame
-AceGUI.CreateFont = CreateFont
 
 -- Lua APIs
 local tconcat, tinsert, wipe = table.concat, table.insert, table.wipe
@@ -522,7 +511,7 @@ do
 		end
 	end
 
-	local function FrameResize(this, width, height) -- backwards compatibility
+	local function FrameResize(this, width, height)
 		local self = this.obj
 		if this:GetWidth() and this:GetHeight() then
 			if self.OnWidthSet then

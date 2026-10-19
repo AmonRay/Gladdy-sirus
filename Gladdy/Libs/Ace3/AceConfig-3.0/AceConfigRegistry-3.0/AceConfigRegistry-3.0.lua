@@ -11,7 +11,7 @@
 -- @release $Id: AceConfigRegistry-3.0.lua 1385 2025-12-06 11:26:20Z nevcairiel $
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
-local MAJOR, MINOR = "AceConfigRegistry-3.0-Gladdy", 22
+local MAJOR, MINOR = "AceConfigRegistry-3.0", 22
 local AceConfigRegistry = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceConfigRegistry then return end

@@ -381,7 +381,7 @@ function Racial:GetOptions()
 							desc = L["Font of the cooldown"],
 							order = 11,
 							dialogControl = "LSM30_Font",
-							values = GladdyAceGUIWidgetLSMlists.font,
+							values = AceGUIWidgetLSMlists.font,
 						}),
 						racialFontScale = Gladdy:option({
 							type = "range",

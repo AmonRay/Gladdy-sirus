@@ -21,7 +21,7 @@ jobs:
         run: lua5.1 tests/libraries_spec.lua
       - name: Run Ace3 core integration tests
         run: lua5.1 tests/ace_core_spec.lua
-      - name: Check ElvUI and Gladdy UI isolation in both load orders
+      - name: Check shared AceGUI reuse and ElvUI refresh in both load orders
         run: lua5.1 tests/ace_ui_spec.lua before && lua5.1 tests/ace_ui_spec.lua after
       - name: Run synthetic operation-count checks
         run: lua5.1 tests/bench_dispatch.lua && lua5.1 tests/bench_pets.lua

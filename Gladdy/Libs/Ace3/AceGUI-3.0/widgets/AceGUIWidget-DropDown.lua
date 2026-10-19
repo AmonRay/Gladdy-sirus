@@ -1,7 +1,5 @@
 --[[ $Id: AceGUIWidget-DropDown.lua 1284 2022-09-25 09:15:30Z nevcairiel $ ]]--
-local AceGUI = LibStub("AceGUI-3.0-Gladdy")
-local CreateFrame = AceGUI and AceGUI.CreateFrame
-local CreateFont = AceGUI and AceGUI.CreateFont
+local AceGUI = LibStub("AceGUI-3.0")
 
 -- Lua APIs
 local min, max, floor = math.min, math.max, math.floor
@@ -10,7 +8,7 @@ local tsort = table.sort
 
 -- WoW APIs
 local PlaySound = PlaySound
-local UIParent = UIParent
+local UIParent, CreateFrame = UIParent, CreateFrame
 local _G = _G
 
 local function fixlevels(parent,...)
