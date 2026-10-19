@@ -13,7 +13,6 @@ local GetNumRaidMembers = GetNumRaidMembers
 local CombatText_AddMessage = CombatText_AddMessage
 local UnitName = UnitName
 
--- Add compatibility functions for WoW 3.3.5
 local function IsInGroup()
     return GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0
 end
@@ -22,7 +21,6 @@ local function IsInRaid()
     return GetNumRaidMembers() > 0
 end
 
--- Create constants that don't exist in 3.3.5
 local LE_PARTY_CATEGORY_HOME = 1
 local LE_PARTY_CATEGORY_INSTANCE = 2
 
@@ -83,11 +81,9 @@ function Announcements:Test(unit)
 end
 
 function Announcements:JOINED_ARENA()
-    -- Обработка входа на арену
 end
 
 function Announcements:CAST_START(unit, spellName)
-    -- Обработка начала каста
     local button = Gladdy.buttons[unit]
     if (not button or not Gladdy.db.announcements.resurrections) then
         return
@@ -99,7 +95,6 @@ function Announcements:CAST_START(unit, spellName)
 end
 
 function Announcements:ENEMY_SPOTTED(unit)
-    -- Обработка обнаружения противника
     local button = Gladdy.buttons[unit]
     if (not button or not Gladdy.db.announcements.enemy) then
         return
@@ -115,7 +110,6 @@ function Announcements:ENEMY_SPOTTED(unit)
 end
 
 function Announcements:UNIT_SPEC(unit, spec)
-    -- Обработка определения спеков
     local button = Gladdy.buttons[unit]
     if (not button or not Gladdy.db.announcements.spec) then
         return
@@ -127,7 +121,6 @@ function Announcements:UNIT_SPEC(unit, spec)
 end
 
 function Announcements:UNIT_HEALTH(unit, health)
-    -- Обработка изменения здоровья
     local button = Gladdy.buttons[unit]
     if (not button or not Gladdy.db.announcements.health) then
         return
@@ -140,7 +133,6 @@ function Announcements:UNIT_HEALTH(unit, health)
 end
 
 function Announcements:TRINKET_USED(unit)
-    -- Обработка использования тринкета
     local button = Gladdy.buttons[unit]
     if (not button or not Gladdy.db.announcements.trinketUsed) then
         return
@@ -150,7 +142,6 @@ function Announcements:TRINKET_USED(unit)
 end
 
 function Announcements:TRINKET_READY(unit)
-    -- Обработка готовности тринкета
     local button = Gladdy.buttons[unit]
     if (not button or not Gladdy.db.announcements.trinketReady) then
         return
@@ -160,7 +151,6 @@ function Announcements:TRINKET_READY(unit)
 end
 
 function Announcements:SPELL_INTERRUPT(unit, spellID, spellName, spellSchool, extraSpellId, extraSpellName, extraSpellSchool)
-    -- Обработка прерывания заклинания
     local button = Gladdy.buttons[unit]
     if (not button or not Gladdy.db.announcements.spellInterrupt) then
         return
@@ -169,7 +159,6 @@ function Announcements:SPELL_INTERRUPT(unit, spellID, spellName, spellSchool, ex
 end
 
 function Announcements:AURA_GAIN(unit, auraType, spellID, spellName, texture, duration, expirationTime, count, dispelType, index, unitCaster)
-    -- Обработка получения ауры
     local button = Gladdy.buttons[unit]
     if (not button or not Gladdy.db.announcements.drinks) then
         return
@@ -184,7 +173,6 @@ function Announcements:SHADOWSIGHT()
     if not Gladdy.db.announcements.shadowsight then
         return
     end
-    -- Обработка теневого зрения
     self:Send(L["Shadowsight Buff active!"], 2)
 end
 
@@ -209,8 +197,6 @@ function Announcements:Send(msg, throttle, color, unit)
     if (dest == "self") then
         Gladdy:Print(msg)
     elseif (dest == "party" and IsInGroup()) then
-        -- In WoW 3.3.5, there's no distinction between home/instance chat
-        -- Just use the appropriate channel based on group type
         if IsInRaid() then
             SendChatMessage(msg, "RAID")
         else
@@ -222,10 +208,6 @@ function Announcements:Send(msg, throttle, color, unit)
         CombatText_AddMessage(msg, nil, color.r, color.g, color.b, "crit", 1)
     elseif (dest == "msbt" and IsAddOnLoaded("MikScrollingBattleText")) then
         MikSBT.Animations.DisplayMessage(msg, MikSBT.DISPLAYTYPE_NOTIFICATION, true, color.r * 255, color.g * 255, color.b * 255)
-    --[[elseif (dest == "sct" and IsAddOnLoaded("sct")) then
-        SCT:DisplayText(msg, color, true, "event", 1)
-    elseif (dest == "parrot" and IsAddOnLoaded("parrot")) then
-        Parrot:ShowMessage(msg, "Notification", true, color.r, color.g, color.b)--]]
     end
 end
 

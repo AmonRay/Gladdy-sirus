@@ -12,7 +12,6 @@ Gladdy.CLASSES = { "MAGE", "PRIEST", "DRUID", "SHAMAN", "PALADIN", "WARLOCK", "W
 tbl_sort(Gladdy.CLASSES)
 
 local specBuffs = {
-	-- WARRIOR
 	[GetSpellInfo(56638)] = L["Arms"], -- Taste for Blood
 	[GetSpellInfo(64976)] = L["Arms"], -- Juggernaut
 	[GetSpellInfo(57522)] = L["Arms"], -- Enrage
@@ -24,14 +23,12 @@ local specBuffs = {
 	[GetSpellInfo(50227)] = L["Protection"], -- Sword and Board
 	[GetSpellInfo(50720)] = L["Protection"], -- Vigilance
 	[GetSpellInfo(74347)] = L["Protection"], -- Silenced - Gag Order
-	-- PALADIN
 	[GetSpellInfo(20375)] = L["Retribution"], -- Seal of Command
 	[GetSpellInfo(59578)] = L["Retribution"], -- The Art of War
 	[GetSpellInfo(31836)] = L["Holy"], -- Light's Grace
 	[GetSpellInfo(53563)] = L["Holy"], -- Beacon of Light
 	[GetSpellInfo(54149)] = L["Holy"], -- Infusion of Light
 	[GetSpellInfo(63529)] = L["Protection"], -- Silenced - Shield of the Templar
-	-- ROGUE
 	[GetSpellInfo(36554)] = L["Subtlety"], -- Shadowstep
 	[GetSpellInfo(44373)] = L["Subtlety"], -- Shadowstep Speed
 	[GetSpellInfo(36563)] = L["Subtlety"], -- Shadowstep DMG
@@ -42,18 +39,15 @@ local specBuffs = {
 	[GetSpellInfo(13877)] = L["Combat"], -- Blade Flurry
 	[GetSpellInfo(13750)] = L["Combat"], -- Adrenaline Rush
 	[GetSpellInfo(14177)] = L["Assassination"], -- Cold Blood
-	-- PRIEST
 	[GetSpellInfo(47788)] = L["Holy"], -- Guardian Spirit
 	[GetSpellInfo(52800)] = L["Discipline"], -- Borrowed Time
 	[GetSpellInfo(63944)] = L["Discipline"], -- Renewed Hope
 	[GetSpellInfo(15473)] = L["Shadow"], -- Shadowform
 	[GetSpellInfo(15286)] = L["Shadow"], -- Vampiric Embrace
-	-- DEATHKNIGHT
 	[GetSpellInfo(49222)] = L["Unholy"], -- Bone Shield
 	[GetSpellInfo(49016)] = L["Blood"], -- Hysteria
 	[GetSpellInfo(53138)] = L["Blood"], -- Abomination's Might
 	[GetSpellInfo(55610)] = L["Frost"], -- Imp. Icy Talons
-	-- MAGE
 	[GetSpellInfo(43039)] = L["Frost"], -- Ice Barrier
 	[GetSpellInfo(74396)] = L["Frost"], -- Fingers of Frost
 	[GetSpellInfo(57761)] = L["Frost"], -- Fireball!
@@ -64,7 +58,6 @@ local specBuffs = {
 	[GetSpellInfo(55360)] = L["Fire"], -- Living Bomb
 	[GetSpellInfo(31583)] = L["Arcane"], -- Arcane Empowerment
 	[GetSpellInfo(44413)] = L["Arcane"], -- Incanter's Absorption
-	-- WARLOCK
 	[GetSpellInfo(30302)] = L["Destruction"], -- Nether Protection
 	[GetSpellInfo(63244)] = L["Destruction"], -- Pyroclasm
 	[GetSpellInfo(54277)] = L["Destruction"], -- Backdraft
@@ -72,7 +65,6 @@ local specBuffs = {
 	[GetSpellInfo(34936)] = L["Destruction"], -- Backlash
 	[GetSpellInfo(47193)] = L["Demonology"], -- Demonic Empowerment
 	[GetSpellInfo(64371)] = L["Affliction"], -- Eradication
-	-- SHAMAN
 	[GetSpellInfo(57663)] = L["Elemental"], -- Totem of Wrath
 	[GetSpellInfo(65264)] = L["Elemental"], -- Lava Flows
 	[GetSpellInfo(51470)] = L["Elemental"], -- Elemental Oath
@@ -82,13 +74,11 @@ local specBuffs = {
 	[GetSpellInfo(30809)] = L["Enhancement"], -- Unleashed Rage
 	[GetSpellInfo(53817)] = L["Enhancement"], -- Maelstrom Weapon
 	[GetSpellInfo(63685)] = L["Enhancement"], -- Freeze (Frozen Power)
-	-- HUNTER
 	[GetSpellInfo(20895)] = L["Beast Mastery"], -- Spirit Bond
 	[GetSpellInfo(34471)] = L["Beast Mastery"], -- The Beast Within
 	[GetSpellInfo(75447)] = L["Beast Mastery"], -- Ferocious Inspiration
 	[GetSpellInfo(19506)] = L["Marksmanship"], -- Trueshot Aura
 	[GetSpellInfo(64420)] = L["Survival"], -- Sniper Training
-	-- DRUID
 	[GetSpellInfo(24932)] = L["Feral"], -- Leader of the Pack
 	[GetSpellInfo(16975)] = L["Feral"], -- Predatory Strikes
 	[GetSpellInfo(50334) .. " Feral"] = L["Feral"], -- Berserk
@@ -105,7 +95,6 @@ function Gladdy:GetSpecBuffs()
 end
 
 local specSpells = {
-	-- WARRIOR
 	[GetSpellInfo(47486)] = L["Arms"], -- Mortal Strike
 	[GetSpellInfo(46924)] = L["Arms"], -- Bladestorm
 	[GetSpellInfo(23881)] = L["Fury"], -- Bloodthirst
@@ -113,14 +102,12 @@ local specSpells = {
 	[GetSpellInfo(47498)] = L["Protection"], -- Devastate
 	[GetSpellInfo(46968)] = L["Protection"], -- Shockwave
 	[GetSpellInfo(50720)] = L["Protection"], -- Vigilance
-	-- PALADIN
 	[GetSpellInfo(48827)] = L["Protection"], -- Avenger's Shield
 	[GetSpellInfo(48825)] = L["Holy"], -- Holy Shock
 	[GetSpellInfo(53563)] = L["Holy"], -- Beacon of Light
 	[GetSpellInfo(35395)] = L["Retribution"], -- Crusader Strike
 	[GetSpellInfo(66006)] = L["Retribution"], -- Divine Storm
 	[GetSpellInfo(20066)] = L["Retribution"], -- Repentance
-	-- ROGUE
 	[GetSpellInfo(48666)] = L["Assassination"], -- Mutilate
 	[GetSpellInfo(14177)] = L["Assassination"], -- Cold Blood
 	[GetSpellInfo(51690)] = L["Combat"], -- Killing Spree
@@ -129,26 +116,22 @@ local specSpells = {
 	[GetSpellInfo(36554)] = L["Subtlety"], -- Shadowstep
 	[GetSpellInfo(48660)] = L["Subtlety"], -- Hemorrhage
 	[GetSpellInfo(51713)] = L["Subtlety"], -- Shadow Dance
-	-- PRIEST
 	[GetSpellInfo(53007)] = L["Discipline"], -- Penance
 	[GetSpellInfo(10060)] = L["Discipline"], -- Power Infusion
 	[GetSpellInfo(33206)] = L["Discipline"], -- Pain Suppression
 	[GetSpellInfo(34861)] = L["Holy"], -- Circle of Healing
 	[GetSpellInfo(15487)] = L["Shadow"], -- Silence
 	[GetSpellInfo(48160)] = L["Shadow"], -- Vampiric Touch
-	-- DEATHKNIGHT
 	[GetSpellInfo(55262)] = L["Blood"], -- Heart Strike
 	[GetSpellInfo(49203)] = L["Frost"], -- Hungering Cold
 	[GetSpellInfo(55268)] = L["Frost"], -- Frost Strike
 	[GetSpellInfo(51411)] = L["Frost"], -- Howling Blast
 	[GetSpellInfo(55271)] = L["Unholy"], -- Scourge Strike
-	-- MAGE
 	[GetSpellInfo(44781)] = L["Arcane"], -- Arcane Barrage
 	[GetSpellInfo(55360)] = L["Fire"], -- Living Bomb
 	[GetSpellInfo(42950)] = L["Fire"], -- Dragon's Breath
 	[GetSpellInfo(42945)] = L["Fire"], -- Blast Wave
 	[GetSpellInfo(44572)] = L["Frost"], -- Deep Freeze
-	-- WARLOCK
 	[GetSpellInfo(59164)] = L["Affliction"], -- Haunt
 	[GetSpellInfo(47843)] = L["Affliction"], -- Unstable Affliction
 	[GetSpellInfo(59672)] = L["Demonology"], -- Metamorphosis
@@ -156,7 +139,6 @@ local specSpells = {
 	[GetSpellInfo(47996) .. " Felguard"] = L["Demonology"], -- Intercept Felguard
 	[GetSpellInfo(59172)] = L["Destruction"], -- Chaos Bolt
 	[GetSpellInfo(47847)] = L["Destruction"], -- Shadowfury
-	-- SHAMAN
 	[GetSpellInfo(59159)] = L["Elemental"], -- Thunderstorm
 	[GetSpellInfo(16166)] = L["Elemental"], -- Elemental Mastery
 	[GetSpellInfo(51533)] = L["Enhancement"], -- Feral Spirit
@@ -164,13 +146,11 @@ local specSpells = {
 	[GetSpellInfo(17364)] = L["Enhancement"], -- Stormstrike
 	[GetSpellInfo(61301)] = L["Restoration"], -- Riptide
 	[GetSpellInfo(51886)] = L["Restoration"], -- Cleanse Spirit
-	-- HUNTER
 	[GetSpellInfo(19577)] = L["Beast Mastery"], -- Intimidation
 	[GetSpellInfo(34490)] = L["Marksmanship"], -- Silencing Shot
 	[GetSpellInfo(53209)] = L["Marksmanship"], -- Chimera Shot
 	[GetSpellInfo(60053)] = L["Survival"], -- Explosive Shot
 	[GetSpellInfo(49012)] = L["Survival"], -- Wyvern Sting
-	-- DRUID
 	[GetSpellInfo(53201)] = L["Balance"], -- Starfall
 	[GetSpellInfo(61384)] = L["Balance"], -- Typhoon
 	[GetSpellInfo(24858)] = L["Balance"], -- Moonkin Form
@@ -186,17 +166,11 @@ function Gladdy:GetSpecSpells()
 	return specSpells
 end
 
--- Function to check if a player's spec is enabled
--- In WoW 3.3.5, we can't directly check specs, so we assume all specs are enabled
 function Gladdy:SpecEnabled(class, specRequired, unit)
-	-- In Classic/WoW 3.3.5, there's no proper way to detect specs
-	-- For compatibility, we'll just assume all specs are enabled
-	-- This could be improved by checking for certain abilities or talents
 	return true
 end
 
 local importantAuras = {
-	--- Crowd control
     [GetSpellInfo(33786)] = {  -- Cyclone
         track = AURA_TYPE_DEBUFF,
         priority = 40,
@@ -289,7 +263,6 @@ local importantAuras = {
 		spellID = 14327,
 	},
 
-	-- Entangling Roots
 	[GetSpellInfo(26989)] = {
 		track = AURA_TYPE_DEBUFF,
 		priority = 30,
@@ -337,7 +310,6 @@ local importantAuras = {
 		spellID = 47168,
 	},
 
-	--- Stuns and incapacitates
 	[GetSpellInfo(8983)] = { -- Bash
 		track = AURA_TYPE_DEBUFF,
 		priority = 40,
@@ -467,7 +439,6 @@ local importantAuras = {
 		spellID = 10955,
 	},
 
-	--- Silences
 	[GetSpellInfo(18469)] = { -- Improved Counterspell
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
@@ -503,7 +474,7 @@ local importantAuras = {
 		priority = 20,
 		spellID = 63529,
 	},
-	[select(1, GetSpellInfo(31117)) .. " Silence"] = { -- Unstable Affliction Silence (GetSpellInfo returns "Unstable Affliction")
+	[select(1, GetSpellInfo(31117)) .. " Silence"] = {
 		track = AURA_TYPE_DEBUFF,
 		altName = select(1, GetSpellInfo(31117)) .. " Silence",
 		priority = 20,
@@ -521,7 +492,6 @@ local importantAuras = {
 		spellID = 1330,
 	},
 
-	--- Disarms
 	[GetSpellInfo(676)] = { -- Disarm
 		track = AURA_TYPE_DEBUFF,
 		priority = 20,
@@ -543,7 +513,6 @@ local importantAuras = {
 		spellID = 64058,
 	},
 
-	--- Buffs
 	[GetSpellInfo(1022)] = { -- Hand of Protection
 		track = AURA_TYPE_BUFF,
 		priority = 20,
@@ -564,7 +533,7 @@ local importantAuras = {
 		priority = 20,
 		spellID = 64205,
 	},
-	[GetSpellInfo(53271)] = { -- Master's Call (Hunter Pet Hand of Freedom)
+	[GetSpellInfo(53271)] = {
 		track = AURA_TYPE_BUFF,
 		priority = 20,
 		spellID = 53271,
@@ -635,7 +604,6 @@ local importantAuras = {
 		spellID = 46924,
 	},
 
-	--- Turtling abilities
 	[GetSpellInfo(871)] = { -- Shield Wall
 		track = AURA_TYPE_BUFF,
 		priority = 25,
@@ -662,7 +630,6 @@ local importantAuras = {
 		spellID = 26669,
 	},
 
-	--- Immunities
 	[GetSpellInfo(34471)] = { -- The Beast Within (CC Immune)
 		track = AURA_TYPE_BUFF,
 		priority = 20,
@@ -704,7 +671,6 @@ local importantAuras = {
 		spellID = 49039,
 	},
 
-	--- Alt Stuff
 	[GetSpellInfo(34709)] = { -- Shadowsight Buff
 		track = AURA_TYPE_DEBUFF,
 		duration = 15,
@@ -751,8 +717,6 @@ function Gladdy:GetInterrupts()
 end
 
 local cooldownList = {
-	-- Spell Name			   Cooldown[, Spec]
-	-- Mage
 	["MAGE"] = {
 		[1953] = 15, -- Blink
 		[42917] = 25, -- Frost Nova
@@ -778,7 +742,6 @@ local cooldownList = {
 		},
 	},
 
-	-- Priest
 	["PRIEST"] = {
 		[10890] = { cd = 27, [L["Shadow"]] = 23, }, -- Psychic Scream
 		[34433] = { cd = 300, [L["Shadow"]] = 180, }, -- Shadowfiend
@@ -793,7 +756,6 @@ local cooldownList = {
 		[33206] = { cd = 180, spec = L["Discipline"], }, -- Pain Suppression
 	},
 
-	-- Death Knight
 	["DEATHKNIGHT"] = {
 		[47476] = 120, -- Strangulate
 		[47528] = 10, -- Mind Freeze
@@ -811,7 +773,6 @@ local cooldownList = {
 		[49203] = { cd = 60, spec = L["Frost"], }, -- Hungering Cold
 	},
 
-	-- Druid
 	["DRUID"] = {
 		[22812] = 60, -- Barkskin
 		[29166] = 180, -- Innervate
@@ -825,7 +786,6 @@ local cooldownList = {
 		[61384] = { cd = 20, spec = L["Balance"], }, -- Typhoon
 	},
 
-	-- Shaman
 	["SHAMAN"] = {
 		[57994] = 6, -- Wind Shear
 		[51514] = 45, -- Hex
@@ -838,7 +798,6 @@ local cooldownList = {
 		[16190] = { cd = 300, spec = L["Restoration"], }, -- Mana Tide Totem
 	},
 
-	-- Paladin
 	["PALADIN"] = {
 		[10278] = 300, -- Hand of Protection
 		[1044] = 25, -- Hand of Freedom
@@ -867,7 +826,6 @@ local cooldownList = {
 
 	},
 
-	-- Warlock
 	["WARLOCK"] = {
 		[17928] = 40, -- Howl of Terror
 		[47860] = 120, -- Death Coil
@@ -885,7 +843,6 @@ local cooldownList = {
 		[1122] = { cd = 600, spec = L["Demonology"], }, -- Inferno
 	},
 
-	-- Warrior
 	["WARRIOR"] = {
 		[6552] = { cd = 10, -- Pummel
 				   sharedCD = {
@@ -917,10 +874,7 @@ local cooldownList = {
 
 	},
 
-	-- Hunter
 	["HUNTER"] = {
-		--[53548] 	= 28,    -- Crab Prin
-		--[53562] 	= 40,    -- Ravager Stun
 
 		[19503] = 30, -- Scatter Shot
 		[19263] = 90, -- Deterrence
@@ -968,7 +922,6 @@ local cooldownList = {
 		},
 	},
 
-	-- Rogue
 	["ROGUE"] = {
 		[1766] = 10, -- Kick
 		[8643] = 20, -- Kidney Shot
@@ -1215,11 +1168,9 @@ local constellations = {
     }
 }
 
--- Keep passive zodiac aura IDs separate from their active spell IDs.
 for auraID, constellation in pairs(constellations) do
     constellation.auraID = auraID
 end
--- Preserve the existing shared-CD policy; these are active ability IDs.
 constellations[371796].sharedTrinketCD = 90
 constellations[371804].sharedTrinketCD = 60
 
@@ -1227,17 +1178,9 @@ function Gladdy:Constellations()
 	return constellations
 end
 
----------------------
--- TOTEM STUFF
----------------------
-
 local totemData = {
-	-- Fire
-	-- Water
 	[string_lower("Disease Cleansing Totem")] = {id = 8170,texture = select(3, GetSpellInfo(8170)), color = {r = 0, g = 0, b = 0, a = 1}, pulse = 3},
 	[string_lower("Mana Spring Totem")] = { id = 5675, texture = select(3, GetSpellInfo(5675)), color = { r = 0, g = 0, b = 0, a = 1 } },
-	-- Earth
-	-- Air
 }
 
 local totemSpellIdToPulse = {

@@ -16,7 +16,7 @@ local CombatIndicator = Gladdy:NewModule("Combat Indicator", nil, {
     ciBorderColor = { r = 0, g = 0, b = 0, a = 1 },
     ciFrameStrata = "HIGH",
     ciFrameLevel = 5,
-    ciIconZoomed = true, -- Set to true by default for WoW 3.3.5 compatibility
+    ciIconZoomed = true,
 })
 
 function CombatIndicator:Initialize()
@@ -29,6 +29,8 @@ function CombatIndicator:Initialize()
 end
 
 function CombatIndicator:JOINED_ARENA()
+    if not Gladdy.db.ciEnabled then return end
+    self.active = true
     self:SetScript("OnUpdate", CombatIndicator.OnEvent)
     self.lastTimeUpdated = 0
 end
@@ -49,8 +51,7 @@ function CombatIndicator:CreateFrame(unit)
     ciFrame.texture = ciFrame:CreateTexture(nil, "ARTWORK")
     ciFrame.texture:SetTexture(self.combatIndicatorIcon)
     ciFrame.texture:SetAllPoints(ciFrame)
-    
-    -- Apply texture coordinates based on zoom setting - simpler approach
+
     if Gladdy.db.ciIconZoomed then
         ciFrame.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
     else
@@ -74,8 +75,10 @@ end
 function CombatIndicator:UpdateFrameOnce()
     if Gladdy.db.ciEnabled then
         self:RegisterMessage("JOINED_ARENA")
+        if Gladdy.curBracket and not self.active then self:JOINED_ARENA() end
     else
         self:UnregisterAllMessages()
+        self:Reset()
     end
 end
 
@@ -98,8 +101,7 @@ function CombatIndicator:UpdateFrame(unit)
         ciFrame.border:Show()
         ciFrame.border:SetVertexColor(Gladdy:SetColor(Gladdy.db.ciBorderColor))
     end
-    
-    -- Handle the icon zooming - simpler approach
+
     local testAgain = false
     if Gladdy.db.ciIconZoomed then
         ciFrame.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -113,6 +115,7 @@ function CombatIndicator:UpdateFrame(unit)
     Gladdy:SetPosition(ciFrame, unit, "ciXOffset", "ciYOffset", CombatIndicator)
 
     ciFrame:SetAlpha(Gladdy.db.ciAlpha)
+    ciFrame.combatShown = nil
 
     if (Gladdy.db.ciEnabled == false) then
         ciFrame:Hide()
@@ -139,18 +142,23 @@ end
 function CombatIndicator:Reset()
     self:SetScript("OnUpdate", nil)
     self.test = false
+    self.active = false
 end
 
 function CombatIndicator.OnEvent(self, elapsed)
+    if not Gladdy.db.ciEnabled or not Gladdy.curBracket then self:Reset(); return end
     self.lastTimeUpdated = self.lastTimeUpdated + elapsed
 
     if (self.lastTimeUpdated > self.updateInterval) then
         for i=1,Gladdy.curBracket do
             local unit = "arena" .. i
-            if Gladdy.db.ciEnabled and (CombatIndicator.test or (UnitExists(unit) and UnitAffectingCombat(unit))) then
-                CombatIndicator.frames[unit]:Show()
-            else
-                CombatIndicator.frames[unit]:Hide()
+            local frame = CombatIndicator.frames[unit]
+            if frame then
+                local shown = CombatIndicator.test or (UnitExists(unit) and UnitAffectingCombat(unit)) or false
+                if frame.combatShown ~= shown then
+                    if shown then frame:Show() else frame:Hide() end
+                    frame.combatShown = shown
+                end
             end
         end
         self.lastTimeUpdated = 0

@@ -15,7 +15,7 @@ local Racial = Gladdy:NewModule("Racial", 79, {
 	racialIconZoomed = false,
 	racialXOffset = 0,
 	racialYOffset = 0,
-	racialBorderStyle = "Interface\\AddOns\\Gladdy\\Images\\Border_rounded_blp", 
+	racialBorderStyle = "Interface\\AddOns\\Gladdy\\Images\\Border_rounded_blp",
 	racialBorderColor = { r = 0, g = 0, b = 0, a = 1 },
 	racialDisableCircle = false,
 	racialCooldownAlpha = 1,
@@ -82,16 +82,14 @@ end
 function Racial:ResetUnit(unit)
 	local racial = self.frames[unit]
 	if not racial then return end
-	
+
 	racial:SetIcon(nil)
 	racial.timeLeft = nil
 	racial.active = false
 	racial:StopCooldown()
-	--racial:UpdateBorder(Gladdy.db.racialBorderStyle, Gladdy.db.racialBorderColor)
 end
 
 function Racial:CreateFrame(unit)
-	-- Создаем фрейм иконки с помощью утилиты
 	local racial = Gladdy:CreateIconFrame(Gladdy.buttons[unit], "GladdyRacialButton" .. unit, {
 		frameStrata = Gladdy.db.racialFrameStrata,
 		frameLevel = Gladdy.db.racialFrameLevel,
@@ -106,11 +104,9 @@ function Racial:CreateFrame(unit)
 		disableCircle = Gladdy.db.racialDisableCircle
 	})
 
-	-- Устанавливаем размеры
 	racial:SetWidth(Gladdy.db.racialSize)
 	racial:SetHeight(Gladdy.db.racialSize)
 
-	-- Сохраняем фрейм
 	self.frames[unit] = racial
 end
 
@@ -132,17 +128,14 @@ function Racial:UpdateFrame(unit)
 		fontEnabled = Gladdy.db.racialFontEnabled
 	})
 
-	-- Обновляем размеры
 	local width, height = Gladdy.db.racialSize * Gladdy.db.racialWidthFactor, Gladdy.db.racialSize
 	racial:SetWidth(width)
 	racial:SetHeight(height)
 
-	-- Обновляем позицию
 	if not Gladdy.db.racialGroup or unit == "arena1" then
 		Gladdy:SetPosition(racial, unit, "racialXOffset", "racialYOffset", Racial)
 	end
 
-	-- Обновляем группировку
 	if Gladdy.db.racialGroup then
 		if unit ~= "arena1" then
 			local previousUnit = "arena" .. str_gsub(unit, "arena", "") - 1
@@ -159,7 +152,6 @@ function Racial:UpdateFrame(unit)
 		end
 	end
 
-	-- Создаем мувер для первой арены
 	if unit == "arena1" then
 		Gladdy:CreateMover(racial, "racialXOffset", "racialYOffset", L["Racial"],
 			{"TOPLEFT", "TOPLEFT"},
@@ -167,7 +159,6 @@ function Racial:UpdateFrame(unit)
 			0, 0, "racialEnabled")
 	end
 
-	-- Показываем/скрываем в зависимости от настроек
 	if Gladdy.db.racialEnabled then
 		racial:Show()
 	else
@@ -177,7 +168,7 @@ end
 
 function Racial:JOINED_ARENA()
 	if (not Gladdy.db.racialEnabled) then return end
-	
+
 	self:SetScript("OnEvent", function(self, event, ...)
 		if self[event] then
 			self[event](self, ...)
@@ -191,7 +182,7 @@ function Racial:ENEMY_SPOTTED(unit)
 	local racial = self.frames[unit]
 	local constellation = Gladdy.buttons[unit].constellation
 	if not racial or not constellation then return end
-	
+
 	racial:SetIcon(constellation.icon)
 	racial:Show()
 end
@@ -234,8 +225,6 @@ function Racial:Used(unit, startTime, duration)
 
     local remaining = startTime + duration - GetTime()
     if remaining <= 0 then return end
-    -- An actual racial cast must replace a shorter shared trinket cooldown.
-    -- A duplicate event/shared CD must not shorten an existing cooldown.
     if racial.active and (racial.timeLeft or 0) >= remaining then return end
     racial.timeLeft = remaining
     if not Gladdy.db.racialDisableCircle then
@@ -249,10 +238,9 @@ function Racial:Test(unit)
 	local constellations = Gladdy:Constellations()
 	local rndValue = math.random(#List_constellations - 1)
 	button.constellation = constellations[List_constellations[rndValue]]
-	
+
 	Racial:ENEMY_SPOTTED(unit)
-	
-	-- Set up cooldown on some units
+
 	if (unit == "arena2" or unit == "arena3") then
 		Gladdy:SendMessage("RACIAL_USED", unit)
 	end

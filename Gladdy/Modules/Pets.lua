@@ -48,12 +48,22 @@ function Pets:UpdateFrameOnce()
         self:RegisterMessage("PET_STEALTH")
         self:RegisterMessage("ENEMY_SPOTTED")
         self:RegisterMessage("UNIT_DEATH")
+        if Gladdy.curBracket and not self.active and not (Gladdy.frame and Gladdy.frame.testing) then self:JOINED_ARENA() end
     else
         self:UnregisterAllMessages()
+        self:Reset()
+        for unit in pairs(self.frames) do self:PET_DESTROYED(unit) end
     end
 end
 
+function Pets:Reset()
+    self.active = false
+    self:UnregisterAllEvents()
+    self:SetScript("OnEvent", nil)
+end
+
 function Pets:JOINED_ARENA()
+    self.active = true
     for _,v in pairs(self.frames) do
         v.healthBar:SetAlpha(0)
     end
@@ -81,30 +91,57 @@ function Pets:ResetUnit(unitId)
     if (not petFrame) then
         return
     end
-    petFrame.healthBar:SetAlpha(0)
-    petFrame.healthBar:SetScript("OnUpdate", nil)
+    self:PET_DESTROYED(unit)
     petFrame.healthBar.portrait:SetTexture(nil)
-    self:UnregisterEvent("UNIT_PET")
+end
+
+function Pets:RefreshHealth(bar, force)
+    local health, maximum = UnitHealth(bar.unit), UnitHealthMax(bar.unit)
+    if force or bar.lastHealth ~= health or bar.lastMaximum ~= maximum then
+        bar.hp:SetMinMaxValues(0, maximum)
+        bar.hp:SetValue(health)
+        self:SetHealthText(bar, health, maximum)
+        bar.lastHealth, bar.lastMaximum = health, maximum
+    end
+end
+
+function Pets.OnUpdate(bar, elapsed)
+    bar.pollElapsed = (bar.pollElapsed or 0) + elapsed
+    if bar.pollElapsed < 0.1 then return end
+    bar.pollElapsed = bar.pollElapsed % 0.1
+    if not Gladdy.db.petEnabled or not UnitExists(bar.unit) then
+        Pets:PET_DESTROYED(bar.unit)
+        return
+    end
+    Pets:RefreshHealth(bar)
 end
 
 function Pets:PET_SPOTTED(unit)
-    Gladdy.guids[UnitGUID(unit)] = unit
-    if Gladdy.db.petEnabled then
-        self.frames[unit].healthBar:SetAlpha(1)
-        self.frames[unit].healthBar.hp:SetStatusBarColor(Gladdy:SetColor(Gladdy.db.petHealthBarColor))
-        self.frames[unit].healthBar:SetScript("OnUpdate", function(self)
-            self.hp:SetValue(UnitHealth(self.unit))
-            Pets:SetHealthText(self, UnitHealth(unit), UnitHealthMax(unit))
-        end)
+    local pet = self.frames[unit]
+    local guid = UnitGUID(unit)
+    if not Gladdy.db.petEnabled or not pet or not guid then return end
+    if pet.guid and pet.guid ~= guid and Gladdy.guids[pet.guid] == unit then
+        Gladdy.guids[pet.guid] = nil
     end
-    --Gladdy:Print(self.frames[unit].healthBar:GetAlpha())
+    pet.guid = guid
+    Gladdy.guids[guid] = unit
+    local bar = pet.healthBar
+    bar:SetAlpha(1)
+    bar.hp:SetStatusBarColor(Gladdy:SetColor(Gladdy.db.petHealthBarColor))
+    bar.pollElapsed = 0
+    self:RefreshHealth(bar, true)
+    SetPortraitTexture(bar.portrait, unit)
+    bar:SetScript("OnUpdate", Pets.OnUpdate)
 end
 
 function Pets:PET_DESTROYED(unit)
-    if Gladdy.db.petEnabled and self.frames[unit] then
-        self.frames[unit].healthBar:SetAlpha(0)
-        self.frames[unit].healthBar:SetScript("OnUpdate", nil)
-    end
+    local pet = self.frames[unit]
+    if not pet then return end
+    if pet.guid and Gladdy.guids[pet.guid] == unit then Gladdy.guids[pet.guid] = nil end
+    pet.guid = nil
+    pet.healthBar:SetAlpha(0)
+    pet.healthBar:SetScript("OnUpdate", nil)
+    pet.healthBar.lastHealth, pet.healthBar.lastMaximum = nil, nil
 end
 
 function Pets:UNIT_DEATH(unit)
@@ -125,24 +162,7 @@ end
 
 function Pets:CheckUnitPet(unitId)
     local unit = string_gsub(unitId, "%d$", "pet%1")
-    local petFrame = self.frames[unit]
-    if (not petFrame) then
-        return
-    end
-    if ( UnitGUID(unit)) then
-        petFrame.healthBar:SetAlpha(1)
-        petFrame.healthBar.hp:SetMinMaxValues(0, UnitHealthMax(unit))
-        petFrame.healthBar.hp:SetValue(UnitHealth(unit))
-        Pets:SetHealthText(petFrame.healthBar, UnitHealth(unit), UnitHealthMax(unit))
-        SetPortraitTexture(petFrame.healthBar.portrait, unit)
-        petFrame.healthBar:SetScript("OnUpdate", function(self)
-            self.hp:SetValue(UnitHealth(self.unit))
-            Pets:SetHealthText(self, UnitHealth(unit), UnitHealthMax(unit))
-        end)
-    else
-        petFrame.healthBar:SetAlpha(0)
-        petFrame.healthBar:SetScript("OnUpdate", nil)
-    end
+    if UnitGUID(unit) then self:PET_SPOTTED(unit) else self:PET_DESTROYED(unit) end
 end
 
 function Pets:Test(unitId)
@@ -167,7 +187,6 @@ function Pets:CreateFrame(unitId)
     end
     local button = CreateFrame("Frame", "GladdyButtonFramePet" .. unit, Gladdy.frame)
     button:SetMovable(true)
-    --button:SetAlpha(0)
     button:SetPoint("LEFT", Gladdy.buttons[unitId].healthBar, "RIGHT", Gladdy.db.petXOffset, Gladdy.db.petYOffset)
 
     local secure = CreateFrame("Button", "GladdyButton" .. unit, button, "SecureActionButtonTemplate, SecureHandlerEnterLeaveTemplate")
@@ -198,7 +217,6 @@ function Pets:CreateFrame(unitId)
     healthBar.portrait.border:SetAllPoints(healthBar.portrait)
     healthBar.portrait.border:SetTexture(Gladdy.db.classIconBorderStyle)
     healthBar.portrait.border:SetVertexColor(Gladdy:SetColor(Gladdy.db.petHealthBarBorderColor))
-
 
     healthBar.hp = CreateFrame("StatusBar", nil, healthBar)
     healthBar.hp:SetStatusBarTexture(Gladdy:SMFetch("statusbar", "petHealthBarTexture"))
@@ -246,10 +264,6 @@ function Pets:CreateFrame(unitId)
     healthBar.unit = unit
     button.healthBar = healthBar
 
-    --healthBar:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit)
-    --healthBar:RegisterUnitEvent("UNIT_MAXHEALTH", unit)
-    --healthBar:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", unit)
-    --healthBar:RegisterUnitEvent("UNIT_NAME_UPDATE", unit)
     healthBar:SetScript("OnEvent", Pets.OnEvent)
 
     button:SetWidth(Gladdy.db.petWidth)

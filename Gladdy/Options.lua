@@ -8,7 +8,6 @@ local LOCALIZED_CLASS_NAMES_MALE = LOCALIZED_CLASS_NAMES_MALE
 local CLASS_ICON_TCOORDS = CLASS_ICON_TCOORDS
 local AURA_TYPE_DEBUFF, AURA_TYPE_BUFF = AURA_TYPE_DEBUFF, AURA_TYPE_BUFF
 
-
 local Gladdy = LibStub("Gladdy")
 local LibClassAuras = LibStub("LibClassAuras-1.0")
 local L = Gladdy.L
@@ -20,29 +19,27 @@ Gladdy.TIMER_FORMAT = { tenths = "tenths", seconds = "seconds",
                        }}
 
 function Gladdy:FormatTimer(fontString, timeLeft, milibreakpoint, showSeconds)
+    local text
     if timeLeft < 0 then
-        fontString:SetText("")
-        return
-    end
-    local time = timeLeft >= 0.0 and timeLeft or 0.0
-    if Gladdy.db.timerFormat == Gladdy.TIMER_FORMAT.tenths and milibreakpoint then
-        fontString:SetFormattedText("%.1f", time)
-    else
-        if time >= 60 then
-            if showSeconds then
-                fontString:SetText(floor(timeLeft / 60) .. ":" .. str_format("%02.f", floor(timeLeft - floor(timeLeft / 60) * 60)))
-            else
-                fontString:SetText(ceil(ceil(time / 60)) .. "m")
-            end
+        text = ""
+    elseif Gladdy.db.timerFormat == Gladdy.TIMER_FORMAT.tenths and milibreakpoint then
+        text = str_format("%.1f", timeLeft)
+    elseif timeLeft >= 60 then
+        if showSeconds then
+            local minutes = floor(timeLeft / 60)
+            text = minutes .. ":" .. str_format("%02.f", floor(timeLeft - minutes * 60))
         else
-            fontString:SetFormattedText("%d", ceil(time))
+            text = ceil(timeLeft / 60) .. "m"
         end
+    else
+        text = tostring(ceil(timeLeft))
     end
+    if fontString:GetText() ~= text then fontString:SetText(text) end
 end
 
 Gladdy.defaults = {
     profile = {
-        locale = "auto", -- "auto", "enUS", "ruRU", etc.
+        locale = "auto",
         locked = false,
         hideBlizzard = "arena",
         x = 0,
@@ -128,11 +125,9 @@ function Gladdy:SetColor(option, factor, altAlpha)
     if not factor then
         factor = 1
     end
-    -- Check if option is a table with r, g, b, a components
     if type(option) == "table" and option.r ~= nil then
         return option.r / factor, option.g / factor, option.b / factor, altAlpha or option.a
     else
-        -- Return a default color if option is not a valid color table
         return 1, 1, 1, altAlpha or 1
     end
 end
@@ -206,7 +201,7 @@ function Gladdy:SetupModule(name, module, order)
                     end
 
                     Gladdy:UpdateFrame()
-                    Gladdy:SetupModule(name, module, order) -- For example click names are not reset by default
+                    Gladdy:SetupModule(name, module, order)
                 end
             }
         else
@@ -271,9 +266,7 @@ function Gladdy:SetupOptions()
                         get = function(info) return Gladdy.db.locale end,
                         set = function(info, value)
                             Gladdy.db.locale = value
-                            
-                            -- Сохраняем настройки и перезагружаем интерфейс
-                            -- Локализация будет применена при следующей загрузке
+
                             ReloadUI()
                         end,
                         width = "full",
@@ -864,33 +857,25 @@ function Gladdy:SetupOptions()
     }
 
     self.options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.dbi) }
-    
-    -- Register with Ace3 config system
+
     LibStub("AceConfig-3.0"):RegisterOptionsTable("Gladdy_blizz", self.options)
     LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Gladdy_blizz", "Gladdy")
-    
-    -- Explicitly register Gladdy with AceConfig
+
     LibStub("AceConfig-3.0"):RegisterOptionsTable("Gladdy", self.options)
-    
-    -- Update localization
+
     self:UpdateLocalization()
-    
-    -- Make sure it's registered with AceConfigRegistry
+
     local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
-    -- Safely check if registeredNamespaces exists and if Gladdy is registered
     if AceConfigRegistry.registeredNamespaces and not AceConfigRegistry.registeredNamespaces["Gladdy"] then
         AceConfigRegistry:RegisterOptionsTable("Gladdy", self.options)
     elseif not AceConfigRegistry.registeredNamespaces then
-        -- Some versions of AceConfigRegistry handle this internally
         AceConfigRegistry:RegisterOptionsTable("Gladdy", self.options)
     end
 
-    -- Удаляем проверку на TotemPlates
     if Gladdy.db.auraBorderStyle == Gladdy.db.npTotemPlatesBorderStyle then
         Gladdy.db.auraBorderStyle = "Interface\\AddOns\\Gladdy\\Images\\Border_rounded_blp"
     end
-    
-    -- Удаляем установку стиля границы TotemPlates
+
     Gladdy.db.npTotemPlatesBorderStyle = nil
 
 end

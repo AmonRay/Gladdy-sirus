@@ -4,18 +4,12 @@ local L = Gladdy.L
 local UnitName, GetSpellInfo, CreateFrame, WorldFrame = UnitName, GetSpellInfo, CreateFrame, WorldFrame
 local totemData, totemNameTotemData = Gladdy:GetTotemData()
 
-local NAMEPLATE_LOGIN = -.4 -- Delay processing all nameplates on initial load.
-local NAMEPLATE_THROTTLE = .5 -- .04 = instant
+local NAMEPLATE_LOGIN = -.4
+local NAMEPLATE_THROTTLE = .5
 local NAMEPLATE_THROTTLE_CURRENT = NAMEPLATE_LOGIN
 local NAMEPLATE_NUM = 0
 local NAMEPLATE_NUM_PREVIOUS = 0
 local NAMEPLATE_TARGET
-
----------------------------------------------------
-
--- Option Helpers
-
----------------------------------------------------
 
 local function GetTotemColorDefaultOptions()
 	local defaultDB = {}
@@ -44,7 +38,6 @@ local function GetTotemColorDefaultOptions()
 		options["totem" .. indexedList[i].id] = {
 			order = i+1,
 			name = select(1, GetSpellInfo(indexedList[i].id)),
-			--inline = true,
 			width  = "3.0",
 			type = "group",
 			icon = indexedList[i].texture,
@@ -116,12 +109,6 @@ local function GetTotemColorDefaultOptions()
 	end
 	return defaultDB, options, indexedList
 end
-
----------------------------------------------------
-
--- Core
-
----------------------------------------------------
 
 local TotemPlates = Gladdy:NewModule("Totem Plates", 2, {
 	npTotems = true,
@@ -203,12 +190,6 @@ local function NameplateHandler(self, elapsed)
 	NAMEPLATE_THROTTLE_CURRENT = NAMEPLATE_THROTTLE_CURRENT + elapsed
 end
 
----------------------------------------------------
-
--- Events
-
----------------------------------------------------
-
 local function PLAYER_TARGET_CHANGED_UPDATE(nameplate, ...)
 	if ( nameplate ) then
 		local totem = nameplate.gladdyTotemFrame
@@ -232,7 +213,7 @@ end
 function TotemPlates:NAME_PLATE_UNIT_ADDED(nameplate)
 	if ( Gladdy.db.npTotems ) then
 		if ( not nameplate ) then
-			nameplate = self -- OnShow
+			nameplate = self
 		end
 
 		local totem = nameplate.gladdyTotemFrame
@@ -255,7 +236,6 @@ function TotemPlates:NAME_PLATE_UNIT_ADDED(nameplate)
 
 						TotemPlates:SetTotemAlpha(totem, nameplateText)
 					else
-						-- If certain totem is disabled, then hide it and the plate depending on setting.
 						if ( totem.active ) then
 							TotemPlates:ToggleTotem(totem)
 						end
@@ -270,7 +250,7 @@ end
 
 function TotemPlates:NAME_PLATE_UNIT_REMOVED(nameplate)
 	if ( not nameplate ) then
-		nameplate = self -- OnHide
+		nameplate = self
 	end
 
 	local totem = nameplate.gladdyTotemFrame
@@ -287,15 +267,9 @@ end
 
 function TotemPlates:PLAYER_ENTERING_WORLD()
 	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-	self:SetFrameStrata("BACKGROUND") -- Prevent icons from overlapping other frames.
+	self:SetFrameStrata("BACKGROUND")
 	self:UpdateFrameOnce()
 end
-
----------------------------------------------------
-
--- Gladdy Call
-
----------------------------------------------------
 
 local function SettingRefresh(nameplate, ...)
 	if ( nameplate ) then
@@ -350,40 +324,30 @@ function TotemPlates:UpdateFrameOnce()
 	end
 end
 
----------------------------------------------------
-
--- TotemPlates Frame
-
----------------------------------------------------
-
 function TotemPlates:CreateTotemFrame(nameplate, test)
-	local Frame = CreateFrame("Frame", nil, WorldFrame) -- Parent prevents parental alpha.
+	local Frame = CreateFrame("Frame", nil, WorldFrame)
 	Frame:SetPoint("BOTTOM", nameplate, "TOP", 0, -35)
 	Frame:SetSize(Gladdy.db.npTotemPlatesSize * Gladdy.db.npTotemPlatesWidthFactor, Gladdy.db.npTotemPlatesSize)
 	Frame:Hide()
 	nameplate.gladdyTotemFrame = Frame
 
-	-- Icon
 	local Icon = Frame:CreateTexture(nil, "BACKGROUND")
 	Icon:SetPoint("TOPLEFT", Frame, "TOPLEFT")
 	Icon:SetPoint("BOTTOMRIGHT", Frame, "BOTTOMRIGHT")
 	Frame.totemIcon = Icon
 
-	-- Border
 	local Border = Frame:CreateTexture(nil, "BORDER")
 	Border:SetPoint("TOPLEFT", Frame, "TOPLEFT")
 	Border:SetPoint("BOTTOMRIGHT", Frame, "BOTTOMRIGHT")
 	Border:SetTexture(Gladdy.db.npTotemPlatesBorderStyle)
 	Frame.totemBorder = Border
 
-	-- Name
 	local Name = Frame:CreateFontString(nil, "OVERLAY")
 	Name:SetFont(Gladdy:SMFetch("font", "npTremorFont"), Gladdy.db.npTremorFontSize, "OUTLINE")
 	Name:SetPoint("TOP", Frame, "BOTTOM", Gladdy.db.npTremorFontXOffset, Gladdy.db.npTremorFontYOffset)
 	Frame.totemName = Name
 
 	if ( not test ) then
-		-- Highlight
 		local Highlight = Frame:CreateTexture(nil, "OVERLAY")
 		Highlight:SetTexture("Interface/TargetingFrame/UI-TargetingFrame-BarFill")
 		Highlight:SetPoint("TOPLEFT", Frame, "TOPLEFT", Gladdy.db.npTotemPlatesSize/16, -Gladdy.db.npTotemPlatesSize/16)
@@ -392,24 +356,16 @@ function TotemPlates:CreateTotemFrame(nameplate, test)
 		Highlight:SetAlpha(0)
 		Frame.selectionHighlight = Highlight
 
-		-- References
-		local threatglow, castbar, castbarborder, castbarinterrupt, castbaricon -- Unused
+		local threatglow, castbar, castbarborder, castbarinterrupt, castbaricon
 		Frame.healthbar, castbar = nameplate:GetChildren()
 		threatglow, Frame.healthborder, castborder, castinterrupt, casticon, Frame.highlighttexture, Frame.nametext, Frame.leveltext, Frame.bossicon, Frame.raidicon, Frame.mobicon = nameplate:GetRegions()
 
-		-- Hooks
 		nameplate:HookScript("OnHide", TotemPlates.NAME_PLATE_UNIT_REMOVED)
 		nameplate:HookScript("OnShow", TotemPlates.NAME_PLATE_UNIT_ADDED)
 
 		self:NAME_PLATE_UNIT_ADDED(nameplate)
 	end
 end
-
----------------------------------------------------
-
--- Nameplate functions
-
----------------------------------------------------
 
 function TotemPlates:NameplateTypeValid(self)
 	if ( self.healthbar ) then
@@ -507,16 +463,16 @@ end
 
 function TotemPlates:SetTotemAlpha(totem, nameplateText)
 	if ( NAMEPLATE_TARGET ) then
-		if ( NAMEPLATE_TARGET == nameplateText ) then -- is target
+		if ( NAMEPLATE_TARGET == nameplateText ) then
 			if ( Gladdy.db.npTotemPlatesAlphaAlwaysTargeted ) then
 				totem:SetAlpha(Gladdy.db.npTotemColors["totem" .. totem.active.id].alpha)
 			else
 				totem:SetAlpha(1)
 			end
-		else -- is not target
+		else
 			totem:SetAlpha(Gladdy.db.npTotemColors["totem" .. totem.active.id].alpha)
 		end
-	else -- no target
+	else
 		if ( Gladdy.db.npTotemPlatesAlphaAlways ) then
 			totem:SetAlpha(Gladdy.db.npTotemColors["totem" .. totem.active.id].alpha)
 		else
@@ -524,12 +480,6 @@ function TotemPlates:SetTotemAlpha(totem, nameplateText)
 		end
 	end
 end
-
----------------------------------------------------
-
--- Test
-
----------------------------------------------------
 
 function TotemPlates:TestOnce()
 	local test = self.testFrame
@@ -571,13 +521,6 @@ function TotemPlates:Reset()
 		test:Hide()
 	end
 end
-
-
----------------------------------------------------
-
--- Interface options
-
----------------------------------------------------
 
 function TotemPlates:GetOptions()
 	return {

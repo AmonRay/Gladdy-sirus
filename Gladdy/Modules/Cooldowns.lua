@@ -9,7 +9,6 @@ local LCG = LibStub("LibCustomGlow-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
 local L = Gladdy.L
 
--- Map of LibSharedMedia sound names to WoW built-in sound names
 local soundMap = {
     ["PVPTHROUGHQUEUE"] = "PVPTHROUGHQUEUE",
     ["ALARM1"] = "AlarmClockWarning1",
@@ -29,24 +28,20 @@ local soundMap = {
     ["Clear"] = "igQuestLogAbandonQuest",
 }
 
--- Sound throttling system
 local lastSoundPlayed = 0
 
--- Function to play sounds with throttling to prevent overlapping
 local function playThrottledSound(soundName)
     local currentTime = GetTime()
     if currentTime - lastSoundPlayed < Gladdy.db.cooldownSoundThrottle then
-        return -- Skip this sound if too soon after the last one
+        return
     end
-    
+
     lastSoundPlayed = currentTime
-    
-    -- First try using WoW built-in sounds
+
     local soundID = soundMap[soundName]
     if soundID then
         PlaySound(soundID)
     else
-        -- Fallback to LSM sounds
         local sound = LSM:Fetch("sound", soundName)
         if sound then
             PlaySoundFile(sound)
@@ -124,7 +119,7 @@ local Cooldowns = Gladdy:NewModule("Cooldowns", 70, {
 	cooldownSoundEnabled = false,
 	cooldownSoundUsed = "None",
 	cooldownSoundReady = "None",
-	cooldownSoundThrottle = 0.1, -- Minimum time between sounds in seconds
+	cooldownSoundThrottle = 0.1,
 })
 
 function Cooldowns:Initialize()
@@ -177,21 +172,16 @@ function Cooldowns:ResetUnit(unit)
 	end
 end
 
----------------------
--- Frame Setup
----------------------
-
 function Cooldowns:CreateFrame(unit)
 	local button = Gladdy.buttons[unit]
 	if not button then return end
 
-	-- Create frame similar to the original addon
 	local spellCooldownFrame = CreateFrame("Frame", "GladdyCooldown_" .. unit, button)
 	spellCooldownFrame:EnableMouse(false)
 	spellCooldownFrame:SetMovable(true)
 	spellCooldownFrame:SetFrameStrata(Gladdy.db.cooldownFrameStrata)
 	spellCooldownFrame:SetFrameLevel(Gladdy.db.cooldownFrameLevel)
-	
+
 	spellCooldownFrame.icons = {}
 	button.spellCooldownFrame = spellCooldownFrame
 	self.frames[unit] = spellCooldownFrame
@@ -213,12 +203,10 @@ function Cooldowns:UpdateFrame(unit)
 	cooldownFrame:SetFrameStrata(Gladdy.db.cooldownFrameStrata)
 	cooldownFrame:SetFrameLevel(Gladdy.db.cooldownFrameLevel)
 
-	-- Обновляем позицию
 	if not Gladdy.db.cooldownGroup or unit == "arena1" then
 		Gladdy:SetPosition(cooldownFrame, unit, "cooldownXOffset", "cooldownYOffset", Cooldowns)
 	end
 
-	-- Обновляем группировку
 	if Gladdy.db.cooldownGroup then
 		if unit ~= "arena1" then
 			local previousUnit = "arena" .. str_gsub(unit, "arena", "") - 1
@@ -235,7 +223,6 @@ function Cooldowns:UpdateFrame(unit)
 		end
 	end
 
-	-- Создаем мувер для первой арены
 	if unit == "arena1" then
 		Gladdy:CreateMover(cooldownFrame, "cooldownXOffset", "cooldownYOffset", L["Cooldowns"],
 			{"TOPLEFT", "TOPLEFT"},
@@ -244,7 +231,6 @@ function Cooldowns:UpdateFrame(unit)
 			0, 0, "cooldown")
 	end
 
-	-- Обновляем иконки
 	for spellId, icon in pairs(cooldownFrame.icons) do
 		icon:SetWidth(Gladdy.db.cooldownSize)
 		icon:SetHeight(Gladdy.db.cooldownSize)
@@ -280,10 +266,6 @@ function Cooldowns:UpdateFrame(unit)
 	end
 end
 
----------------------
--- Icon Setup
----------------------
-
 function Cooldowns:CreateIcon()
 	local icon
 	if (#self.iconCache > 0) then
@@ -298,7 +280,6 @@ function Cooldowns:CreateIcon()
 		icon.cooldown = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
 		icon.cooldown.noCooldownCount = true
 		icon.cooldown:SetReverse(false)
-		--icon.cooldown:SetHideCountdownNumbers(true)
 		icon.cooldown:SetDrawEdge(true)
 
 		icon.cooldownFrame = CreateFrame("Frame", nil, icon)
@@ -412,7 +393,6 @@ function Cooldowns:ClearIcon(button, index, spellId, icon)
 	tinsert(self.iconCache, icon)
 end
 
--- Функция для позиционирования иконок
 function Cooldowns:IconsSetPoint(button)
 	local orderedIcons = {}
 	for _,icon in pairs(button.spellCooldownFrame.icons) do
@@ -471,13 +451,7 @@ local function resetIcon(icon)
 	LCG.PixelGlow_Stop(icon.glow)
 end
 
----------------------
--- Cooldown Setup
----------------------
-
 function Cooldowns:AddCooldown(spellID, value, button)
-	-- see if we have shared cooldowns without a cooldown defined
-	-- e.g. hunter traps have shared cooldowns, so only display one trap instead all of them
 	local sharedCD = false
 	if (type(value) == "table" and value.sharedCD ~= nil and value.sharedCD.cd == nil) then
 		for spellId, _ in pairs(value.sharedCD) do
@@ -539,10 +513,6 @@ function Cooldowns:UpdateCooldowns(button)
 	end
 end
 
----------------------
--- Cooldown Start/Ready/Used
----------------------
-
 function Cooldowns:CooldownStart(button, spellId, duration, start)
 	if not duration or duration == nil or type(duration) ~= "number" then
 		return
@@ -558,7 +528,7 @@ function Cooldowns:CooldownStart(button, spellId, duration, start)
 	for _,icon in pairs(button.spellCooldownFrame.icons) do
 		if (icon.spellId == spellId) then
 			if not start and icon.active and icon.timeLeft > cooldown/2 then
-				return -- do not trigger cooldown again
+				return
 			end
 			icon.active = true
 			icon.timeLeft = start and start - GetTime() + duration or duration
@@ -570,7 +540,6 @@ function Cooldowns:CooldownStart(button, spellId, duration, start)
 				icon.texture:SetAlpha(Gladdy.db.cooldownIconAlphaOnCooldown)
 			end
 
-			-- Звук при использовании кулдауна
 			if Gladdy.db.cooldownSoundEnabled and Gladdy.db.cooldownSoundUsed and Gladdy.db.cooldownSoundUsed ~= "None" then
 				playThrottledSound(Gladdy.db.cooldownSoundUsed)
 			end
@@ -604,7 +573,6 @@ function Cooldowns:CooldownStart(button, spellId, duration, start)
 				end
 			end)
 			break
-			--C_VoiceChat.SpeakText(2, GetSpellInfo(spellId), 3, 4, 100)
 		end
 	end
 end
@@ -617,7 +585,6 @@ function Cooldowns:CooldownReady(button, spellId, frame)
 			end
 		end
 	else
-		-- Звук при готовности кулдауна
 		if Gladdy.db.cooldownSoundEnabled and Gladdy.db.cooldownSoundReady and Gladdy.db.cooldownSoundReady ~= "None" then
 			playThrottledSound(Gladdy.db.cooldownSoundReady)
 		end
@@ -634,26 +601,22 @@ function Cooldowns:CooldownUsed(unit, unitClass, spellId, expirationTimeInSecond
 	local cooldown = Gladdy:GetCooldownList()[unitClass][spellId]
 	local cd = cooldown
 	if (type(cooldown) == "table") then
-		-- return if the spec doesn't have a cooldown for this spell
 		if (button.spec ~= nil and cooldown.notSpec ~= nil and button.spec == cooldown.notSpec) then
 			return
 		end
 
-		-- check if we need to reset other cooldowns because of this spell
 		if (cooldown.resetCD ~= nil) then
 			for spellID,_ in pairs(cooldown.resetCD) do
 				self:CooldownReady(button, spellID, false)
 			end
 		end
 
-		-- check if there is a special cooldown for the units spec
 		if (button.spec ~= nil and cooldown[button.spec] ~= nil) then
 			cd = cooldown[button.spec]
 		else
 			cd = cooldown.cd
 		end
 
-		-- check if there is a shared cooldown with an other spell
 		if (cooldown.sharedCD ~= nil) then
 			local sharedCD = cooldown.sharedCD.cd and cooldown.sharedCD.cd or cd
 
@@ -675,24 +638,10 @@ function Cooldowns:CooldownUsed(unit, unitClass, spellId, expirationTimeInSecond
 	end
 
 	if (Gladdy.db.cooldown) then
-		-- start cooldown
 		self:CooldownStart(button, spellId, cd, expirationTimeInSeconds and (GetTime() + expirationTimeInSeconds - cd) or nil)
 	end
 
-	--[[ announcement
-	if (self.db.cooldownAnnounce or self.db.cooldownAnnounceList[spellId] or self.db.cooldownAnnounceList[unitClass]) then
-	   self:SendAnnouncement(string.format(L["COOLDOWN USED: %s (%s) used %s - %s sec. cooldown"], UnitName(unit), UnitClass(unit), spellName, cd), RAID_CLASS_COLORS[UnitClass(unit)], self.db.cooldownAnnounceList[spellId] and self.db.cooldownAnnounceList[spellId] or self.db.announceType)
-	end]]
-
-	--[[ sound file
-	if (db.cooldownSoundList[spellId] ~= nil and db.cooldownSoundList[spellId] ~= "disabled") then
-	   PlaySoundFile(LSM:Fetch(LSM.MediaType.SOUND, db.cooldownSoundList[spellId]))
-	end  ]]
 end
-
----------------------
--- Events
----------------------
 
 function Cooldowns:ENEMY_SPOTTED(unit)
 	if not Gladdy.db.cooldown then return end
@@ -700,7 +649,7 @@ function Cooldowns:ENEMY_SPOTTED(unit)
 	if (not Gladdy.buttons[unit]) then
 		return
 	end
-	
+
 	self:UpdateCooldowns(Gladdy.buttons[unit])
 end
 
@@ -715,7 +664,7 @@ end
 
 function Cooldowns:UNIT_DESTROYED(unit)
 	if not Gladdy.db.cooldown then return end
-	
+
 	self:ResetUnit(unit)
 end
 
@@ -729,8 +678,8 @@ function Cooldowns:AURA_GAIN(_, auraType, spellID, spellName, _, duration, _, _,
 
 	local cooldownFrame = Gladdy.buttons[arenaUnit].spellCooldownFrame
 
-	local spellId = Cooldowns.cooldownSpellIds[spellName] -- don't use spellId from combatlog, in case of different spellrank
-	if spellID == 16188 or spellID == 17116 then -- Nature's Swiftness (same name for druid and shaman)
+	local spellId = Cooldowns.cooldownSpellIds[spellName]
+	if spellID == 16188 or spellID == 17116 then
 		spellId = spellID
 	end
 
@@ -768,12 +717,6 @@ function Cooldowns:AURA_FADE(unit, spellID)
 	end
 end
 
----------------------
--- Test
----------------------
-
--- /run LibStub("Gladdy").modules["Cooldowns"]:AURA_GAIN(_, AURA_TYPE_BUFF, 22812, "Barkskin", _, 20, _, _, _, _, "arena1", true)
--- /run LibStub("Gladdy").modules["Cooldowns"]:AURA_FADE("arena1", 22812)
 function Cooldowns:Test(unit)
 	if Gladdy.frame.testing then
 		self:UpdateTestCooldowns(unit)
@@ -799,10 +742,6 @@ function Cooldowns:UpdateTestCooldowns(unit)
 		self:CooldownUsed(unit, button.class, icon.spellId)
 	end
 end
-
----------------------
--- Options
----------------------
 
 local function option(params)
 	local defaults = {
@@ -1395,7 +1334,6 @@ function Cooldowns:GetCooldownOptions()
 					}
 				}
 			}
-			--p = p + i
 		end
 	end
 	return group

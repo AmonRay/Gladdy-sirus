@@ -5,17 +5,12 @@ local select, lower, ceil, tremove, tinsert, pairs, ipairs, tostring, random = s
 local AURA_TYPE_DEBUFF, AURA_TYPE_BUFF = AURA_TYPE_DEBUFF, AURA_TYPE_BUFF
 local auraTypes = {AURA_TYPE_BUFF, AURA_TYPE_DEBUFF}
 
----------------------------
--- Module init
----------------------------
-
 local Gladdy = LibStub("Gladdy")
 local LibClassAuras = LibStub("LibClassAuras-1.0")
 local L = Gladdy.L
 local defaultTrackedDebuffs = select(2, Gladdy:GetAuras(AURA_TYPE_DEBUFF))
 local defaultTrackedBuffs = select(2, Gladdy:GetAuras(AURA_TYPE_BUFF))
 local BuffsDebuffs = Gladdy:NewModule("Buffs and Debuffs", nil, {
-	-- General
 	buffsEnabled = true,
 	buffsShowBuffs = true,
 	buffsShowDebuffs = true,
@@ -34,7 +29,6 @@ local BuffsDebuffs = Gladdy:NewModule("Buffs and Debuffs", nil, {
 	buffsBorderColorDisease = Gladdy:GetDispelTypeColors()["disease"],
 	buffsBorderColorForm = Gladdy:GetDispelTypeColors()["form"],
 	buffsBorderColorAura = Gladdy:GetDispelTypeColors()["aura"],
-	-- Debuffs
 	buffsDebuffsAlpha = 1,
 	buffsDebuffsIconSize = 30,
 	buffsDebuffsWidthFactor = 1,
@@ -51,7 +45,6 @@ local BuffsDebuffs = Gladdy:NewModule("Buffs and Debuffs", nil, {
 	buffsDebuffsCooldownGrowDirection = "RIGHT",
 	buffsDebuffsXOffset = 0,
 	buffsDebuffsYOffset = 0,
-	-- Buffs
 	buffsBuffsAlpha = 1,
 	buffsBuffsIconSize = 30,
 	buffsBuffsWidthFactor = 1,
@@ -102,7 +95,7 @@ function BuffsDebuffs:Initialize()
 	self.icons = {}
 	self.trackedCC = {}
 	self.framePool = {}
-	
+
 	if Gladdy.db.buffsEnabled then
 		self:RegisterMessages(
 				"JOINED_ARENA",
@@ -112,7 +105,7 @@ function BuffsDebuffs:Initialize()
 				"AURA_GAIN",
 				"AURA_GAIN_LIMIT")
 	end
-	
+
 	dispelTypeToOptionValueTable = {
 		none = Gladdy.db.buffsBorderColorPhysical,
 		magic = Gladdy.db.buffsBorderColorMagic,
@@ -162,10 +155,6 @@ function BuffsDebuffs:ResetUnit(unit)
 	end
 end
 
----------------------------
--- Frame init
----------------------------
-
 function BuffsDebuffs:CreateFrame(unit)
 	local debuffFrame = CreateFrame("Frame", "GladdyDebuffs" .. unit, Gladdy.buttons[unit])
 	debuffFrame:SetFrameStrata(Gladdy.db.buffsFrameStrata)
@@ -188,7 +177,6 @@ function BuffsDebuffs:CreateFrame(unit)
 end
 
 function BuffsDebuffs:UpdateFrame(unit)
-    --DEBUFFS
     self.frames[unit].debuffFrame:SetHeight(Gladdy.db.buffsDebuffsIconSize)
     Gladdy:SetPosition(self.frames[unit].debuffFrame, unit, "buffsDebuffsXOffset", "buffsDebuffsYOffset", BuffsDebuffs)
     if (unit == "arena1") then
@@ -199,7 +187,6 @@ function BuffsDebuffs:UpdateFrame(unit)
                 0, 0, moverActivated and "buffsEnabled" or false)
     end
 
-    --BUFFS
     self.frames[unit].buffFrame:SetHeight(Gladdy.db.buffsBuffsIconSize)
     Gladdy:SetPosition(self.frames[unit].buffFrame, unit, "buffsBuffsXOffset", "buffsBuffsYOffset", BuffsDebuffs)
     if (unit == "arena1") then
@@ -210,7 +197,6 @@ function BuffsDebuffs:UpdateFrame(unit)
                 0, 0, moverActivated and "buffsEnabled" or false)
     end
 
-    -- Обновляем стили иконок
     local testBuffsAgain, testDebuffsAgain
     for i=1, #self.frames[unit].auras[AURA_TYPE_BUFF] do
         testBuffsAgain = self:styleIcon(self.frames[unit].auras[AURA_TYPE_BUFF][i], AURA_TYPE_BUFF)
@@ -218,20 +204,15 @@ function BuffsDebuffs:UpdateFrame(unit)
     for i=1, #self.frames[unit].auras[AURA_TYPE_DEBUFF] do
         testDebuffsAgain = self:styleIcon(self.frames[unit].auras[AURA_TYPE_DEBUFF][i], AURA_TYPE_DEBUFF)
     end
-    
-    -- Обновляем позиции аур
+
     self:UpdateAurasOnUnit(unit)
 
-    -- Перезапускаем тест если нужно
     if Gladdy.frame.testing and (testBuffsAgain or testDebuffsAgain) then
         self:ResetUnit(unit)
         self:Test(unit)
     end
 end
 
----------------------------
--- Frame handlers
----------------------------
 local function setAuraSize(aura, auraType)
 	if auraType == AURA_TYPE_DEBUFF then
 		aura:SetWidth(Gladdy.db.buffsDebuffsIconSize * Gladdy.db.buffsDebuffsWidthFactor)
@@ -250,17 +231,14 @@ end
 
 function BuffsDebuffs:styleIcon(aura, auraType)
 	setAuraSize(aura, auraType)
-	
-	-- Используем отдельные настройки для кругов кулдауна
+
 	if auraType == AURA_TYPE_BUFF then
-		-- Для баффов
 		if (Gladdy.db.buffsBuffsDisableCircle) then
 			aura.cooldowncircle:SetAlpha(0)
 		else
 			aura.cooldowncircle:SetAlpha(Gladdy.db.buffsBuffsCooldownAlpha)
 		end
 	else
-		-- Для дебаффов
 		if (Gladdy.db.buffsDebuffsDisableCircle) then
 			aura.cooldowncircle:SetAlpha(0)
 		else
@@ -275,7 +253,6 @@ function BuffsDebuffs:styleIcon(aura, auraType)
 		zoomedOption = Gladdy.db.buffsDebuffsIconZoomed
 	end
 
-	-- Apply texture coordinates based on zoom setting - simpler approach
 	if zoomedOption then
 		aura.texture:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 	else
@@ -290,9 +267,7 @@ function BuffsDebuffs:styleIcon(aura, auraType)
 	aura.cooldowncircle:SetFrameLevel(Gladdy.db.buffsFrameLevel + 1)
 	aura.overlay:SetFrameLevel(Gladdy.db.buffsFrameLevel + 2)
 
-	-- Используем отдельные настройки для баффов и дебаффов
 	if auraType == AURA_TYPE_BUFF then
-		-- Для баффов
 		if Gladdy.db.buffsBuffsBorderStyle ~= "None" then
 			aura.border:SetTexture(Gladdy.db.buffsBuffsBorderStyle)
 		else
@@ -304,13 +279,12 @@ function BuffsDebuffs:styleIcon(aura, auraType)
 		aura.stacks:SetFont(Gladdy:SMFetch("font", "buffsBuffsFont"), (Gladdy.db.buffsBuffsIconSize/3 - 1) * Gladdy.db.buffsBuffsFontScale, "OUTLINE")
 		aura.stacks:SetTextColor(Gladdy.db.buffsBuffsFontColor.r, Gladdy.db.buffsBuffsFontColor.g, Gladdy.db.buffsBuffsFontColor.b, Gladdy.db.buffsBuffsFontColor.a)
 	else
-		-- Для дебаффов
 		if Gladdy.db.buffsDebuffsBorderStyle ~= "None" then
 			aura.border:SetTexture(Gladdy.db.buffsDebuffsBorderStyle)
 		else
 			aura.border:SetTexture("")
 		end
-		
+
 		aura.cooldown:SetFont(Gladdy:SMFetch("font", "buffsDebuffsFont"), (Gladdy.db.buffsDebuffsIconSize/2 - 1) * Gladdy.db.buffsDebuffsFontScale, "OUTLINE")
 		aura.cooldown:SetTextColor(Gladdy.db.buffsDebuffsFontColor.r, Gladdy.db.buffsDebuffsFontColor.g, Gladdy.db.buffsDebuffsFontColor.b, Gladdy.db.buffsDebuffsFontColor.a)
 		aura.stacks:SetFont(Gladdy:SMFetch("font", "buffsDebuffsFont"), (Gladdy.db.buffsDebuffsIconSize/3 - 1) * Gladdy.db.buffsDebuffsFontScale, "OUTLINE")
@@ -358,10 +332,8 @@ local function iconTimer(auraFrame, elapsed)
 		local timeLeftMilliSec = auraFrame.endtime - GetTime()
 		local timeLeftSec = ceil(timeLeftMilliSec)
 		auraFrame.timeLeft = timeLeftMilliSec
-		
-		-- Используем разные настройки в зависимости от типа ауры
+
 		if auraFrame.type == AURA_TYPE_BUFF then
-			-- Для баффов
 			if Gladdy.db.buffsBuffsDynamicColor then
 				if timeLeftSec >= 60 then
 					auraFrame.cooldown:SetTextColor(0.7, 1, 0, Gladdy.db.buffsBuffsFontColor.a)
@@ -376,7 +348,6 @@ local function iconTimer(auraFrame, elapsed)
 				end
 			end
 		else
-			-- Для дебаффов
 			if Gladdy.db.buffsDebuffsDynamicColor then
 				if timeLeftSec >= 60 then
 					auraFrame.cooldown:SetTextColor(0.7, 1, 0, Gladdy.db.buffsDebuffsFontColor.a)
@@ -412,11 +383,10 @@ function BuffsDebuffs:AddAura(unit, spellID, auraType, duration, timeLeft, stack
 			aura:SetFrameStrata(Gladdy.db.buffsFrameStrata)
 			aura:SetFrameLevel(Gladdy.db.buffsFrameLevel)
 			aura.texture = aura:CreateTexture(nil, "BACKGROUND")
-			-- Texture coordinates applied in UpdateAura
 			aura.texture:SetAllPoints(aura)
 			aura.cooldowncircle = CreateFrame("Cooldown", nil, aura, "CooldownFrameTemplate")
 			aura.cooldowncircle:SetFrameLevel(Gladdy.db.buffsFrameLevel + 1)
-			aura.cooldowncircle.noCooldownCount = true -- disable OmniCC
+			aura.cooldowncircle.noCooldownCount = true
 			aura.cooldowncircle:SetAllPoints(aura)
 			aura.cooldowncircle:SetReverse(true)
 			aura.cooldowncircle:SetDrawEdge(true)
@@ -460,7 +430,7 @@ function BuffsDebuffs:AddAura(unit, spellID, auraType, duration, timeLeft, stack
 end
 
 function BuffsDebuffs:AddOrRefreshAura(unit, spellID, auraType, duration, timeLeft, stacks, dispelType, icon, index)
-	if self.frames[unit].auras[auraType][index] and self.frames[unit].auras[auraType][index].spellID == spellID then -- refresh
+	if self.frames[unit].auras[auraType][index] and self.frames[unit].auras[auraType][index].spellID == spellID then
 		if duration == 0 then
 			self.frames[unit].auras[auraType][index].endtime = "undefined"
 			self.frames[unit].auras[auraType][index].cooldowncircle:Hide()
@@ -474,14 +444,10 @@ function BuffsDebuffs:AddOrRefreshAura(unit, spellID, auraType, duration, timeLe
 		self:UpdateAurasOnUnit(unit)
 		return
 	end
-	--add
 	self:AddAura(unit, spellID, auraType, duration, timeLeft, stacks, dispelType, icon, index)
 	self:UpdateAurasOnUnit(unit)
 end
 
----------------------------
--- Aura handlers
----------------------------
 function BuffsDebuffs:JOINED_ARENA()
     if Gladdy.db.buffsEnabled then
         for i=1, Gladdy.curBracket do
@@ -532,19 +498,15 @@ function BuffsDebuffs:AURA_GAIN(unit, auraType, spellID, spellName, texture, dur
         return
     end
 
-    -- Проверяем включены ли баффы/дебаффы в настройках
-    if (auraType == AURA_TYPE_BUFF and not Gladdy.db.buffsShowBuffs) or 
+    if (auraType == AURA_TYPE_BUFF and not Gladdy.db.buffsShowBuffs) or
        (auraType == AURA_TYPE_DEBUFF and not Gladdy.db.buffsShowDebuffs) then
         return
     end
 
-    -- Получаем фрейм для юнита
     local auraFrame = self.frames[unit]
 
-    -- Проверяем альтернативное имя спелла
     spellName = LibClassAuras.GetAltName(spellID) or spellName
 
-    -- Проверяем, является ли аура важной
     local aura = Gladdy:GetImportantAuras()[spellName] and Gladdy.db.auraListDefault[tostring(Gladdy:GetImportantAuras()[spellName].spellID)].enabled
     if aura and Gladdy.db.buffsShowAuraDebuffs then
         aura = false
@@ -583,19 +545,17 @@ function BuffsDebuffs:Test(unit)
 
 		BuffsDebuffs:AURA_FADE(unit, AURA_TYPE_DEBUFF)
 		BuffsDebuffs:AURA_FADE(unit, AURA_TYPE_BUFF)
-		
-		-- Проверяем, включены ли баффы и дебаффы отдельно
+
 		local showDebuffs = Gladdy.db.buffsShowDebuffs
 		local showBuffs = Gladdy.db.buffsShowBuffs
-		
+
 		if not showDebuffs and not showBuffs then
-			return -- Если оба отключены, не показываем ничего
+			return
 		end
-		
+
 		local debuffsList = Gladdy.db.trackedDebuffs
 		local buffsList = Gladdy.db.trackedBuffs
-		
-		-- Отображаем дебаффы только если они включены
+
 		if showDebuffs then
 			local i = 1
 			for spellID, enabled in pairs(debuffsList) do
@@ -608,8 +568,7 @@ function BuffsDebuffs:Test(unit)
 				end
 			end
 		end
-		
-		-- Отображаем баффы только если они включены
+
 		if showBuffs then
 			local i = 1
 			for spellID, enabled in pairs(buffsList) do
@@ -625,9 +584,6 @@ function BuffsDebuffs:Test(unit)
 	end
 end
 
-------------
--- OPTIONS
-------------
 function BuffsDebuffs:GetOptions()
 	return {
 		headerBuffs = {

@@ -4,38 +4,31 @@ local pairs = pairs
 
 local Gladdy = LibStub("Gladdy")
 
--- Создаем таблицы для каждого языка
 local enUS = {}
 local ruRU = {}
 
--- Создаем таблицу локализации с метатаблицей для fallback
 Gladdy.L = Gladdy.L or {}
 local L = Gladdy.L
 local mt = {__index = function(self, key) return key end}
 setmetatable(L, mt)
 
--- Функция для применения локализации
 function Gladdy:ApplyLanguage(lang)
-    -- Очищаем текущую таблицу локализации
     for k in pairs(L) do
         L[k] = nil
     end
-    
-    -- Заполняем таблицу локализации строками из выбранного языка
+
     if lang == "ruRU" then
         for k, v in pairs(ruRU) do
             L[k] = v
         end
         Gladdy:Debug("INFO", "Applied Russian localization")
-    else -- enUS или любой другой язык
+    else
         for k, v in pairs(enUS) do
             L[k] = v
         end
         Gladdy:Debug("INFO", "Applied English localization")
     end
 end
-
--- Английские строки (базовые)
 
 enUS["0%"] = "0%"
 enUS["100%"] = "100%"
@@ -630,8 +623,6 @@ enUS["Zoomed Icon"] = "Zoomed Icon"
 enUS["Zoom Icons"] = "Zoom Icons"
 enUS["Zooms the icon to remove borders"] = "Zooms the icon to remove borders"
 
--- Русские строки
-
 ruRU["0%"] = "0%"
 ruRU["100%"] = "100%"
 ruRU["50%"] = "50%"
@@ -1225,5 +1216,4 @@ ruRU["Zoomed Icon"] = "Увеличенная иконка"
 ruRU["Zoom Icons"] = "Увеличить иконки"
 ruRU["Zooms the icon to remove borders"] = "Увеличивает иконку, убирая границы"
 
--- Constants and module defaults are evaluated before PLAYER_LOGIN.
 Gladdy:ApplyLanguage(GetLocale())

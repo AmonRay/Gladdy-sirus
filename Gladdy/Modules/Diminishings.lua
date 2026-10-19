@@ -139,8 +139,7 @@ function Diminishings:CreateFrame(unit)
 		end)
 
 		icon.cooldown = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
-		icon.cooldown.noCooldownCount = true --Gladdy.db.trinketDisableOmniCC
-		--icon.cooldown:SetHideCountdownNumbers(true)
+		icon.cooldown.noCooldownCount = true
 		icon.cooldown:SetFrameStrata(Gladdy.db.drFrameStrata)
 		icon.cooldown:SetFrameLevel(Gladdy.db.drFrameLevel + 1)
 		icon.cooldown:SetDrawEdge(true)
@@ -150,8 +149,6 @@ function Diminishings:CreateFrame(unit)
 		icon.cooldownFrame:SetFrameStrata(Gladdy.db.drFrameStrata)
 		icon.cooldownFrame:SetFrameLevel(Gladdy.db.drFrameLevel + 2)
 
-		--icon.overlay = CreateFrame("Frame", nil, icon)
-		--icon.overlay:SetAllPoints(icon)
 		icon.border = icon.cooldownFrame:CreateTexture(nil, "OVERLAY")
 		icon.border:SetTexture("Interface\\AddOns\\Gladdy\\Images\\Border_rounded_blp")
 		icon.border:SetAllPoints(icon)
@@ -201,12 +198,10 @@ function Diminishings:UpdateFrame(unit)
 	drFrame:SetFrameStrata(Gladdy.db.drFrameStrata)
 	drFrame:SetFrameLevel(Gladdy.db.drFrameLevel)
 
-	-- Обновляем позицию
 	if not Gladdy.db.drGroup or unit == "arena1" then
 		Gladdy:SetPosition(drFrame, unit, "drXOffset", "drYOffset", Diminishings)
 	end
 
-	-- Обновляем группировку
 	if Gladdy.db.drGroup then
 		if unit ~= "arena1" then
 			local previousUnit = "arena" .. str_gsub(unit, "arena", "") - 1
@@ -223,7 +218,6 @@ function Diminishings:UpdateFrame(unit)
 		end
 	end
 
-	-- Создаем мувер для первой арены
 	if unit == "arena1" then
 		Gladdy:CreateMover(drFrame, "drXOffset", "drYOffset", L["Diminishings"],
 			Gladdy.db.drGrowDirection == "RIGHT" and {"TOPLEFT", "TOPLEFT"} or {"TOPRIGHT", "TOPRIGHT"},
@@ -232,7 +226,6 @@ function Diminishings:UpdateFrame(unit)
 			0, 0, "drEnabled")
 	end
 
-	-- Обновляем иконки
 	for i = 1, 16 do
 		local icon = drFrame["icon" .. i]
 		icon:SetWidth(Gladdy.db.drIconSize * Gladdy.db.drWidthFactor)
@@ -335,13 +328,11 @@ function Diminishings:Test(unit)
 			end
 		end
 
-		--shuffle
 		for i = #enabledCategories, 2, -1 do
 			local j = rand(i)
 			enabledCategories[i], enabledCategories[j] = enabledCategories[j], enabledCategories[i]
 		end
 
-		--execute test
 		local index, amount = 0,0
 		for i=1, (#enabledCategories < 4 and #enabledCategories) or 4 do
 			amount = rand(1,3)
@@ -353,31 +344,6 @@ function Diminishings:Test(unit)
 		end
 	end
 end
-
---[[ testcases for show icon with icon.active = true and icon.running = false and no cooldown. Only when AuraFade start set icon.running = true and start cooldown
-	SPELL_AURA_APPLIED
-		Script:     /run local a=LibStub("Gladdy").modules["Diminishings"] a:AuraGain("arena1", 10890)
-		Script:     /run local a=LibStub("Gladdy").modules["Diminishings"] a:AuraGain("arena1", 2637)
-		Script:     /run local a=LibStub("Gladdy").modules["Diminishings"] a:AuraGain("arena1", 10890) a:AuraGain("arena1", 2637)
-		expected:   stale icon AND 1/2 dr
-	SPELL_AURA_REMOVED
-		Script:     /run local a=LibStub("Gladdy").modules["Diminishings"] a:AuraFade("arena1", 10890)
-		Script:     /run local a=LibStub("Gladdy").modules["Diminishings"] a:AuraFade("arena1", 2637)
-		Script:     /run local a=LibStub("Gladdy").modules["Diminishings"] a:AuraFade("arena1", 2637) a:AuraFade("arena1", 10890)
-		expected:   icon 1/2 AND 1/2 dr
-	SPELL_AURA_REFRESH
-		Script:     /run local a=LibStub("Gladdy").modules["Diminishings"] a:AuraGain("arena1", 10890) a:AuraGain("arena1", 10890)
-		expected:   icon 1/4 AND 1/4 dr
-	two different spells with same DR applied and one fades
-		Script:     /run local a=LibStub("Gladdy").modules["Diminishings"] a:AuraGain("arena1", 10890) a:AuraGain("arena1", 2094) a:AuraFade("arena1", 10890)
-		expected:   icon 1/4 AND 1/4 dr
-	two different spells with same DR applied and both fade
-		Script:     /run local a=LibStub("Gladdy").modules["Diminishings"] a:AuraGain("arena1", 10890) a:AuraGain("arena1", 2094) a:AuraFade("arena1", 10890) a:AuraFade("arena1", 2094)
-		expected:   icon 1/4 AND 1/4 dr
-	three different spells with same DR applied and two fade
-		Script:     /run local a=LibStub("Gladdy").modules["Diminishings"] a:AuraGain("arena1", 10890) a:AuraGain("arena1", 2094) a:AuraGain("arena1", 5484) a:AuraFade("arena1", 10890) a:AuraFade("arena1", 2094)
-		expected:   icon 0 AND 0 dr
---]]
 
 function Diminishings:FindLastIcon(unit, drCat)
 	local drFrame = self.frames[unit]
@@ -441,14 +407,12 @@ function Diminishings:AuraGain(unit, spellID)
 	if (not drFrame or not drCat) then return end
 	if not Gladdy.db.drCategories[drCat].enabled then return end
 
-	-- due to dynamic DR we reset the DR here if dr == 0
 	if not drFrame.tracked[drCat] or drFrame.tracked[drCat] == 0 then
 		drFrame.tracked[drCat] = DRData:NextDR(1)
 	else
 		drFrame.tracked[drCat] = DRData:NextDR(drFrame.tracked[drCat] == 1.0 and 1 or drFrame.tracked[drCat] == 0.5 and 2 or 3)
 	end
 
-	-- add icon with no timer
 	local lastIcon = Diminishings:FindLastIcon(unit, drCat)
 	if not lastIcon then return end
 
@@ -467,7 +431,6 @@ function Diminishings:AuraFade(unit, spellID)
 	if (not drFrame or not drCat) then return end
 	if not Gladdy.db.drCategories[drCat].enabled then return end
 
-	-- find icon and start timer
 	local lastIcon = Diminishings:FindLastIcon(unit, drCat)
 	if not lastIcon then return end
 

@@ -1,25 +1,17 @@
 local select, str_gsub = select, string.gsub
 
----------------------------
--- Namespaces
----------------------------
-
 local Gladdy = LibStub("Gladdy")
 local CreateFrame = CreateFrame
 local GetSpellInfo = GetSpellInfo
 local L = Gladdy.L
 
----------------------------
--- Variables
----------------------------
-
 local Classicon = Gladdy:NewModule("Class Icon", 81, {
     classIconEnabled = true,
     classIconSize = 60 + 20 + 1,
     classIconWidthFactor = 0.9,
-    classIconZoomed = false, -- Use zoomed approach which works more reliably
+    classIconZoomed = false,
     classIconBorderStyle = "Interface\\AddOns\\Gladdy\\Images\\Border_rounded_blp",
-    classIconBorderColor = { r = 0, g = 0, b = 0, a = 1 },  -- Changed to white for better visibility
+    classIconBorderColor = { r = 0, g = 0, b = 0, a = 1 },
     classIconSpecIcon = false,
     classIconXOffset = 0,
     classIconYOffset = 0,
@@ -32,7 +24,7 @@ local Classicon = Gladdy:NewModule("Class Icon", 81, {
 local classIconPath = "Interface\\Addons\\Gladdy\\Images\\Classes\\"
 local classIcons = {
     ["DRUID"] = classIconPath .. "inv_misc_monsterclaw_04",
-    ["DEATHKNIGHT"] = select(3, GetSpellInfo(49023)), --Might of Mograine
+    ["DEATHKNIGHT"] = select(3, GetSpellInfo(49023)),
     ["HUNTER"] = classIconPath .. "inv_weapon_bow_07",
     ["MAGE"] = classIconPath .. "inv_staff_13",
     ["PALADIN"] = classIconPath .. "inv_hammer_01",
@@ -43,64 +35,58 @@ local classIcons = {
     ["WARRIOR"] = classIconPath .. "inv_sword_27",
 }
 
--- Используем английские ключи напрямую для стабильности
 local specIcons = {
-    --DRUID
     ["DRUID"] = {
-        ["Balance"] = select(3, GetSpellInfo(8921)), -- Moonfire
-        ["Feral"] = select(3, GetSpellInfo(27545)), -- Cat Form
-        ["Restoration"] = select(3, GetSpellInfo(5185)), -- Healing Touch
+        ["Balance"] = select(3, GetSpellInfo(8921)),
+        ["Feral"] = select(3, GetSpellInfo(27545)),
+        ["Restoration"] = select(3, GetSpellInfo(5185)),
     },
     ["DEATHKNIGHT"] = {
-        ["Unholy"] = select(3, GetSpellInfo(48265)), -- Unholy Presence
-        ["Blood"] = select(3, GetSpellInfo(48266)), -- Blood Presence
-        ["Frost"] = select(3, GetSpellInfo(48263)), -- Frost Presence
+        ["Unholy"] = select(3, GetSpellInfo(48265)),
+        ["Blood"] = select(3, GetSpellInfo(48266)),
+        ["Frost"] = select(3, GetSpellInfo(48263)),
     },
     ["HUNTER"] = {
-        ["Beast Mastery"] = select(3, GetSpellInfo(1515)), -- Tame Beast
-        ["Marksmanship"] = select(3, GetSpellInfo(42243)), -- Volley
-        ["Survival"] = select(3, GetSpellInfo(1495)), -- Mongoose Bite
+        ["Beast Mastery"] = select(3, GetSpellInfo(1515)),
+        ["Marksmanship"] = select(3, GetSpellInfo(42243)),
+        ["Survival"] = select(3, GetSpellInfo(1495)),
     },
     ["MAGE"] = {
-        ["Arcane"] = select(3, GetSpellInfo(1459)), -- Arcane Intellect
-        ["Fire"] = select(3, GetSpellInfo(133)), -- Fireball
-        ["Frost"] = select(3, GetSpellInfo(116)), -- Frostbolt
+        ["Arcane"] = select(3, GetSpellInfo(1459)),
+        ["Fire"] = select(3, GetSpellInfo(133)),
+        ["Frost"] = select(3, GetSpellInfo(116)),
     },
     ["PALADIN"] = {
-        ["Holy"] = select(3, GetSpellInfo(635)), -- Holy Light
-        ["Retribution"] = select(3, GetSpellInfo(7294)), -- Retribution Aura
-        ["Protection"] = select(3, GetSpellInfo(32828)), -- Protection Aura
+        ["Holy"] = select(3, GetSpellInfo(635)),
+        ["Retribution"] = select(3, GetSpellInfo(7294)),
+        ["Protection"] = select(3, GetSpellInfo(32828)),
     },
     ["PRIEST"] = {
-        ["Discipline"] = select(3, GetSpellInfo(1243)), -- Power Word: Fortitude
-        ["Shadow"] = select(3, GetSpellInfo(589)), -- Shadow Word: Pain
-        ["Holy"] = select(3, GetSpellInfo(635)), -- Holy Light
+        ["Discipline"] = select(3, GetSpellInfo(1243)),
+        ["Shadow"] = select(3, GetSpellInfo(589)),
+        ["Holy"] = select(3, GetSpellInfo(635)),
     },
     ["ROGUE"] = {
-        ["Assassination"] = select(3, GetSpellInfo(1329)), -- Mutilate (Eviscerate? 2098)
-        ["Combat"] = select(3, GetSpellInfo(53)), -- Backstab
-        ["Subtlety"] = select(3, GetSpellInfo(1784)), -- Stealth
+        ["Assassination"] = select(3, GetSpellInfo(1329)),
+        ["Combat"] = select(3, GetSpellInfo(53)),
+        ["Subtlety"] = select(3, GetSpellInfo(1784)),
     },
     ["SHAMAN"] = {
-        ["Elemental"] = select(3, GetSpellInfo(403)), -- Lightning Bolt
-        ["Enhancement"] = select(3, GetSpellInfo(324)), -- Lightning Shield
-        ["Restoration"] = select(3, GetSpellInfo(331)), -- Healing Wave
+        ["Elemental"] = select(3, GetSpellInfo(403)),
+        ["Enhancement"] = select(3, GetSpellInfo(324)),
+        ["Restoration"] = select(3, GetSpellInfo(331)),
     },
     ["WARLOCK"] = {
-        ["Affliction"] = select(3, GetSpellInfo(6789)), -- Affliction
-        ["Demonology"] = select(3, GetSpellInfo(5500)), -- Sense Demons
-        ["Destruction"] = select(3, GetSpellInfo(5740)), -- Rain of Fire
+        ["Affliction"] = select(3, GetSpellInfo(6789)),
+        ["Demonology"] = select(3, GetSpellInfo(5500)),
+        ["Destruction"] = select(3, GetSpellInfo(5740)),
     },
     ["WARRIOR"] = {
-        ["Arms"] = select(3, GetSpellInfo(12294)), -- Mortal Strike
-        ["Fury"] = select(3, GetSpellInfo(12325)), -- Inner Rage
-        ["Protection"] = select(3, GetSpellInfo(71)), -- Defensive Stance
+        ["Arms"] = select(3, GetSpellInfo(12294)),
+        ["Fury"] = select(3, GetSpellInfo(12325)),
+        ["Protection"] = select(3, GetSpellInfo(71)),
     },
 }
-
----------------------------
--- CORE
----------------------------
 
 function Classicon:Initialize()
     self.frames = {}
@@ -128,10 +114,6 @@ function Classicon:ResetUnit(unit)
 
     classIcon.texture:SetTexture("")
 end
-
----------------------------
--- Frame Setup
----------------------------
 
 function Classicon:CreateFrame(unit)
     local classIcon = CreateFrame("Frame", nil, Gladdy.buttons[unit])
@@ -225,10 +207,6 @@ function Classicon:UpdateFrame(unit)
     end
 end
 
----------------------------
--- Events
----------------------------
-
 function Classicon:ENEMY_SPOTTED(unit)
     if not Gladdy.db.classIconEnabled then return end
 
@@ -277,10 +255,6 @@ function Classicon:UNIT_SPEC(unit, spec)
         classIcon.texture:SetTexture(classIcons[button.class])
     end
 end
-
----------------------------
--- Options
----------------------------
 
 function Classicon:GetOptions()
     return {

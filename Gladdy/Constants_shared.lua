@@ -161,26 +161,6 @@ function Gladdy:GetDispelTypeColors()
     return dispelTypeColors
 end
 
-
---[[schoolColoring = {
-    [SCHOOL_MASK_NONE]	= {a=1.0,r=1.00,g=1.00,b=1.00};
-    [SCHOOL_MASK_PHYSICAL]	= {a=1.0,r=1.00,g=1.00,b=0.00};
-    [SCHOOL_MASK_HOLY] 	= {a=1.0,r=1.00,g=0.90,b=0.50};
-    [SCHOOL_MASK_FIRE] 	= {a=1.0,r=1.00,g=0.50,b=0.00};
-    [SCHOOL_MASK_NATURE] 	= {a=1.0,r=0.30,g=1.00,b=0.30};
-    [SCHOOL_MASK_FROST] 	= {a=1.0,r=0.50,g=1.00,b=1.00};
-    [SCHOOL_MASK_SHADOW] 	= {a=1.0,r=0.50,g=0.50,b=1.00};
-    [SCHOOL_MASK_ARCANE] 	= {a=1.0,r=1.00,g=0.50,b=1.00};
-
-SCHOOL_MASK_NONE		= 0x00;
-SCHOOL_MASK_PHYSICAL	= 0x01;
-SCHOOL_MASK_HOLY		= 0x02;
-SCHOOL_MASK_FIRE		= 0x04;
-SCHOOL_MASK_NATURE		= 0x08;
-SCHOOL_MASK_FROST		= 0x10;
-SCHOOL_MASK_SHADOW		= 0x20;
-SCHOOL_MASK_ARCANE		= 0x40;
---]]
 local spellSchoolColors = {}
 spellSchoolColors[1] = { r = 1, g = 1, b = 0, a = 1, type = "Physical" } -- "physical" 255, 255, 0
 spellSchoolColors[2] = { r = 1, g = 0.901, b = 0.501, a = 1, type = "Holy" } --"holy" -- 255, 230, 128
@@ -195,12 +175,7 @@ function Gladdy:GetSpellSchoolColors()
     return spellSchoolColors
 end
 
----------------------
--- TOTEM STUFF
----------------------
-
 local totemData = {
-    -- Fire
     [string_lower("Searing Totem")] = {id = 3599,texture = select(3, GetSpellInfo(3599)), color = {r = 0, g = 0, b = 0, a = 1}},
     [string_lower("Flametongue Totem")] = {id = 8227,texture = select(3, GetSpellInfo(8227)), color = {r = 0, g = 0, b = 0, a = 1}},
     [string_lower("Magma Totem")] = {id = 8190,texture = select(3, GetSpellInfo(8190)), color = {r = 0, g = 0, b = 0, a = 1}, pulse = 2},
@@ -208,20 +183,17 @@ local totemData = {
     [string_lower("Totem of Wrath")] = {id = 30706,texture = select(3, GetSpellInfo(30706)), color = {r = 0, g = 0, b = 0, a = 1}},
     [string_lower("Fire Elemental Totem")] = {id = 32982,texture = select(3, GetSpellInfo(32982)), color = {r = 0, g = 0, b = 0, a = 1}},
     [string_lower("Frost Resistance Totem")] = {id = 8181,texture = select(3, GetSpellInfo(8181)), color = {r = 0, g = 0, b = 0, a = 1}},
-    -- Water
     [string_lower("Fire Resistance Totem")] = {id = 8184,texture = select(3, GetSpellInfo(8184)), color = {r = 0, g = 0, b = 0, a = 1}},
     [string_lower("Disease Cleansing Totem")] = {id = 8170,texture = select(3, GetSpellInfo(8170)), color = {r = 0, g = 0, b = 0, a = 1}, pulse = 5},
     [string_lower("Healing Stream Totem")] = {id = 5394,texture = select(3, GetSpellInfo(5394)), color = {r = 0, g = 0, b = 0, a = 1}, pulse = 2},
     [string_lower("Mana Tide Totem")] = {id = 16190,texture = select(3, GetSpellInfo(16190)), color = {r = 0.078, g = 0.9, b = 0.16, a = 1}, pulse = 3 },
     [string_lower("Mana Spring Totem")] = {id = 5675,texture = select(3, GetSpellInfo(5675)), color = {r = 0, g = 0, b = 0, a = 1}, pulse = 2},
-    -- Earth
     [string_lower("Earthbind Totem")] = {id = 2484,texture = select(3, GetSpellInfo(2484)), color = {r = 0.5, g = 0.5, b = 0.5, a = 1}, pulse = 3},
     [string_lower("Stoneclaw Totem")] = {id = 5730,texture = select(3, GetSpellInfo(5730)), color = {r = 0, g = 0, b = 0, a = 1}, pulse = 2},
     [string_lower("Stoneskin Totem")] = {id = 8071,texture = select(3, GetSpellInfo(8071)), color = {r = 0, g = 0, b = 0, a = 1}},
     [string_lower("Strength of Earth Totem")] = {id = 8075,texture = select(3, GetSpellInfo(8075)), color = {r = 0, g = 0, b = 0, a = 1}},
     [string_lower("Earth Elemental Totem")] = {id = 33663,texture = select(3, GetSpellInfo(33663)), color = {r = 0, g = 0, b = 0, a = 1}},
     [string_lower("Tremor Totem")] = {id = 8143,texture = select(3, GetSpellInfo(8143)), color = {r = 1, g = 0.9, b = 0.1, a = 1}, pulse = 3},
-    -- Air
     [string_lower("Grounding Totem")] = {id = 8177,texture = select(3, GetSpellInfo(8177)), color = {r = 0, g = 0.53, b = 0.92, a = 1}},
     [string_lower("Nature Resistance Totem")] = {id = 10595,texture = select(3, GetSpellInfo(10595)), color = {r = 0, g = 0, b = 0, a = 1}},
     [string_lower("Windfury Totem")] = {id = 8512,texture = select(3, GetSpellInfo(8512)), color = {r = 0.96, g = 0, b = 0.07, a = 1}},
@@ -283,7 +255,6 @@ function Gladdy:GetSharedTotemData()
     return totemData, totemNameToTotemData, totemSpellIdToPulse
 end
 
--- Totem Name -> Totem Data
 local totemNumeric = {"", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " X"}
 
 local totemRanks = {

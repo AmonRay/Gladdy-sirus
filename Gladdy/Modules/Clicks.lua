@@ -54,15 +54,12 @@ BINDING_NAME_GLADDYBUTTON4_BUTTON5 = L["Button5 Click Enemy 4"]
 BINDING_NAME_GLADDYBUTTON5_BUTTON5 = L["Button5 Click Enemy 5"]
 
 function Clicks:Initialize()
-    --
 end
 
 function Clicks:Reset()
-    --
 end
 
 function Clicks:ResetUnit(unit)
-    --
 end
 
 function Clicks:UpdateFrame(unit)

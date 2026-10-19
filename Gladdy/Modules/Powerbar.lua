@@ -325,9 +325,6 @@ function Powerbar:UNIT_DEATH(unit)
     end
     Powerbar:SetPower(powerBar, unit, 0, powerBar.energy.max, powerBar.energy.powerType, L["DEAD"])
 
-    Gladdy:ScheduleTimer(function()
-        Powerbar:ENEMY_SPOTTED(unit)
-    end, 0.2)
 end
 
 local function option(params)
