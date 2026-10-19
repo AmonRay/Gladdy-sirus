@@ -645,7 +645,7 @@ function Diminishings:GetOptions()
 							desc = L["Font of the cooldown"],
 							order = 4,
 							dialogControl = "LSM30_Font",
-							values = GladdyAceGUIWidgetLSMlists.font,
+							values = AceGUIWidgetLSMlists.font,
 						}),
 						drFontScale = Gladdy:option({
 							type = "range",
@@ -702,7 +702,7 @@ function Diminishings:GetOptions()
 							desc = L["Font of the DR Font"],
 							order = 5,
 							dialogControl = "LSM30_Font",
-							values = GladdyAceGUIWidgetLSMlists.font,
+							values = AceGUIWidgetLSMlists.font,
 							width = "full",
 							disabled = function()
 								return not Gladdy.db.drLevelTextEnabled

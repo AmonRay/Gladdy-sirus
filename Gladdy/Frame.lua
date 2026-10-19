@@ -403,7 +403,7 @@ function Gladdy:CreateMover(frame, xConfig, yConfig, name, points, width, height
             frame:SetPoint(self.point[1], self.point[2], self.point[3], self.point[4] + diffX, self.point[5] + diffY)
             Gladdy.db[xConfig] = self.point[4] + diffX
             Gladdy.db[yConfig] = self.point[5] + diffY
-            LibStub("AceConfigRegistry-3.0-Gladdy"):NotifyChange("Gladdy")
+            LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
             Gladdy:UpdateFrame()
         end)
     else

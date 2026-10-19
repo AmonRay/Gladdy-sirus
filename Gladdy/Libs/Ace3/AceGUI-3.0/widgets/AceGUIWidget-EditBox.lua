@@ -2,9 +2,7 @@
 EditBox Widget
 -------------------------------------------------------------------------------]]
 local Type, Version = "EditBox", 31
-local AceGUI = LibStub and LibStub("AceGUI-3.0-Gladdy", true)
-local CreateFrame = AceGUI and AceGUI.CreateFrame
-local CreateFont = AceGUI and AceGUI.CreateFont
+local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
@@ -14,20 +12,20 @@ local tostring, pairs = tostring, pairs
 local PlaySound = PlaySound
 local GetMacroInfo = GetMacroInfo
 local GetCursorInfo, ClearCursor, GetSpellInfo = GetCursorInfo, ClearCursor, GetSpellInfo
-local UIParent = UIParent
+local CreateFrame, UIParent = CreateFrame, UIParent
 local _G = _G
 
 --[[-----------------------------------------------------------------------------
 Support functions
 -------------------------------------------------------------------------------]]
-if not GladdyAceGUIEditBoxInsertLink then
+if not AceGUIEditBoxInsertLink then
 	-- upgradeable hook
-	hooksecurefunc("ChatEdit_InsertLink", function(...) return _G.GladdyAceGUIEditBoxInsertLink(...) end)
+	hooksecurefunc("ChatEdit_InsertLink", function(...) return _G.AceGUIEditBoxInsertLink(...) end)
 end
 
-function _G.GladdyAceGUIEditBoxInsertLink(text)
+function _G.AceGUIEditBoxInsertLink(text)
 	for i = 1, AceGUI:GetWidgetCount(Type) do
-		local editbox = _G["GladdyAceGUI-3.0EditBox"..i]
+		local editbox = _G["AceGUI-3.0EditBox"..i]
 		if editbox and editbox:IsVisible() and editbox:HasFocus() then
 			editbox:Insert(text)
 			return true

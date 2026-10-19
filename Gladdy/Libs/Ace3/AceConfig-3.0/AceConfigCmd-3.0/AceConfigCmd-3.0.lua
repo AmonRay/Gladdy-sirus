@@ -14,9 +14,9 @@ REQUIRES: AceConsole-3.0 for command registration (loaded on demand)
 
 -- TODO: plugin args
 
-local cfgreg = LibStub("AceConfigRegistry-3.0-Gladdy")
+local cfgreg = LibStub("AceConfigRegistry-3.0")
 
-local MAJOR, MINOR = "AceConfigCmd-3.0-Gladdy", 14
+local MAJOR, MINOR = "AceConfigCmd-3.0", 14
 local AceConfigCmd = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceConfigCmd then return end
@@ -735,9 +735,9 @@ end
 -- function MyAddon:ChatCommand(input)
 --   -- Assuming "MyOptions" is the appName of a valid options table
 --   if not input or input:trim() == "" then
---     LibStub("AceConfigDialog-3.0-Gladdy"):Open("MyOptions")
+--     LibStub("AceConfigDialog-3.0"):Open("MyOptions")
 --   else
---     LibStub("AceConfigCmd-3.0-Gladdy").HandleCommand(MyAddon, "mychat", "MyOptions", input)
+--     LibStub("AceConfigCmd-3.0").HandleCommand(MyAddon, "mychat", "MyOptions", input)
 --   end
 -- end
 function AceConfigCmd:HandleCommand(slashcmd, appName, input)

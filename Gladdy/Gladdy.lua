@@ -70,7 +70,7 @@ local Gladdy = LibStub:NewLibrary(MAJOR, MINOR)
 local L = {}
 Gladdy.L = L
 Gladdy.version_major_num = 2
-Gladdy.version_minor_num = 0.41
+Gladdy.version_minor_num = 0.42
 Gladdy.version_num = Gladdy.version_major_num + Gladdy.version_minor_num
 Gladdy.version_releaseType = RELEASE_TYPES.release
 Gladdy.version = PREFIX .. string.format("%.2f", Gladdy.version_num) .. "-" .. Gladdy.version_releaseType
@@ -464,7 +464,7 @@ function Gladdy:UpdateLocalization()
 			Gladdy.options.args.test.desc = L["Show Test frames"]
 		end
 
-		LibStub("AceConfigRegistry-3.0-Gladdy"):NotifyChange("Gladdy")
+		LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
 	end
 end
 
@@ -478,7 +478,7 @@ function Gladdy:OnProfileReset()
 	self:ToggleFrame(3)
 	Gladdy.options.args.lock.name = Gladdy.db.locked and L["Unlock frame"] or L["Lock frame"]
 	Gladdy.options.args.showMover.name = Gladdy.db.showMover and L["Hide Mover"] or L["Show Mover"]
-	LibStub("AceConfigRegistry-3.0-Gladdy"):NotifyChange("Gladdy")
+	LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
 end
 
 function Gladdy:OnProfileChanged()
@@ -490,7 +490,7 @@ function Gladdy:OnProfileChanged()
 	self:ToggleFrame(3)
 	Gladdy.options.args.lock.name = Gladdy.db.locked and L["Unlock frame"] or L["Lock frame"]
 	Gladdy.options.args.showMover.name = Gladdy.db.showMover and L["Hide Mover"] or L["Show Mover"]
-	LibStub("AceConfigRegistry-3.0-Gladdy"):NotifyChange("Gladdy")
+	LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
 end
 
 function Gladdy:OnEnable()
@@ -567,7 +567,7 @@ end
 
 function Gladdy:PLAYER_ENTERING_WORLD()
 	if self.showConfig then
-		LibStub("AceConfigDialog-3.0-Gladdy"):Open("Gladdy", nil, LibStub("AceConfigDialog-3.0-Gladdy"):SelectGroup("Gladdy", "XiconProfiles"))
+		LibStub("AceConfigDialog-3.0"):Open("Gladdy", nil, LibStub("AceConfigDialog-3.0"):SelectGroup("Gladdy", "XiconProfiles"))
 		self.showConfig = nil
 	end
 	if ((self.frame and self.frame:IsVisible()) or self.curBracket == 0) then

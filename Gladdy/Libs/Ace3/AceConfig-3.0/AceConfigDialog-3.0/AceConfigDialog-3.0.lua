@@ -4,11 +4,10 @@
 -- @release $Id: AceConfigDialog-3.0.lua 1386 2025-12-11 18:25:02Z nevcairiel $
 
 local LibStub = LibStub
-local gui = LibStub("AceGUI-3.0-Gladdy")
-local CreateFrame = gui.CreateFrame
-local reg = LibStub("AceConfigRegistry-3.0-Gladdy")
+local gui = LibStub("AceGUI-3.0")
+local reg = LibStub("AceConfigRegistry-3.0")
 
-local MAJOR, MINOR = "AceConfigDialog-3.0-Gladdy", 92
+local MAJOR, MINOR = "AceConfigDialog-3.0", 92
 local AceConfigDialog, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceConfigDialog then return end

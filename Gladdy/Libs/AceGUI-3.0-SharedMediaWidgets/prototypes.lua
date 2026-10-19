@@ -1,19 +1,17 @@
 -- Widget created by Yssaril
 local DataVersion = 9004
-local AGSMW = LibStub:NewLibrary("AceGUISharedMediaWidgets-1.0-Gladdy", DataVersion)
+local AGSMW = LibStub:NewLibrary("AceGUISharedMediaWidgets-1.0", DataVersion)
 
 if not AGSMW then
   return	-- already loaded and no upgrade necessary
 end
 
-local AceGUI = LibStub("AceGUI-3.0-Gladdy")
-local CreateFrame = AceGUI and AceGUI.CreateFrame
-local CreateFont = AceGUI and AceGUI.CreateFont
+local AceGUI = LibStub("AceGUI-3.0")
 local Media = LibStub("LibSharedMedia-3.0")
 
 AGSMW = AGSMW or {}
 
-GladdyAceGUIWidgetLSMlists = {
+AceGUIWidgetLSMlists = {
 	['font'] = Media:HashTable("font"),
 	['sound'] = Media:HashTable("sound"),
 	['statusbar'] = Media:HashTable("statusbar"),

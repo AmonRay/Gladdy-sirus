@@ -3,7 +3,7 @@ local type, pairs, str_match = type, pairs, string.match
 local Gladdy = LibStub("Gladdy")
 local AceSerializer = LibStub("AceSerializer-3.0")
 local L = Gladdy.L
-local AceGUI = LibStub("AceGUI-3.0-Gladdy")
+local AceGUI = LibStub("AceGUI-3.0")
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 
 local function table_copy(t, str)
@@ -70,7 +70,7 @@ importButton:SetCallback("OnClick", function(widget)
     Gladdy:Reset()
     Gladdy:HideFrame()
     Gladdy:ToggleFrame(3)
-    LibStub("AceConfigRegistry-3.0-Gladdy"):NotifyChange("Gladdy")
+    LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
 end)
 import:AddChild(importButton)
 import.button = importButton
