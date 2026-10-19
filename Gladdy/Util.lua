@@ -351,16 +351,11 @@ function Gladdy:CreateIconFrame(parent, name, config)
     
     -- Добавляем стандартный таймер обновления
     frame:SetScript("OnUpdate", function(self, elapsed)
-        if not self.active then return end
-        
-        if self and self.timeLeft and self.timeLeft <= 0 then
+        if not self.active or not self.timeLeft then return end
+        self.timeLeft = self.timeLeft - elapsed
+        if self.timeLeft <= 0 then
             self.active = false
             self:StopCooldown()
-
-            if self.cooldownFont then
-                self.cooldownFont:SetText("")
-            end
-            -- Сбрасываем бэкдроп при окончании кулдауна
             if config.hasBackdrop then
                 Gladdy:SendMessage("TRINKET_READY", self.unit)
                 if config.trinketColored then
@@ -369,8 +364,9 @@ function Gladdy:CreateIconFrame(parent, name, config)
                     self:SetBackdropColor(0, 0, 0, 0)
                 end
             end
-        else
-            self.timeLeft = self.timeLeft - elapsed
+            -- StopCooldown cleared the text. Do not render expired state or
+            -- decrement again, and never emit READY more than once.
+            return
         end
 
         if not self.cooldownFont or not config.fontEnabled then return end

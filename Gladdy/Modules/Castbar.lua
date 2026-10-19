@@ -316,7 +316,10 @@ function Castbar.OnUpdate(castBar, elapsed)
             castBar.timeText:Show()
             castBar.spark:Show()
             castBar:SetAlpha(0)
+            castBar:SetScript("OnUpdate", nil)
         end
+    else
+        castBar:SetScript("OnUpdate", nil)
     end
 end
 
@@ -421,6 +424,7 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_DELAYED"] = function(castBar, event, ...)
         castBar.bar:SetMinMaxValues(0, castBar.maxValue)
         if ( not castBar.casting ) then
             castBar.casting = true
+            castBar:SetScript("OnUpdate", Castbar.OnUpdate)
             castBar.channeling = nil
             castBar.flash = nil
             castBar.fadeOut = nil
@@ -484,8 +488,8 @@ function Castbar:CAST_START(unit, spell, icon, value, maxValue, notInterruptible
         return
     end
     Gladdy:SendMessage("CAST_START", unit, spell)
+    castBar:SetScript("OnUpdate", Castbar.OnUpdate)
     if test then
-        castBar:SetScript("OnUpdate", Castbar.OnUpdate)
         castBar.casting = test == "cast"
         castBar.channeling = test == "channel"
     end
@@ -528,6 +532,7 @@ function Castbar:CAST_STOP(unit, ...)
         return
     end
     if not castBar.fadeOut then
+        castBar:SetScript("OnUpdate", nil)
         castBar.casting = nil
         castBar.channeling = nil
         castBar.value = 0
@@ -571,7 +576,6 @@ function Castbar:JOINED_ARENA()
             castBar:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", unit)
             
             castBar:SetScript("OnEvent", Castbar.OnEvent)
-            castBar:SetScript("OnUpdate", Castbar.OnUpdate)
             castBar.fadeOut = nil
             self:CAST_STOP(unit)
         end

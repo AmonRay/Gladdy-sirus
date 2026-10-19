@@ -321,4 +321,54 @@ test('disabling combat indicator detaches OnUpdate and reenables safely',functio
     G.db.ciEnabled=true; CI:UpdateFrameOnce(); eq(CI.scripts.OnUpdate,CI.OnEvent)
     G.curBracket=nil; CI.OnEvent(CI,0.1); eq(CI.scripts.OnUpdate,nil)
 end)
+floor=math.floor; SlashCmdList={}
+local savedDefaults=G.defaults
+-- Options is loaded before modules in the game; restore test defaults afterward.
+dofile('Gladdy/Options.lua'); G.defaults=savedDefaults
+local function font()
+    return {writes=0, text='',GetText=function(self) return self.text end,
+        SetText=function(self,t) self.text=t; self.writes=self.writes+1 end}
+end
+test('timer preserves seconds, tenths, minutes, negative and externally reset text',function()
+    local f=font(); G.db.timerFormat='seconds'
+    G:FormatTimer(f,9.9); eq(f.text,'10')
+    G:FormatTimer(f,9.1); eq(f.writes,1)
+    G:FormatTimer(f,60); eq(f.text,'1m')
+    G:FormatTimer(f,61,true,true); eq(f.text,'1:01')
+    G.db.timerFormat='tenths'; G:FormatTimer(f,2.36,true); eq(f.text,'2.4')
+    f.text='external'; G:FormatTimer(f,2.36,true); eq(f.text,'2.4')
+    G:FormatTimer(f,-0.01); eq(f.text,'')
+end)
+test('600 timer ticks do not repeat identical UI text writes',function()
+    local f=font(); G.db.timerFormat='seconds'
+    for i=0,599 do G:FormatTimer(f,20-i/60) end
+    eq(f.writes,10) -- Values displayed: 20 through 11.
+end)
+local fake
+fake=function()
+    return setmetatable({scripts={},SetScript=function(self,k,v) self.scripts[k]=v end,
+        GetAlpha=function() return 0.01 end,GetWidth=function() return 80 end,
+        CreateTexture=function() return fake() end,CreateFontString=function() return fake() end},
+        {__index=function() return noop end})
+end
+CreateFrame=fake; G.SMFetch=function() return 'font' end
+test('icon expiry emits READY once and stops before rendering expired data',function()
+    local f=G:CreateIconFrame(nil,nil,{frameLevel=1,fontScale=1,hasBackdrop=true})
+    f.unit='arena1'; f.timeLeft=0.01; f.active=true; clear()
+    f.scripts.OnUpdate(f,0.02); eq(f.active,false); eq(count('TRINKET_READY'),1)
+    f.scripts.OnUpdate(f,0.02); eq(count('TRINKET_READY'),1)
+end)
+dofile('Gladdy/Modules/Castbar.lua')
+local Cast=G.modules['Cast Bar']; local cb=fake()
+cb.unit='arena1'; cb.bar=fake(); cb.icon=fake(); cb.icon.texture=fake()
+cb.spellText=fake(); cb.timeText=fake(); cb.bg=fake(); cb.backdrop=fake(); cb.spark=fake(); cb.shield=fake()
+Cast.frames={arena1=cb}; G.db.castBarColor={}
+test('cast update runs only during a cast or fade and restarts on next cast',function()
+    Cast:CAST_START('arena1','spell','icon',0,2,false,'cast'); eq(cb.scripts.OnUpdate,Cast.OnUpdate)
+    cb.fadeOut=false; Cast:CAST_STOP('arena1'); eq(cb.scripts.OnUpdate,nil)
+    Cast:CAST_START('arena1','spell','icon',0,2,false,'channel'); eq(cb.scripts.OnUpdate,Cast.OnUpdate)
+    cb.casting=false; cb.channeling=false; cb.fadeOut=true; cb.holdTime=0
+    Cast.OnUpdate(cb,0.1); eq(cb.scripts.OnUpdate,nil)
+    Cast:CAST_START('arena1','spell','icon',0,2,false,'cast'); eq(cb.scripts.OnUpdate,Cast.OnUpdate)
+end)
 print('PASS: ' .. passed .. ' regression tests (Lua ' .. _VERSION .. ')')

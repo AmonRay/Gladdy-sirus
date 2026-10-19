@@ -20,24 +20,23 @@ Gladdy.TIMER_FORMAT = { tenths = "tenths", seconds = "seconds",
                        }}
 
 function Gladdy:FormatTimer(fontString, timeLeft, milibreakpoint, showSeconds)
+    local text
     if timeLeft < 0 then
-        fontString:SetText("")
-        return
-    end
-    local time = timeLeft >= 0.0 and timeLeft or 0.0
-    if Gladdy.db.timerFormat == Gladdy.TIMER_FORMAT.tenths and milibreakpoint then
-        fontString:SetFormattedText("%.1f", time)
-    else
-        if time >= 60 then
-            if showSeconds then
-                fontString:SetText(floor(timeLeft / 60) .. ":" .. str_format("%02.f", floor(timeLeft - floor(timeLeft / 60) * 60)))
-            else
-                fontString:SetText(ceil(ceil(time / 60)) .. "m")
-            end
+        text = ""
+    elseif Gladdy.db.timerFormat == Gladdy.TIMER_FORMAT.tenths and milibreakpoint then
+        text = str_format("%.1f", timeLeft)
+    elseif timeLeft >= 60 then
+        if showSeconds then
+            local minutes = floor(timeLeft / 60)
+            text = minutes .. ":" .. str_format("%02.f", floor(timeLeft - minutes * 60))
         else
-            fontString:SetFormattedText("%d", ceil(time))
+            text = ceil(timeLeft / 60) .. "m"
         end
+    else
+        text = tostring(ceil(timeLeft))
     end
+    -- GetText also detects resets/other writers; no stale private text cache.
+    if fontString:GetText() ~= text then fontString:SetText(text) end
 end
 
 Gladdy.defaults = {
