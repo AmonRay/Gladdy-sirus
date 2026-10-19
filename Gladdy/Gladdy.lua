@@ -70,7 +70,7 @@ local Gladdy = LibStub:NewLibrary(MAJOR, MINOR)
 local L = {}
 Gladdy.L = L
 Gladdy.version_major_num = 2
-Gladdy.version_minor_num = 0.43
+Gladdy.version_minor_num = 0.44
 Gladdy.version_num = Gladdy.version_major_num + Gladdy.version_minor_num
 Gladdy.version_releaseType = RELEASE_TYPES.release
 Gladdy.version = PREFIX .. string.format("%.2f", Gladdy.version_num) .. "-" .. Gladdy.version_releaseType
@@ -605,8 +605,9 @@ function Gladdy:PLAYER_ENTERING_WORLD()
 		LibStub("AceConfigDialog-3.0"):Open("Gladdy", nil, LibStub("AceConfigDialog-3.0"):SelectGroup("Gladdy", "XiconProfiles"))
 		self.showConfig = nil
 	end
-	if ((self.frame and self.frame:IsVisible()) or self.curBracket == 0
-        or (self.showFrame and not self.startTest and select(2, IsInInstance()) ~= "arena")) then
+    if select(2, IsInInstance()) == "arena" then return end
+    if self.curBracket or self.showFrame or next(self.guids)
+        or (self.frame and self.frame:IsVisible()) then
 		self:Reset()
 		self:HideFrame()
 	end
@@ -710,6 +711,13 @@ end
 
 function Gladdy:JoinedArena()
     Gladdy:Debug("INFO", "JoinedArena", "Start", "curBracket:", self.curBracket)
+
+    if self.frame and self.frame.testing then
+        local bracket = self.curBracket
+        self:Reset()
+        self.curBracket = bracket
+        self.frame.testing = nil
+    end
 
     if not self.curBracket then
         self.curBracket = 2

@@ -81,19 +81,23 @@ function Gladdy:SpotEnemy(unit, auraScan)
 		return
 	end
 	if UnitExists(unit) then
-		button.raceLoc = UnitRace(unit)
-		button.race = select(2, UnitRace(unit))
-		button.constellation = EventListener:detectConstellation(unit)
-		button.classLoc = select(1, UnitClass(unit))
-		button.class = select(2, UnitClass(unit))
-		button.name = UnitName(unit)
+        local raceLoc, race = UnitRace(unit)
+        local classLoc, class = UnitClass(unit)
+        button.raceLoc = raceLoc or button.raceLoc
+        button.race = race or button.race
+        button.constellation = EventListener:detectConstellation(unit) or button.constellation
+        button.classLoc = classLoc or button.classLoc
+        button.class = class or button.class
+        button.name = UnitName(unit) or button.name
         local guid = UnitGUID(unit)
-        if button.guid and button.guid ~= guid and Gladdy.guids[button.guid] == unit then
-            Gladdy.guids[button.guid] = nil
+        if guid then
+            if button.guid and button.guid ~= guid and self.guids[button.guid] == unit then
+                self.guids[button.guid] = nil
+            end
+            button.guid = guid
+            self.guids[guid] = unit
         end
-        button.guid = guid
-        if guid then Gladdy.guids[guid] = unit end
-	end
+    end
 	if button.class and button.race then
 		Gladdy:Debug("INFO", "SpotEnemy", "ENEMY_SPOTTED", unit)
 		Gladdy:SendMessage("ENEMY_SPOTTED", unit)
@@ -196,7 +200,7 @@ function EventListener:COMBAT_LOG_EVENT_UNFILTERED(...)
 	end
 
 	if srcUnit then
-		if not Gladdy.buttons[srcUnit] or not UnitExists(srcUnit) then
+		if not Gladdy.buttons[srcUnit] then
 			return
 		end
 
@@ -285,28 +289,20 @@ function EventListener:ARENA_OPPONENT_UPDATE(unit, updateReason)
 			if button then
 				button.stealthed = false
 				Gladdy:SendMessage("ENEMY_STEALTH", unit, false)
-				if not button.class or not button.race then
-					Gladdy:Debug("INFO", "ARENA_OPPONENT_UPDATE", "SpotEnemy", unit)
-					Gladdy:SpotEnemy(unit, true)
-				end
+                button:SetAlpha(1)
+                Gladdy:SpotEnemy(unit, true)
 			end
 			if pet then
 				Gladdy:SendMessage("PET_SPOTTED", unit)
 			end
-		elseif updateReason == "unseen" then
+		elseif updateReason == "unseen" or updateReason == "destroyed" then
 			if button then
 				button.stealthed = true
+                button:SetAlpha(1)
 				Gladdy:SendMessage("ENEMY_STEALTH", unit, true)
 			end
 			if pet then
-				Gladdy:SendMessage("PET_STEALTH", unit)
-			end
-		elseif updateReason == "destroyed" then
-			if button then
-				Gladdy:SendMessage("UNIT_DESTROYED", unit)
-			end
-			if pet then
-				Gladdy:SendMessage("PET_DESTROYED", unit)
+                Gladdy:SendMessage(updateReason == "destroyed" and "PET_DESTROYED" or "PET_STEALTH", unit)
 			end
 		end
 	end
@@ -335,6 +331,7 @@ Gladdy.cooldownBuffs = {
 	}
 }
 function EventListener:UNIT_AURA(unit)
+    if not UnitExists(unit) then return end
 	local button = Gladdy.buttons[unit]
 	if not button then return end
 

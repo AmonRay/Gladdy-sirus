@@ -157,6 +157,11 @@ function Gladdy:isFeignDeath(unit)
 end
 
 function Gladdy:GetArenaUnit(unitCaster, unify)
+    if type(unitCaster) == "string" then
+        if unitCaster:match("^arena[1-5]$") then return unitCaster end
+        local petIndex = unitCaster:match("^arenapet([1-5])$")
+        if petIndex then return unify and ("arena" .. petIndex) or unitCaster end
+    end
     if unitCaster then
         for i=1,5 do
             local arenaUnit = "arena" .. i

@@ -117,6 +117,7 @@ function Healthbar:CreateFrame(unit)
 end
 
 function Healthbar.OnEvent(self, event, unit)
+    if not UnitExists(unit) then return end
     if event == "UNIT_HEALTH" or event == "UNIT_MAXHEALTH" then
         local isDead = UnitExists(unit) and UnitIsDead(unit) and not Gladdy:isFeignDeath(unit)
         if isDead then
@@ -133,7 +134,7 @@ function Healthbar.OnEvent(self, event, unit)
         Healthbar:SetHealthStatusBarColor(unit, self.hp.current, self.hp.max)
     elseif event == "UNIT_NAME_UPDATE" then
         local name = UnitName(unit)
-        Gladdy.buttons[unit].name = name
+        if name then Gladdy.buttons[unit].name = name end
         Healthbar:SetText(unit, self.hp.current, self.hp.max)
     end
     if not Gladdy.buttons[unit].class then
