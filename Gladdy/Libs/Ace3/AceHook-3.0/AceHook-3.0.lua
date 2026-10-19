@@ -9,7 +9,7 @@
 -- make into AceHook.
 -- @class file
 -- @name AceHook-3.0
--- @release $Id: AceHook-3.0.lua 1202 2019-05-15 23:11:22Z nevcairiel $
+-- @release $Id$
 local ACEHOOK_MAJOR, ACEHOOK_MINOR = "AceHook-3.0", 9
 local AceHook, oldminor = LibStub:NewLibrary(ACEHOOK_MAJOR, ACEHOOK_MINOR)
 
@@ -148,9 +148,9 @@ function hook(self, obj, method, handler, script, secure, raw, forceSecure, usag
 	else
 		local issecure
 		if obj then
-			issecure = onceSecure[obj] and onceSecure[obj][method] or issecurevariable(obj, method)
+			issecure = onceSecure[obj] and onceSecure[obj][method] -- or SafeIsSecureVariable(obj, method)
 		else
-			issecure = onceSecure[method] or issecurevariable(method)
+			issecure = onceSecure[method] -- or SafeIsSecureVariable(method)
 		end
 		if issecure then
 			if forceSecure then
@@ -446,7 +446,7 @@ function AceHook:Unhook(obj, method)
 		registry[self][obj][method] = nil
 		registry[self][obj] = next(registry[self][obj]) and registry[self][obj] or nil
 
-		-- if the hook reference doesnt exist, then its a secure hook, just bail out and dont do any unhooking
+		-- if the hook reference doesn't exist, then its a secure hook, just bail out and dont do any unhooking
 		if not self.hooks[obj] or not self.hooks[obj][method] then return true end
 
 		if scripts[uid] and obj:GetScript(method) == uid then  -- unhooks scripts
@@ -478,10 +478,10 @@ function AceHook:UnhookAll()
 	for key, value in pairs(registry[self]) do
 		if type(key) == "table" then
 			for method in pairs(value) do
-				self:Unhook(key, method)
+				AceHook.Unhook(self, key, method)
 			end
 		else
-			self:Unhook(key)
+			AceHook.Unhook(self, key)
 		end
 	end
 end

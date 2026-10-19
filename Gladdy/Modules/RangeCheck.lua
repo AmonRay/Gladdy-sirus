@@ -358,7 +358,7 @@ function RangeCheck:GetSpells()
                         width = "full",
                         pattern = "%d+",
                         validate = function(_, value)
-                            LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
+                            LibStub("AceConfigRegistry-3.0-Gladdy"):NotifyChange("Gladdy")
                             return type(tonumber(value)) == "number"
                         end,
                         get = function(_)

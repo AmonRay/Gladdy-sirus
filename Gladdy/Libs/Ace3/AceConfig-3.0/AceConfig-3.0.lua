@@ -3,7 +3,7 @@
 -- as well as associate it with a slash command.
 -- @class file
 -- @name AceConfig-3.0
--- @release $Id: AceConfig-3.0.lua 1202 2019-05-15 23:11:22Z nevcairiel $
+-- @release $Id: AceConfig-3.0.lua 1335 2024-05-05 19:35:16Z nevcairiel $
 
 --[[
 AceConfig-3.0
@@ -12,22 +12,22 @@ Very light wrapper library that combines all the AceConfig subcomponents into on
 
 ]]
 
-local cfgreg = LibStub("AceConfigRegistry-3.0")
-local cfgcmd = LibStub("AceConfigCmd-3.0")
+local cfgreg = LibStub("AceConfigRegistry-3.0-Gladdy")
+local cfgcmd = LibStub("AceConfigCmd-3.0-Gladdy")
 
-local MAJOR, MINOR = "AceConfig-3.0", 4
+local MAJOR, MINOR = "AceConfig-3.0-Gladdy", 3
 local AceConfig = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceConfig then return end
 
---TODO: local cfgdlg = LibStub("AceConfigDialog-3.0", true)
+--TODO: local cfgdlg = LibStub("AceConfigDialog-3.0-Gladdy", true)
 --TODO: local cfgdrp = LibStub("AceConfigDropdown-3.0", true)
 
 -- Lua APIs
 local pcall, error, type, pairs = pcall, error, type, pairs
 
 -- -------------------------------------------------------------------
--- :RegisterOptionsTable(appName, options, slashcmd, persist)
+-- :RegisterOptionsTable(appName, options, slashcmd)
 --
 -- - appName - (string) application name
 -- - options - table or function ref, see AceConfigRegistry
@@ -40,7 +40,7 @@ local pcall, error, type, pairs = pcall, error, type, pairs
 -- @param options The option table (or a function to generate one on demand).  http://www.wowace.com/addons/ace3/pages/ace-config-3-0-options-tables/
 -- @param slashcmd A slash command to register for the option table, or a table of slash commands.
 -- @usage
--- local AceConfig = LibStub("AceConfig-3.0")
+-- local AceConfig = LibStub("AceConfig-3.0-Gladdy")
 -- AceConfig:RegisterOptionsTable("MyAddon", myOptions, {"/myslash", "/my"})
 function AceConfig:RegisterOptionsTable(appName, options, slashcmd)
 	local ok,msg = pcall(cfgreg.RegisterOptionsTable, self, appName, options)

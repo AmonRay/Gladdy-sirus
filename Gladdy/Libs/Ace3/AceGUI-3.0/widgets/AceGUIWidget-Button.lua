@@ -2,8 +2,10 @@
 Button Widget
 Graphical Button.
 -------------------------------------------------------------------------------]]
-local Type, Version = "Button", 23
-local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
+local Type, Version = "Button", 25
+local AceGUI = LibStub and LibStub("AceGUI-3.0-Gladdy", true)
+local CreateFrame = AceGUI and AceGUI.CreateFrame
+local CreateFont = AceGUI and AceGUI.CreateFont
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
@@ -74,7 +76,7 @@ Constructor
 -------------------------------------------------------------------------------]]
 local function Constructor()
 	local name = "AceGUI30Button" .. AceGUI:GetNextWidgetNum(Type)
-	local frame = CreateFrame("Button", name, UIParent, "UIPanelButtonTemplate2")
+	local frame = CreateFrame("Button", name, UIParent, "UIPanelButtonTemplate")
 	frame:Hide()
 
 	frame:EnableMouse(true)

@@ -9,7 +9,7 @@ local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local Gladdy = LibStub("Gladdy")
 local AceTimer = LibStub("AceTimer-3.0")
 local L = Gladdy.L
-local AceGUIWidgetLSMlists = AceGUIWidgetLSMlists
+local GladdyAceGUIWidgetLSMlists = GladdyAceGUIWidgetLSMlists
 local Healthbar = Gladdy:NewModule("Health Bar", 100, {
     healthBarFont = "DorisPP",
     healthBarHeight = 60,
@@ -482,7 +482,7 @@ function Healthbar:GetOptions()
                             desc = L["Texture of the bar"],
                             order = 4,
                             dialogControl = "LSM30_Statusbar",
-                            values = AceGUIWidgetLSMlists.statusbar,
+                            values = GladdyAceGUIWidgetLSMlists.statusbar,
                         }),
                     },
                 },
@@ -566,7 +566,7 @@ function Healthbar:GetOptions()
                             desc = L["Font of the bar"],
                             order = 11,
                             dialogControl = "LSM30_Font",
-                            values = AceGUIWidgetLSMlists.font,
+                            values = GladdyAceGUIWidgetLSMlists.font,
                         }),
                         healthBarFontColor = Gladdy:colorOption({
                             type = "color",
@@ -670,7 +670,7 @@ function Healthbar:GetOptions()
                             name = L["Border style"],
                             order = 21,
                             dialogControl = "LSM30_Border",
-                            values = AceGUIWidgetLSMlists.border,
+                            values = GladdyAceGUIWidgetLSMlists.border,
                         }),
                         healthBarBorderSize = option({
                             type = "range",

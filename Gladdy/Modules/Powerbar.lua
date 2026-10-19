@@ -5,7 +5,7 @@ local CreateFrame, UnitPower, UnitPowerType, UnitPowerMax, UnitExists = CreateFr
 
 local Gladdy = LibStub("Gladdy")
 local L = Gladdy.L
-local AceGUIWidgetLSMlists = AceGUIWidgetLSMlists
+local GladdyAceGUIWidgetLSMlists = GladdyAceGUIWidgetLSMlists
 local Powerbar = Gladdy:NewModule("Power Bar", 90, {
     powerBarEnabled = true,
     powerBarFont = "DorisPP",
@@ -401,7 +401,7 @@ function Powerbar:GetOptions()
                             desc = L["Texture of the bar"],
                             order = 4,
                             dialogControl = "LSM30_Statusbar",
-                            values = AceGUIWidgetLSMlists.statusbar,
+                            values = GladdyAceGUIWidgetLSMlists.statusbar,
                         }),
                         powerBarBgColor = Gladdy:colorOption({
                             type = "color",
@@ -428,7 +428,7 @@ function Powerbar:GetOptions()
                             desc = L["Font of the bar"],
                             order = 11,
                             dialogControl = "LSM30_Font",
-                            values = AceGUIWidgetLSMlists.font,
+                            values = GladdyAceGUIWidgetLSMlists.font,
                         }),
                         powerBarFontColor = Gladdy:colorOption({
                             type = "color",
@@ -532,7 +532,7 @@ function Powerbar:GetOptions()
                             name = L["Border style"],
                             order = 21,
                             dialogControl = "LSM30_Border",
-                            values = AceGUIWidgetLSMlists.border,
+                            values = GladdyAceGUIWidgetLSMlists.border,
                         }),
                         powerBarBorderSize = option({
                             type = "range",

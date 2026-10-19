@@ -1,14 +1,16 @@
 -- Widget is based on the AceGUIWidget-DropDown.lua supplied with AceGUI-3.0
 -- Widget created by Yssaril
 
-local AceGUI = LibStub("AceGUI-3.0")
+local AceGUI = LibStub("AceGUI-3.0-Gladdy")
+local CreateFrame = AceGUI and AceGUI.CreateFrame
+local CreateFont = AceGUI and AceGUI.CreateFont
 local Media = LibStub("LibSharedMedia-3.0")
 
-local AGSMW = LibStub("AceGUISharedMediaWidgets-1.0")
+local AGSMW = LibStub("AceGUISharedMediaWidgets-1.0-Gladdy")
 
 do
 	local widgetType = "LSM30_Border"
-	local widgetVersion = 12
+	local widgetVersion = 13
 
 	local contentFrameCache = {}
 	local function ReturnSelf(self)
@@ -67,6 +69,7 @@ do
 	end
 
 	local function OnAcquire(self)
+		self:SetList()
 		self:SetHeight(44)
 		self:SetWidth(200)
 	end

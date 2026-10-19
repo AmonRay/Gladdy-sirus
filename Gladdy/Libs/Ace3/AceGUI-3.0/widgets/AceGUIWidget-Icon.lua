@@ -1,15 +1,17 @@
 --[[-----------------------------------------------------------------------------
 Icon Widget
 -------------------------------------------------------------------------------]]
-local Type, Version = "Icon", 21
-local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
+local Type, Version = "Icon", 22
+local AceGUI = LibStub and LibStub("AceGUI-3.0-Gladdy", true)
+local CreateFrame = AceGUI and AceGUI.CreateFrame
+local CreateFont = AceGUI and AceGUI.CreateFont
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
 local select, pairs, print = select, pairs, print
 
 -- WoW APIs
-local CreateFrame, UIParent = CreateFrame, UIParent
+local UIParent = UIParent
 
 --[[-----------------------------------------------------------------------------
 Scripts
@@ -96,7 +98,7 @@ local methods = {
 Constructor
 -------------------------------------------------------------------------------]]
 local function Constructor()
-	local frame = CreateFrame("Button", nil, UIParent)
+	local frame = CreateFrame("Button", string.format("%s%d", Type, AceGUI:GetNextWidgetNum(Type)), UIParent)
 	frame:Hide()
 
 	frame:EnableMouse(true)
@@ -132,7 +134,7 @@ local function Constructor()
 		widget[method] = func
 	end
 
-	widget.SetText = widget.SetLabel
+	widget.SetText = widget.SetLabel -- deprecated soon!
 
 	return AceGUI:RegisterAsWidget(widget)
 end
