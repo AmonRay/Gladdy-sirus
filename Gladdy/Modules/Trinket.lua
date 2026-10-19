@@ -85,6 +85,7 @@ function Trinket:CreateFrame(unit)
 		trinketColoredNoCd = Gladdy.db.trinketColoredNoCd
 	})
 
+	trinket.unit = unit
 	trinket:SetWidth(Gladdy.db.trinketSize)
 	trinket:SetHeight(Gladdy.db.trinketSize)
 
@@ -114,18 +115,7 @@ function Trinket:UpdateFrame(unit)
 		trinketColoredNoCd = Gladdy.db.trinketColoredNoCd
 	})
 
-	if Gladdy.db.trinketColored then
-		if trinket.active then
-			trinket:SetBackdropColor(Gladdy:SetColor(Gladdy.db.trinketColoredCd))
-		else
-			trinket:SetBackdropColor(Gladdy:SetColor(Gladdy.db.trinketColoredNoCd))
-		end
-		trinket:SetIcon(nil)
-	else
-		if Gladdy.db.trinketIcon then
-			trinket:SetIcon(Gladdy.db.trinketIcon)
-		end
-	end
+    self:UpdateAppearance(unit)
 
 	local width, height = Gladdy.db.trinketSize * Gladdy.db.trinketWidthFactor, Gladdy.db.trinketSize
 	trinket:SetWidth(width)
@@ -175,20 +165,24 @@ function Trinket:JOINED_ARENA()
 	end)
 end
 
-function Trinket:ENEMY_SPOTTED(unit)
-	if (not Gladdy.db.trinketEnabled) then return end
+function Trinket:UpdateAppearance(unit)
+    local trinket = self.frames[unit]
+    if not trinket then return end
+    if Gladdy.db.trinketColored then
+        local cooling = trinket.active and Gladdy:CooldownRemaining(trinket) > 0
+        trinket:SetBackdropColor(Gladdy:SetColor(cooling and Gladdy.db.trinketColoredCd or Gladdy.db.trinketColoredNoCd))
+        trinket:SetIcon(nil)
+    elseif Gladdy.db.trinketIcon then
+        trinket:SetIcon(Gladdy.db.trinketIcon)
+    end
+end
 
-	local trinket = self.frames[unit]
-	if not trinket then return end
-	if Gladdy.db.trinketColored then
-		trinket:SetBackdropColor(Gladdy:SetColor(Gladdy.db.trinketColoredNoCd))
-		trinket:SetIcon(nil)
-	else
-		if Gladdy.db.trinketIcon then
-			trinket:SetIcon(Gladdy.db.trinketIcon)
-		end
-	end
-	trinket:Show()
+function Trinket:ENEMY_SPOTTED(unit)
+    if not Gladdy.db.trinketEnabled then return end
+    local trinket = self.frames[unit]
+    if not trinket then return end
+    self:UpdateAppearance(unit)
+    trinket:Show()
 end
 
 function Trinket:TRINKET_USED(unit)
@@ -233,9 +227,7 @@ function Trinket:Used(unit, startTime, duration)
 
 	trinket:StartTimer()
 
-	if Gladdy.db.trinketColored then
-		trinket:SetBackdropColor(Gladdy:SetColor(Gladdy.db.trinketColoredCd))
-	end
+    self:UpdateAppearance(unit)
 end
 
 function Trinket:Test(unit)

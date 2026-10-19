@@ -29,9 +29,33 @@ gui.Create=function(self,kind) local obj=originalCreate(self,kind);if kind=='Fra
 local ser=LibStub('AceSerializer-3.0');local deflate=LibStub('LibDeflate')
 local function encode(value) return deflate:EncodeForPrint(deflate:CompressZlib(ser:Serialize(value))) end
 local function encodeRaw(raw) return deflate:EncodeForPrint(deflate:CompressZlib(raw)) end
-dofile('Gladdy/ImportValidation.lua')
 dofile('Gladdy/Modules/ExportImport.lua');local module=modules['Export Import']
 local valid=encode({version_major_num=2,scale=1.3,expansion='Wrath',appearance={r=0.5}})
+test('existing import module provides its own size validator without a separate TOC file',function()
+    assert(type(G.ValidateZlibSize)=='function')
+    assert(module:Decode(valid))
+    local validator=G.ValidateZlibSize
+    dofile('Gladdy/ImportValidation.lua')
+    assert(G.ValidateZlibSize==validator and module:Decode(valid))
+end)
+test('decompression failures retain diagnostic stages without changing the profile',function()
+    local original=deflate.DecompressZlib
+    local cases={
+        {function() error('decoder failure') end,'Profile decompression failed:'},
+        {function() return nil,-15 end,'LibDeflate status: -15'},
+        {function() return 'short',0 end,'Profile decompressed size mismatch:'},
+        {function() return {},0 end,'Invalid decompressed profile type'},
+    }
+    for _,case in ipairs(cases) do
+        deflate.DecompressZlib=case[1]
+        local decoded,err=module:Decode(valid)
+        assert(decoded==nil and err:find(case[2],1,true),tostring(err))
+    end
+    deflate.DecompressZlib=function(self,input) local raw=original(self,input);return raw,1 end
+    local decoded,err=module:Decode(valid);assert(decoded==nil and err=='Unexpected trailing compressed profile data')
+    deflate.DecompressZlib=original
+    assert(G.db.scale==1 and changes==0 and module:Decode(valid))
+end)
 test('file load and background decoding create no UI objects',function()
     assert(#created==0 and gui:GetWidgetCount('Frame')==0)
     local decoded=assert(module:Decode(valid));assert(decoded.scale==1.3 and decoded.version_major_num==nil)

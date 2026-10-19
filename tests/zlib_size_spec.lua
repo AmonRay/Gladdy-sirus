@@ -6,7 +6,11 @@ end
 strmatch=string.match
 dofile('Gladdy/Libs/Ace3/LibStub/LibStub.lua')
 local G = LibStub:NewLibrary('Gladdy', 1)
-dofile('Gladdy/ImportValidation.lua'); dofile('Gladdy/Libs/LibDeflate/LibDeflate.lua')
+G.L = {}; G.NewModule = function() return {} end
+LibStub:NewLibrary('AceGUI-3.0', 1)
+dofile('Gladdy/Libs/LibDeflate/LibDeflate.lua')
+dofile('Gladdy/Libs/Ace3/AceSerializer-3.0/AceSerializer-3.0.lua')
+dofile('Gladdy/Modules/ExportImport.lua')
 local deflate = LibStub('LibDeflate')
 local function compress(raw, config) return deflate:CompressZlib(raw, config) end
 local samples = {'', 'a', string.rep('abc123', 15000)}

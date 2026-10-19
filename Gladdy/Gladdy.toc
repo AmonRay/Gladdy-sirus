@@ -17,7 +17,6 @@ Options.lua
 Constants_shared.lua
 Constants_Wrath.lua
 ImportStrings.lua
-ImportValidation.lua
 
 Modules\Announcements.lua
 Modules\Healthbar.lua

@@ -1,6 +1,7 @@
 local GetSpellInfo = GetSpellInfo
 local CreateFrame = CreateFrame
 local GetTime = GetTime
+local unpack = unpack
 local select, lower, ceil, tremove, tinsert, pairs, ipairs, tostring, random = select, string.lower, ceil, tremove, tinsert, pairs, ipairs, tostring, math.random
 local AURA_TYPE_DEBUFF, AURA_TYPE_BUFF = AURA_TYPE_DEBUFF, AURA_TYPE_BUFF
 local auraTypes = {AURA_TYPE_BUFF, AURA_TYPE_DEBUFF}
@@ -135,6 +136,32 @@ function BuffsDebuffs:UpdateFrameOnce()
 		self:UnregisterAllMessages()
 		self:SetScript("OnEvent", nil)
 	end
+    for unit in pairs(self.frames) do self:RefreshUnit(unit) end
+end
+
+function BuffsDebuffs:UpdateVisibility(unit)
+    local frame = self.frames[unit]
+    if not frame then return end
+    if Gladdy.db.buffsEnabled and Gladdy.db.buffsShowBuffs then frame.buffFrame:Show()
+    else frame.buffFrame:Hide() end
+    if Gladdy.db.buffsEnabled and Gladdy.db.buffsShowDebuffs then frame.debuffFrame:Show()
+    else frame.debuffFrame:Hide() end
+end
+
+function BuffsDebuffs:RefreshUnit(unit)
+    self:UpdateVisibility(unit)
+    self:ResetUnit(unit)
+    if not Gladdy.db.buffsEnabled then return end
+    if Gladdy.frame and Gladdy.frame.testing then self:Test(unit); return end
+    local button = Gladdy.buttons[unit]
+    if not button then return end
+    for _, aura in pairs(button.auras or {}) do
+        if aura[5] == 0 or type(aura[6]) == "number" and aura[6] > GetTime() then
+            self:AURA_GAIN(unit, unpack(aura))
+        end
+    end
+    self:AURA_GAIN_LIMIT(unit, AURA_TYPE_BUFF)
+    self:AURA_GAIN_LIMIT(unit, AURA_TYPE_DEBUFF)
 end
 
 function BuffsDebuffs:Reset()
@@ -145,6 +172,7 @@ end
 
 function BuffsDebuffs:ResetUnit(unit)
 	if not self.frames[unit] then return end
+    self.frames[unit].numBuffs, self.frames[unit].numDebuffs = 0, 0
 	for _, auraType in ipairs(auraTypes) do
 		local i = #self.frames[unit].auras[auraType]
 		while (#self.frames[unit].auras[auraType] > 0) do
@@ -178,6 +206,7 @@ function BuffsDebuffs:CreateFrame(unit)
 end
 
 function BuffsDebuffs:UpdateFrame(unit)
+    self:UpdateVisibility(unit)
     self.frames[unit].debuffFrame:SetHeight(Gladdy.db.buffsDebuffsIconSize)
     Gladdy:SetPosition(self.frames[unit].debuffFrame, unit, "buffsDebuffsXOffset", "buffsDebuffsYOffset", BuffsDebuffs)
     if (unit == "arena1") then
