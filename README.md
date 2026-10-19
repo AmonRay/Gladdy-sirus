@@ -10,6 +10,14 @@
 
 Сохранённые профили `GladdyXZ` сохраняются. Перед обновлением рекомендуется сделать резервную копию `WTF`.
 
+## Изменения в 2.41
+
+- Полный используемый комплект Ace3 переиспользован из Sirus-форков ElvUI и WeakAuras, без выбора исходников по major/minor.
+- AceGUI, AceConfig и SharedMediaWidgets Gladdy изолированы от общих UI-библиотек ElvUI: отдельные registry/pool, имена фреймов и callbacks.
+- На приватный UI переведены настройки всех модулей и окна импорта/экспорта. Профили `GladdyXZ` сохранены.
+- Добавлены тесты обоих порядков загрузки, виджетов, профилей и AceComm. Подробности и клиентский чек-лист: [исправление Ace3](docs/ACE-SIRUS.md).
+- Визуальная проверка присланного дефекта в клиенте Sirus остаётся обязательной; автономные тесты не заменяют её.
+
 ## Изменения в 2.40
 
 Технический аудит, измерения, реестр проблем и сценарии проверки: [отчёт](docs/AUDIT-SIRUS.md). Источники и решения по библиотекам: [библиотеки](docs/LIBRARIES.md).
@@ -54,6 +62,10 @@ find Gladdy tests -name '*.lua' -exec luac5.1 -p {} \;
 python3 tests/check_manifest.py
 lua5.1 tests/sirus_spec.lua
 lua5.1 tests/libraries_spec.lua
+lua5.1 tests/ace_core_spec.lua
+lua5.1 tests/ace_ui_spec.lua before
+lua5.1 tests/ace_ui_spec.lua after
+python3 tests/check_ace_sources.py
 lua5.1 tests/bench_dispatch.lua
 lua5.1 tests/bench_pets.lua
 ```
