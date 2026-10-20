@@ -512,6 +512,7 @@ function Gladdy:CreateSomeFrame(parent, name, config)
             else
                 self.priority, self.spellSchool = nil, nil
                 self:StopCooldown()
+                if self.onExpire then self:onExpire() end
             end
             return
         end

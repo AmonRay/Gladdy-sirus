@@ -135,21 +135,25 @@ function TotemPlates.OnEvent(self, event, ...)
 	end
 end
 
-function TotemPlates:Initialize()
-	if ( IsAddOnLoaded("Kui_Nameplates") ) then
-		self.addon = "Kui_Nameplates"
-	elseif ( IsAddOnLoaded("TidyPlates") ) then
-		self.addon = "TidyPlates"
-	elseif ( IsAddOnLoaded("ElvUI") ) then
-		local E = unpack(ElvUI)
-		if ( E.private.nameplates.enable ) then
-			return
-		end
-	end
+function TotemPlates:IsBlockedByElvUI()
+    local E = IsAddOnLoaded("ElvUI") and ElvUI and ElvUI[1]
+    return E and E.private and E.private.nameplates and E.private.nameplates.enable or false
+end
 
-	TotemPlates.void = function()end
-	self:SetScript("OnEvent", TotemPlates.OnEvent)
-	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+function TotemPlates:Initialize()
+    self.addon = nil
+    TotemPlates.void = function() end
+    if self:IsBlockedByElvUI() then
+        self:UpdateFrameOnce()
+        return
+    end
+    if IsAddOnLoaded("Kui_Nameplates") then
+        self.addon = "Kui_Nameplates"
+    elseif IsAddOnLoaded("TidyPlates") then
+        self.addon = "TidyPlates"
+    end
+    self:SetScript("OnEvent", TotemPlates.OnEvent)
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
 local function NameplateScanValid(self)
@@ -211,6 +215,10 @@ function TotemPlates:PLAYER_TARGET_CHANGED()
 end
 
 function TotemPlates:NAME_PLATE_UNIT_ADDED(nameplate)
+    if TotemPlates:IsBlockedByElvUI() then
+        TotemPlates:NAME_PLATE_UNIT_REMOVED(nameplate or self)
+        return
+    end
 	if ( Gladdy.db.npTotems ) then
 		if ( not nameplate ) then
 			nameplate = self
@@ -300,6 +308,16 @@ local function SettingRefresh(nameplate, ...)
 end
 
 function TotemPlates:UpdateFrameOnce()
+    if self:IsBlockedByElvUI() then
+        self:UnregisterAllEvents()
+        self:SetScript("OnUpdate", nil)
+        self:SetScript("OnEvent", nil)
+        for _, nameplate in ipairs({WorldFrame:GetChildren()}) do
+            if nameplate.gladdyTotemFrame then self:NAME_PLATE_UNIT_REMOVED(nameplate) end
+        end
+        if self.testFrame then self.testFrame:Hide() end
+        return
+    end
 	if ( Gladdy.db.npTotems and Gladdy.db.npTotemsShowEnemy ) then
 		SetCVar("nameplateShowEnemyTotems", 1)
 	end
@@ -328,6 +346,7 @@ function TotemPlates:UpdateFrameOnce()
 end
 
 function TotemPlates:CreateTotemFrame(nameplate, test)
+    if self:IsBlockedByElvUI() then return end
     if not nameplate then return end
     if nameplate.gladdyTotemFrame then return nameplate.gladdyTotemFrame end
     local healthbar, healthborder, highlighttexture, nametext, leveltext, bossicon, raidicon, mobicon
@@ -506,6 +525,10 @@ end
 
 function TotemPlates:TestOnce()
 	local test = self.testFrame
+    if self:IsBlockedByElvUI() then
+        if test then test:Hide() end
+        return
+    end
 
 	if ( Gladdy.db.npTotems ) then
 		if ( not test ) then

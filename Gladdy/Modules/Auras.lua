@@ -72,6 +72,8 @@ local Auras = Gladdy:NewModule("Auras", nil, {
 
 function Auras:Initialize()
 	self.frames = {}
+    self.interrupts = {}
+    self.enabled = Gladdy.db.auraEnabled
 
 	self.auras = Gladdy:GetImportantAuras()
 
@@ -80,6 +82,13 @@ function Auras:Initialize()
 	self:RegisterMessage("AURA_GAIN")
 	self:RegisterMessage("AURA_FADE")
 	self:RegisterMessage("SPELL_INTERRUPT")
+end
+
+function Auras:UpdateFrameOnce()
+    if self.enabled == Gladdy.db.auraEnabled then return end
+    self.enabled = Gladdy.db.auraEnabled
+    self:RefreshFilters()
+    if not self.enabled or not (Gladdy.frame and Gladdy.frame.testing) then self:RefreshInterruptFilters() end
 end
 
 function Auras:CreateFrame(unit)
@@ -243,6 +252,7 @@ function Auras:CreateInterrupt(unit)
 
 	Gladdy.buttons[unit].interruptFrame = interruptFrame
 	self.frames[unit].interruptFrame = interruptFrame
+    interruptFrame.onExpire = function(frame) self:RefreshInterrupt(frame.unit) end
 	self:ResetUnit(unit)
 end
 
@@ -417,7 +427,6 @@ function Auras:RefreshFilters()
 end
 
 function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, expirationTime, count, debuffType)
-	if not Gladdy.db.auraEnabled then return end
 
 	local auraFrame = self.frames[unit]
 	if not auraFrame then return end
@@ -426,6 +435,7 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 	if not auraInfo then return end
 
     local endTime = self:GetAuraEndTime(unit, spellID, duration, expirationTime)
+    if not Gladdy.db.auraEnabled then return end
 	local spellIDStr = tostring(auraInfo.spellID)
 	local auraConfig = Gladdy.db.auraListDefault[spellIDStr]
 	if not auraConfig or not auraConfig.enabled or auraConfig.track ~= auraType then
@@ -504,50 +514,56 @@ function Auras:AURA_FADE(unit, auraType, force)
 	auraFrame.text:SetText("")
 end
 
-function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,extraSpellName,extraSpellSchool)
-	if not Gladdy.db.auraEnabled then
-		return
-	end
+function Auras:SPELL_INTERRUPT(unit, spellID, spellName, spellSchool, extraSpellId, extraSpellName, extraSpellSchool)
+    local frame = self.frames and self.frames[unit]
+    local button = Gladdy.buttons[unit]
+    local info = Gladdy:GetInterrupts()[spellName]
+    if not frame or not frame.interruptFrame or not button or not info then return end
+    local key = tostring(info.spellID)
+    if not Gladdy.db.auraListInterrupts[key] then
+        Gladdy.db.auraListInterrupts[key] = {enabled = true, priority = 0}
+    end
+    local spec = Gladdy:NormalizeSpec(button.spec, button.class)
+    local multiplier = (spec == "Restoration" and button.class == "SHAMAN"
+        or spec == "Holy" and button.class == "PALADIN") and 0.7 or 1
+    local duration = info.duration * multiplier
+    self.interrupts[unit] = self.interrupts[unit] or {}
+    self.interrupts[unit][key] = {
+        spellID = info.spellID, name = spellName, texture = info.texture,
+        spellSchool = extraSpellSchool, duration = duration,
+        startTime = GetTime(), endTime = GetTime() + duration,
+    }
+    self:RefreshInterrupt(unit)
+end
 
-	if not self.frames or not unit or not self.frames[unit] then
-		return
-	end
-
-	local auraFrame = self.frames[unit]
-	local interruptFrame = auraFrame ~= nil and auraFrame.interruptFrame
-	local button = Gladdy.buttons[unit]
-	if not interruptFrame or not button then
-		return
-	end
-
-	local interrupts = Gladdy:GetInterrupts()
-	if not interrupts or not interrupts[spellName] then
-		return
-	end
-
-	local interruptSpellId = tostring(interrupts[spellName].spellID)
-	if not Gladdy.db.auraListInterrupts[interruptSpellId] then
-		Gladdy.db.auraListInterrupts[interruptSpellId] = {
-			enabled = true,
-			priority = 0
-		}
-	end
-	if not Gladdy.db.auraListInterrupts[interruptSpellId].enabled then
-		return
-	end
-	if (interruptFrame.priority and interruptFrame.priority > Gladdy.db.auraListInterrupts[interruptSpellId].priority) then
-		return
-	end
-	local multiplier = ((Gladdy:NormalizeSpec(button.spec, button.class) == "Restoration" and button.class == "SHAMAN") or (Gladdy:NormalizeSpec(button.spec, button.class) == "Holy" and button.class == "PALADIN")) and 0.7 or 1
-
-	local duration = Gladdy:GetInterrupts()[spellName].duration * multiplier
-
-	interruptFrame.startTime = GetTime()
-	interruptFrame.endTime = GetTime() + duration
-	interruptFrame.name = spellName
-	interruptFrame.timeLeft = duration
-	interruptFrame.priority = Gladdy.db.auraListInterrupts[interruptSpellId].priority
-	interruptFrame.icon:SetTexture(Gladdy:GetInterrupts()[spellName].texture)
+function Auras:RefreshInterrupt(unit)
+    local auraFrame = self.frames and self.frames[unit]
+    local interruptFrame = auraFrame and auraFrame.interruptFrame
+    if not interruptFrame then return end
+    local selected, priority
+    for key, state in pairs(self.interrupts[unit] or {}) do
+        local config = Gladdy.db.auraListInterrupts[key]
+        if state.endTime <= GetTime() then
+            self.interrupts[unit][key] = nil
+        elseif Gladdy.db.auraEnabled and config and config.enabled then
+            if not selected or config.priority > priority
+                    or config.priority == priority and state.spellID == interruptFrame.spellID then
+                selected, priority = state, config.priority
+            end
+        end
+    end
+    if not selected then
+        interruptFrame:StopCooldown()
+        interruptFrame.name, interruptFrame.priority, interruptFrame.spellSchool = nil, nil, nil
+        interruptFrame.startTime, interruptFrame.spellID = nil, nil
+        interruptFrame:SetIcon(nil)
+        return
+    end
+    local state = selected
+    interruptFrame.startTime, interruptFrame.endTime = state.startTime, state.endTime
+    interruptFrame.name, interruptFrame.spellID = state.name, state.spellID
+    interruptFrame.timeLeft, interruptFrame.priority = state.endTime - GetTime(), priority
+    interruptFrame.icon:SetTexture(state.texture)
 
 	if Gladdy.db.auraInterruptIconZoomed then
 		interruptFrame.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -555,7 +571,7 @@ function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,e
 		interruptFrame.icon:SetTexCoord(0, 1, 0, 1)
 	end
 
-	interruptFrame.spellSchool = extraSpellSchool
+	interruptFrame.spellSchool = state.spellSchool
 	interruptFrame.active = true
 	interruptFrame.cooldownFrame:Show()
 
@@ -563,7 +579,7 @@ function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,e
 		interruptFrame.icon.overlay:SetTexture(nil)
 		interruptFrame.icon.overlay:SetTexture(Gladdy.db.auraBorderStyle)
 
-		local r, g, b, a = self:GetInterruptColor(extraSpellSchool)
+		local r, g, b, a = self:GetInterruptColor(state.spellSchool)
 		interruptFrame.icon.overlay:SetVertexColor(r, g, b, a)
 
 		interruptFrame.icon.overlay:Show()
@@ -575,17 +591,35 @@ function Auras:SPELL_INTERRUPT(unit,spellID,spellName,spellSchool,extraSpellId,e
 
 	if not Gladdy.db.auraDisableCircle then
 		interruptFrame.cooldown:Show()
-		interruptFrame.cooldown:SetCooldown(interruptFrame.startTime, duration)
+		interruptFrame.cooldown:SetCooldown(state.startTime, state.duration)
+    else
+        interruptFrame.cooldown:Hide()
 	end
     interruptFrame:StartTimer()
 end
 
+function Auras:RefreshInterruptFilters()
+    for unit in pairs(self.frames or {}) do
+        if Gladdy.frame and Gladdy.frame.testing and Gladdy.db.auraEnabled then
+            local frame = self.frames[unit].interruptFrame
+            frame:StopCooldown()
+            frame.priority = nil
+            self.interrupts[unit] = nil
+            self:Test(unit)
+        else
+            self:RefreshInterrupt(unit)
+        end
+    end
+end
+
 function Auras:ResetUnit(unit)
+    self.interrupts[unit] = nil
     local aura = self.frames[unit]
     if not aura then return end
     if aura.interruptFrame then
         aura.interruptFrame:StopCooldown()
         aura.interruptFrame.priority, aura.interruptFrame.spellSchool = nil, nil
+        aura.interruptFrame.name, aura.interruptFrame.spellID, aura.interruptFrame.startTime = nil, nil, nil
         aura.interruptFrame:Hide()
     end
     aura:StopCooldown()
@@ -1205,6 +1239,7 @@ function Auras:GetInterruptOptions()
 				for k,_ in pairs(defaultInterrupts()) do
 					Gladdy.db.auraListInterrupts[k].enabled = true
 				end
+                self:RefreshInterruptFilters()
 			end,
 		},
 		uncheckAll = {
@@ -1216,6 +1251,7 @@ function Auras:GetInterruptOptions()
 				for k,_ in pairs(defaultInterrupts()) do
 					Gladdy.db.auraListInterrupts[k].enabled = false
 				end
+                self:RefreshInterruptFilters()
 			end,
 		},
 	}
@@ -1245,6 +1281,7 @@ function Auras:GetInterruptOptions()
 							}
 						end
 						Gladdy.db.auraListInterrupts[tostring(k)].enabled = value
+                        self:RefreshInterruptFilters()
 					end,
 					get = function()
 						if not Gladdy.db.auraListInterrupts[tostring(k)] then
@@ -1281,6 +1318,7 @@ function Auras:GetInterruptOptions()
 							}
 						end
 						Gladdy.db.auraListInterrupts[tostring(k)].priority = value
+                        self:RefreshInterruptFilters()
 					end,
 					width = "full",
 				}
