@@ -67,6 +67,14 @@ function Castbar:Reset()
     self.test = nil
 end
 
+function Castbar:UNIT_DEATH(unit)
+    local castBar = self.frames[unit]
+    if not castBar then return end
+    castBar.fadeOut, castBar.holdTime, castBar.flash, castBar.castID = nil, nil, nil, nil
+    self:CAST_STOP(unit)
+    castBar:SetAlpha(0)
+end
+
 function Castbar:ResetUnit(unit)
     local castBar = self.frames[unit]
     if not castBar then return end
@@ -189,10 +197,16 @@ function Castbar:UpdateFrame(unit)
     castBar.bg:SetVertexColor(Gladdy:SetColor(Gladdy.db.castBarBgColor))
 
     if Gladdy.db.castBarSparkEnabled then
+        castBar.spark:SetAlpha(1)
         castBar.spark:SetHeight(Gladdy.db.castBarHeight * 1.8)
         castBar.spark:SetVertexColor(Gladdy:SetColor(Gladdy.db.castBarSparkColor))
+        if (castBar.casting or castBar.channeling) and not castBar.fadeOut then
+            castBar.spark:Show()
+        else
+            castBar.spark:Hide()
+        end
     else
-        castBar.spark:SetAlpha(0)
+        castBar.spark:Hide()
     end
 
     castBar.icon:SetWidth(Gladdy.db.castBarIconSize)
@@ -283,12 +297,14 @@ function Castbar.OnUpdate(castBar, elapsed)
             castBar.value = castBar.value + (castBar.casting and elapsed or -elapsed)
             castBar.bar:SetValue(castBar.value)
             Castbar.TimerFormatFunc[Gladdy.db.castBarTimerFormat](castBar)
-            castBar.spark.position = ((castBar.value) / castBar.maxValue) * (castBar.bar:GetWidth() - (Gladdy.db.castBarBorderSize/Gladdy.db.statusbarBorderOffset)*2)
-            if ( castBar.spark.position < 0 ) then
-                castBar.spark.position = 0
+            if Gladdy.db.castBarSparkEnabled then
+                castBar.spark.position = ((castBar.value) / castBar.maxValue) * (castBar.bar:GetWidth() - (Gladdy.db.castBarBorderSize/Gladdy.db.statusbarBorderOffset)*2)
+                if castBar.spark.position < 0 then castBar.spark.position = 0 end
+                castBar.spark:SetPoint("CENTER", castBar.bar, "LEFT", castBar.spark.position, 0)
+                castBar.spark:Show()
+            else
+                castBar.spark:Hide()
             end
-            castBar.spark:SetPoint("CENTER", castBar.bar, "LEFT", castBar.spark.position, 0)
-            castBar.spark:Show()
         end
     elseif ( castBar.holdTime and GetTime() < castBar.holdTime ) then
         castBar.timeText:Hide()
@@ -301,7 +317,7 @@ function Castbar.OnUpdate(castBar, elapsed)
         else
             castBar.fadeOut = nil;
             castBar.timeText:Show()
-            castBar.spark:Show()
+            castBar.spark:Hide()
             castBar:SetAlpha(0)
             castBar:SetScript("OnUpdate", nil)
         end
@@ -318,10 +334,6 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_START"] = function(castBar, event, ...)
     if ( not spell or (not castBar.showTradeSkills and isTradeSkill)) then
         castBar:SetAlpha(0)
         return
-    end
-
-    if ( castBar.spark ) then
-        castBar.spark:Show()
     end
 
     castBar.value = (GetTime() - (startTime / 1000));
@@ -366,7 +378,7 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_STOP"] = function(castBar, event, ...)
         else
             castBar.channeling = nil
         end
-        castBar.spellText:SetText("Stopped")
+        castBar.spellText:SetText(L["Stopped"])
         castBar.flash = true
         castBar.fadeOut = true
         castBar.holdTime = GetTime() + 0.25
@@ -381,7 +393,7 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_FAILED"] = function(castBar, event, ...)
             castBar.spark:Hide()
         end
         if ( castBar.spellText ) then
-                castBar.spellText:SetText("Interrupted")
+                castBar.spellText:SetText(L["Interrupted"])
         end
         castBar.bar:SetValue(castBar.maxValue)
         castBar.casting = nil
@@ -418,10 +430,6 @@ Castbar.CastEventsFunc["UNIT_SPELLCAST_CHANNEL_START"] = function(castBar, event
     if ( not spell or (not castBar.showTradeSkills and isTradeSkill)) then
         castBar:SetAlpha(0)
         return
-    end
-
-    if ( castBar.spark ) then
-        castBar.spark:Show()
     end
 
     castBar.value = (endTime / 1000) - GetTime()
@@ -494,6 +502,8 @@ function Castbar:CAST_START(unit, spell, icon, value, maxValue, notInterruptible
     castBar.backdrop:Show()
     if Gladdy.db.castBarSparkEnabled then
         castBar.spark:Show()
+    else
+        castBar.spark:Hide()
     end
     if notInterruptible then
         castBar.shield:Show()

@@ -194,14 +194,8 @@ function Classicon:UpdateFrame(unit)
 
     if Gladdy.db.classIconEnabled then
         classIcon:Show()
-        if testAgain then
-            Classicon:ResetUnit(unit)
-            if Gladdy.db.classIconSpecIcon and Gladdy.buttons[unit].spec then
-                Classicon:UNIT_SPEC(unit, Gladdy.buttons[unit].spec)
-            else
-                Classicon:ENEMY_SPOTTED(unit)
-            end
-        end
+        if testAgain then self:ResetUnit(unit) end
+        self:ENEMY_SPOTTED(unit)
     else
         classIcon:Hide()
     end
@@ -213,7 +207,13 @@ function Classicon:ENEMY_SPOTTED(unit)
     local classIcon = self.frames[unit]
     if not classIcon then return end
 
-    classIcon.texture:SetTexture(classIcons[Gladdy.buttons[unit].class])
+    local button = Gladdy.buttons[unit]
+    if not button then return end
+    if Gladdy.db.classIconSpecIcon and button.spec then
+        self:UNIT_SPEC(unit, button.spec)
+    else
+        classIcon.texture:SetTexture(classIcons[button.class])
+    end
     classIcon.texture:SetAllPoints(classIcon)
 end
 
