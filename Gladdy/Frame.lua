@@ -290,7 +290,7 @@ function Gladdy:ToggleFrame(i)
             self.showFrame = true
             self.startTest = true
             self.hideFrame = nil
-            self:Print("Gladdy frames show as soon as you leave combat")
+            self:Print(L["Gladdy frames show as soon as you leave combat"])
         end
         return
     end
@@ -317,7 +317,7 @@ function Gladdy:ToggleFrame(i)
         self.curBracket = i
         self:UpdateFrame()
         if InCombatLockdown() then
-            Gladdy:Print("Gladdy frames show as soon as you leave combat")
+            Gladdy:Print(L["Gladdy frames show as soon as you leave combat"])
             self.showFrame = true
             self.startTest = true
         else

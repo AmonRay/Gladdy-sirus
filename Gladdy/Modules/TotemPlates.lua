@@ -50,7 +50,7 @@ local function GetTotemColorDefaultOptions()
 				enabled = {
 					order = 2,
 					name = L["Enabled"],
-					desc = "Enable " .. format("|T%s:20|t %s", indexedList[i].texture or "Interface\\Icons\\INV_Misc_QuestionMark", GetSpellInfo(indexedList[i].id) or tostring(indexedList[i].id)),
+					desc = format(L["Enable %s"], format("|T%s:20|t %s", indexedList[i].texture or "Interface\\Icons\\INV_Misc_QuestionMark", GetSpellInfo(indexedList[i].id) or tostring(indexedList[i].id))),
 					type = "toggle",
 					width = "full",
 					get = function() return Gladdy.dbi.profile.npTotemColors["totem" .. indexedList[i].id].enabled end,
@@ -519,7 +519,7 @@ function TotemPlates:TestOnce()
 			local totem = test.gladdyTotemFrame
 			totem:SetParent(test)
 			totem.totemIcon:SetTexture(totemData["tremor totem"].texture)
-			totem.totemName:SetText("Gladdy: Totem Plates")
+			totem.totemName:SetText("Gladdy: " .. L["Totem Plates"])
 			totem:Show()
 		end
 

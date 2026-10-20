@@ -510,6 +510,7 @@ end
 
 function Gladdy:UpdateLocalization()
 	if Gladdy.options then
+        if self.optionsLanguage ~= self.currentLanguage then self:SetupOptions(true) end
 		if Gladdy.options.args.lock then
 			Gladdy.options.args.lock.name = Gladdy.db.locked and L["Unlock frame"] or L["Lock frame"]
 			Gladdy.options.args.lock.desc = L["Toggle if frame can be moved"]
@@ -557,7 +558,7 @@ function Gladdy:OnEnable()
     for id in pairs(self.missingSpellIDs) do missing[#missing + 1] = id end
     if #missing > 0 then
         table.sort(missing)
-        self:Warn("Unavailable spell data; skipped spell IDs:", table.concat(missing, ", "))
+        self:Warn(L["Unavailable spell data; skipped spell IDs:"], table.concat(missing, ", "))
     end
 	self:RegisterEvent("UPDATE_BATTLEFIELD_STATUS")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -837,7 +838,7 @@ function Gladdy:SMFetch(lsmType, key)
     if (smMediaType == nil and styleValue ~= "None") then
         if not lastWarning[key] or GetTime() - lastWarning[key] > 120 then
             lastWarning[key] = GetTime()
-            Gladdy:Warn("Could not find", "\"" .. lsmType .. "\" \"", styleValue, " \" for", "\"" .. key .. "\"", "- setting it to", "\"" .. defaults[lsmType] .. "\"")
+            Gladdy:Warn(string.format(L["Could not find %s %s for %s; using %s"], lsmType, styleValue, key, defaults[lsmType]))
         end
         return self.LSM:Fetch(lsmType, defaults[lsmType])
     end

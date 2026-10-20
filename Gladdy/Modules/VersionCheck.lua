@@ -16,6 +16,7 @@ local LE_PARTY_CATEGORY_HOME = 1
 local LE_PARTY_CATEGORY_INSTANCE = 2
 
 local Gladdy = LibStub("Gladdy")
+local L = Gladdy.L
 
 local VersionCheck = Gladdy:NewModule("VersionCheck", 1, {
 })
@@ -54,8 +55,8 @@ function VersionCheck.OnCommReceived(prefix, message, distribution, sender)
         local message_num = tonumber(message) or 0
         if message and message_num <= Gladdy.version_num then
         else
-            Gladdy:Warn("Current version", "\"".. addonVersion.."\"", "is outdated. Most recent version is", "\"".. message.."\"")
-            Gladdy:Warn("Please download the latest Gladdy version at:")
+            Gladdy:Warn(str_format(L["Current version %s is outdated. Most recent version is %s"], addonVersion, message))
+            Gladdy:Warn(L["Please download the latest Gladdy version at:"])
             Gladdy:Warn("https://github.com/AmonRay/Gladdy-sirus")
         end
     end

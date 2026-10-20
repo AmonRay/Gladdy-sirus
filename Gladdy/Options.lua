@@ -74,20 +74,20 @@ SlashCmdList["GLADDY"] = function(msg)
         Gladdy:HideFrame()
     elseif (msg == "debug") then
         Gladdy.debug = not Gladdy.debug
-        Gladdy:Print("Debug mode", Gladdy.debug and "enabled" or "disabled")
+        Gladdy:Print(str_format(L["Debug mode: %s"], Gladdy.debug and L["enabled"] or L["disabled"]))
     elseif (str_match(msg, "debug (%w+)")) then
         local level = str_match(msg, "debug (%w+)")
         if level == "error" then
             Gladdy.logLevel = Gladdy.LOG_LEVELS.ERROR
-            Gladdy:Print("Log level set to ERROR")
+            Gladdy:Print(str_format(L["Log level set to %s"], "ERROR"))
         elseif level == "warn" then
             Gladdy.logLevel = Gladdy.LOG_LEVELS.WARN
-            Gladdy:Print("Log level set to WARN")
+            Gladdy:Print(str_format(L["Log level set to %s"], "WARN"))
         elseif level == "info" then
             Gladdy.logLevel = Gladdy.LOG_LEVELS.INFO
-            Gladdy:Print("Log level set to INFO")
+            Gladdy:Print(str_format(L["Log level set to %s"], "INFO"))
         else
-            Gladdy:Print("Invalid log level. Use: error, warn, info")
+            Gladdy:Print(L["Invalid log level. Use: error, warn, info"])
         end
     else
         Gladdy:Print(L["Valid slash commands are:"])
@@ -197,7 +197,7 @@ function Gladdy:SetupModule(name, module, order)
                 order = 1,
                 func = function()
                     for k, v in pairs(module.defaults) do
-                        self.dbi.profile[k] = v
+                        self.dbi.profile[k] = self:DeepCopy(v)
                     end
 
                     Gladdy:UpdateFrame()
@@ -234,7 +234,8 @@ local function pairsByKeys(t)
     end
 end
 
-function Gladdy:SetupOptions()
+function Gladdy:SetupOptions(refresh)
+    local previous = refresh and self.options
     self.options = {
         type = "group",
         name = L["Gladdy"],
@@ -516,7 +517,10 @@ function Gladdy:SetupOptions()
                                         type = "select",
                                         name = L["Timer Format"],
                                         order = 11,
-                                        values = Gladdy.TIMER_FORMAT.values
+                                        values = {
+                                            [Gladdy.TIMER_FORMAT.tenths] = L["xx:xx Miliseconds"],
+                                            [Gladdy.TIMER_FORMAT.seconds] = L["xx Seconds"],
+                                        }
                                     })
                                 },
                             },
@@ -587,15 +591,14 @@ function Gladdy:SetupOptions()
                                                     and a.r == d.r and a.g == d.g and a.b == d.b and a.a == d.a) then
                                                 return a.r, a.g, a.b, a.a
                                             else
-                                                return { r = 0, g = 0, b = 0, a = 0 }
+                                                return 0, 0, 0, 0
                                             end
                                         end,
                                         set = function(info, r, g, b, a)
-                                            local rgb = {r = r, g = g, b = b, a = a}
-                                            Gladdy.db.healthBarFontColor = rgb
-                                            Gladdy.db.powerBarFontColor = rgb
-                                            Gladdy.db.castBarFontColor = rgb
-                                            Gladdy.db.petHealthBarFontColor = rgb
+                                            Gladdy.db.healthBarFontColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.powerBarFontColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.castBarFontColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.petHealthBarFontColor = {r = r, g = g, b = b, a = a}
                                             Gladdy:UpdateFrame()
                                         end,
                                     },
@@ -615,15 +618,14 @@ function Gladdy:SetupOptions()
                                                     and a.r == d.r and a.g == d.g and a.b == d.b and a.a == d.a) then
                                                 return a.r, a.g, a.b, a.a
                                             else
-                                                return { r = 0, g = 0, b = 0, a = 0 }
+                                                return 0, 0, 0, 0
                                             end
                                         end,
                                         set = function(info, r, g, b, a)
-                                            local rgb = {r = r, g = g, b = b, a = a}
-                                            Gladdy.db.auraFontColor = rgb
-                                            Gladdy.db.buffsFontColor = rgb
-                                            Gladdy.db.cooldownFontColor = rgb
-                                            Gladdy.db.drFontColor = rgb
+                                            Gladdy.db.auraFontColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.buffsFontColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.cooldownFontColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.drFontColor = {r = r, g = g, b = b, a = a}
                                             Gladdy:UpdateFrame()
                                         end,
                                     },
@@ -705,21 +707,20 @@ function Gladdy:SetupOptions()
                                                     and a.r == j.r and a.g == j.g and a.b == j.b and a.a == j.a) then
                                                 return a.r, a.g, a.b, a.a
                                             else
-                                                return { r = 0, g = 0, b = 0, a = 0 }
+                                                return 0, 0, 0, 0
                                             end
                                         end,
                                         set = function(info, r, g, b, a)
-                                            local rgb = {r = r, g = g, b = b, a = a}
-                                            Gladdy.db.auraBuffBorderColor = rgb
-                                            Gladdy.db.auraDebuffBorderColor = rgb
-                                            Gladdy.db.buffsBorderColor = rgb
-                                            Gladdy.db.castBarIconColor = rgb
-                                            Gladdy.db.classIconBorderColor = rgb
-                                            Gladdy.db.ciBorderColor = rgb
-                                            Gladdy.db.cooldownBorderColor = rgb
-                                            Gladdy.db.drBorderColor = rgb
-                                            Gladdy.db.trinketBorderColor = rgb
-                                            Gladdy.db.racialBorderColor = rgb
+                                            Gladdy.db.auraBuffBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.auraDebuffBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.buffsBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.castBarIconColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.classIconBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.ciBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.cooldownBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.drBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.trinketBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.racialBorderColor = {r = r, g = g, b = b, a = a}
                                             Gladdy:UpdateFrame()
                                         end,
                                     },
@@ -812,15 +813,14 @@ function Gladdy:SetupOptions()
                                                     and a.r == d.r and a.g == d.g and a.b == d.b and a.a == d.a) then
                                                 return a.r, a.g, a.b, a.a
                                             else
-                                                return { r = 0, g = 0, b = 0, a = 0 }
+                                                return 0, 0, 0, 0
                                             end
                                         end,
                                         set = function(info, r, g, b, a)
-                                            local rgb = {r = r, g = g, b = b, a = a}
-                                            Gladdy.db.castBarBorderColor = rgb
-                                            Gladdy.db.healthBarBorderColor = rgb
-                                            Gladdy.db.powerBarBorderColor = rgb
-                                            Gladdy.db.petHealthBarBorderColor = rgb
+                                            Gladdy.db.castBarBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.healthBarBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.powerBarBorderColor = {r = r, g = g, b = b, a = a}
+                                            Gladdy.db.petHealthBarBorderColor = {r = r, g = g, b = b, a = a}
                                             Gladdy:UpdateFrame()
                                         end,
                                     },
@@ -837,6 +837,14 @@ function Gladdy:SetupOptions()
     for k, v in pairsByKeys(self.modules) do
         self:SetupModule(k, v, order)
         order = order + 1
+    end
+
+    self.optionsLanguage = self.currentLanguage
+    if previous then
+        previous.name = self.options.name
+        previous.args = self.options.args
+        self.options = previous
+        return
     end
 
     local options = {

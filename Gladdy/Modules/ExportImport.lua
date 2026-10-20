@@ -29,16 +29,20 @@ local ExportImport = Gladdy:NewModule("Export Import", nil, {
 local export, import
 
 local function GetExportWindow()
-    if export then return export end
+    if export then
+        export:SetTitle(L["Export"])
+        export.eb:SetLabel(L["ExportString"])
+        return export
+    end
     export = AceGUI:Create("Frame")
     export:SetWidth(550)
     export.sizer_se:Hide()
     export:SetStatusText("")
     export:SetLayout("Flow")
-    export:SetTitle("Export")
+    export:SetTitle(L["Export"])
     export:Hide()
     local exportEditBox = AceGUI:Create("MultiLineEditBox")
-    exportEditBox:SetLabel('ExportString')
+    exportEditBox:SetLabel(L["ExportString"])
     exportEditBox:SetNumLines(29)
     exportEditBox:SetText("")
     exportEditBox:SetWidth(500)
@@ -49,20 +53,26 @@ local function GetExportWindow()
 end
 
 local function GetImportWindow()
-    if import then return import end
+    if import then
+        import:SetTitle(L["Import"])
+        import.eb:SetLabel(L["ImportString"])
+        import.button:SetText(L["Import\n(this will overwrite your current profile!)"])
+        import.clearButton:SetText(L["Clear"])
+        return import
+    end
     import = AceGUI:Create("Frame")
     import:SetWidth(550)
     import:Hide()
     import:SetLayout("Flow")
     import.sizer_se:Hide()
     import:SetStatusText("")
-    import:SetTitle("Import")
+    import:SetTitle(L["Import"])
     import:SetCallback("OnClose", function(widget)
         import.eb:SetCallback("OnTextChanged", nil)
         import.deserializedTable = nil
     end)
     local importEditBox = AceGUI:Create("MultiLineEditBox")
-    importEditBox:SetLabel('ImportString')
+    importEditBox:SetLabel(L["ImportString"])
     importEditBox:SetNumLines(23)
     importEditBox:SetText("")
     importEditBox:SetWidth(500)
@@ -70,7 +80,7 @@ local function GetImportWindow()
     import:AddChild(importEditBox)
     import.eb = importEditBox
     local importButton = AceGUI:Create("Button")
-    importButton:SetText("Import\n(this will overwrite your current profile!)")
+    importButton:SetText(L["Import\n(this will overwrite your current profile!)"])
     importButton:SetWidth(200)
     importButton:SetHeight(50)
     importButton:SetCallback("OnClick", function(widget)
@@ -91,14 +101,14 @@ local function GetImportWindow()
     import:AddChild(importButton)
     import.button = importButton
     local importClearButton = AceGUI:Create("Button")
-    importClearButton:SetText("Clear")
+    importClearButton:SetText(L["Clear"])
     importClearButton:SetWidth(200)
     importClearButton:SetCallback("OnClick", function(widget)
         import.deserializedTable = nil
         import.eb:SetText("")
         import.eb:SetFocus()
         import.button:SetDisabled(true)
-        import:SetStatusText("Invalid Import String")
+        import:SetStatusText(L["Invalid Import String"])
         import.statustext:SetTextColor(1,0,0)
     end)
     import:AddChild(importClearButton)
@@ -142,13 +152,13 @@ local expansionSpecific = {
 }
 
 function ExportImport:CheckDeserializedOptions(tbl, refTbl, str)
-    if type(tbl) ~= "table" then return false, "Profile root must be a table" end
+    if type(tbl) ~= "table" then return false, L["Profile root must be a table"] end
     if not str then
         if type(tbl.version_major_num) ~= "number" then
-            return false, "Version conflict: version_major_num not seen"
+            return false, L["Version conflict: version_major_num not seen"]
         end
         if tbl.version_major_num > Gladdy.version_major_num then
-            return false, "Version conflict: profile major version is newer than Gladdy"
+            return false, L["Version conflict: profile major version is newer than Gladdy"]
         end
     end
     return true
@@ -184,7 +194,7 @@ function ExportImport:GetOptions()
                 export:Show()
                 export.eb:SetFocus()
                 export.eb:HighlightText(0, export.eb.editBox:GetNumLetters())
-                export:SetStatusText("Copy this string to share your configuration with others.")
+                export:SetStatusText(L["Copy this string to share your configuration with others."])
             end,
             name = L["Export"],
             desc = L["Export your current profile to share with others or your various accounts."],
@@ -197,7 +207,7 @@ function ExportImport:GetOptions()
                 import.deserializedTable = nil
                 import.eb:SetText("")
                 import:Show()
-                import:SetStatusText("Invalid Import String")
+                import:SetStatusText(L["Invalid Import String"])
                 import.button:SetDisabled(true)
                 import.statustext:SetTextColor(1,0,0)
                 import.eb:SetFocus()
@@ -209,7 +219,7 @@ function ExportImport:GetOptions()
                         return
                     end
                     import.statustext:SetTextColor(0,1,0)
-                    import:SetStatusText("SUCCESS")
+                    import:SetStatusText(L["SUCCESS"])
                     import.button:SetDisabled(false)
                     import.deserializedTable = deserialized
                 end)
@@ -236,7 +246,7 @@ local function ApplyTable(source, target, crossExpansion)
 end
 
 function ExportImport:ApplyImport(tbl, target)
-    if type(tbl) ~= "table" or type(target) ~= "table" then return false, "Invalid profile table" end
+    if type(tbl) ~= "table" or type(target) ~= "table" then return false, L["Invalid profile table"] end
     local expansion = tbl.expansion or "BCC"
     if not tbl.newLayout then target.newLayout = false end
     ApplyTable(tbl, target, expansion ~= target.expansion)
@@ -244,15 +254,15 @@ function ExportImport:ApplyImport(tbl, target)
 end
 
 function ExportImport:Decode(str, showError)
-    if type(str) ~= "string" or #str == 0 then return ImportError("Invalid import string", showError) end
+    if type(str) ~= "string" or #str == 0 then return ImportError(L["Invalid import string"], showError) end
     local ok, decoded = pcall(LibDeflate.DecodeForPrint, LibDeflate, str)
-    if not ok or not decoded then return ImportError("Invalid Import String FAILED LibDeflate:DecodeForPrint", showError) end
+    if not ok or not decoded then return ImportError(L["Invalid Import String FAILED LibDeflate:DecodeForPrint"], showError) end
     local raw
     ok, raw = pcall(LibDeflate.DecompressZlib, LibDeflate, decoded)
-    if not ok or not raw then return ImportError("Invalid Import String FAILED LibDeflate:DecompressZlib", showError) end
+    if not ok or not raw then return ImportError(L["Invalid Import String FAILED LibDeflate:DecompressZlib"], showError) end
     local success, deserialized
     ok, success, deserialized = pcall(AceSerializer.Deserialize, AceSerializer, raw)
-    if not ok or not success then return ImportError("Invalid Import String FAILED AceSerializer:Deserialize", showError) end
+    if not ok or not success then return ImportError(L["Invalid Import String FAILED AceSerializer:Deserialize"], showError) end
     local valid, err = self:CheckDeserializedOptions(deserialized, Gladdy.defaults.profile)
     if not valid then return ImportError(err, showError) end
     deserialized.version_major_num = nil

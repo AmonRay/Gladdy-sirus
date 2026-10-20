@@ -360,7 +360,7 @@ function RangeCheck:GetSpells()
                     },
                     min = {
                         type = "input",
-                        name = "Spell ID",
+                        name = L["Spell ID"],
                         order = 2,
                         width = "full",
                         pattern = "%d+",

@@ -27,7 +27,7 @@ function XiconProfiles:GetOptions()
     return {
         headerProfileBlizzard = {
             type = "header",
-            name = "Blizzard " .. L["Profile"],
+            name = L["Blizzard Profile"],
             order = 2,
         },
         blizzardProfile = {
@@ -36,7 +36,7 @@ function XiconProfiles:GetOptions()
                 applyProfile(Gladdy:GetBlizzardProfile())
             end,
             name = " ",
-            desc = "Blizzard " .. L["Profile"],
+            desc = L["Blizzard Profile"],
             image = "Interface\\AddOns\\Gladdy\\Images\\BasicProfiles\\Blizz1.blp",
             imageWidth = 350,
             imageHeight = 175,
@@ -45,7 +45,7 @@ function XiconProfiles:GetOptions()
         },
         headerProfileClassic = {
             type = "header",
-            name = "Classic " .. L["Profile"],
+            name = L["Classic Profile"],
             order = 4,
         },
         classicProfile = {
@@ -54,7 +54,7 @@ function XiconProfiles:GetOptions()
                 applyProfile(Gladdy:GetClassicProfile())
             end,
             name = " ",
-            desc = "Classic " .. L["Profile"],
+            desc = L["Classic Profile"],
             image = "Interface\\AddOns\\Gladdy\\Images\\BasicProfiles\\Classic1.blp",
             imageWidth = 350,
             imageHeight = 175,
@@ -63,7 +63,7 @@ function XiconProfiles:GetOptions()
         },
         headerProfileClassicNoPet = {
             type = "header",
-            name = "Classic " .. L["Profile"] .. L[" No Pet"],
+            name = L["Classic Profile No Pet"],
             order = 6,
         },
         classicProfileNoPet = {
@@ -72,7 +72,7 @@ function XiconProfiles:GetOptions()
                 applyProfile(Gladdy:GetClassicProfileNoPet())
             end,
             name = " ",
-            desc = "Classic " .. L["Profile"] .. L[" No Pet"],
+            desc = L["Classic Profile No Pet"],
             image = "Interface\\AddOns\\Gladdy\\Images\\BasicProfiles\\Classic2.blp",
             imageWidth = 350,
             imageHeight = 175,
@@ -81,7 +81,7 @@ function XiconProfiles:GetOptions()
         },
         headerProfileKnall = {
             type = "header",
-            name = "Knall's " .. L["Profile"],
+            name = L["Knall's Profile"],
             order = 8,
         },
         knallProfile = {
@@ -90,7 +90,7 @@ function XiconProfiles:GetOptions()
                 applyProfile(Gladdy:GetKnallProfile())
             end,
             name = " ",
-            desc = "Knall's " .. L["Profile"],
+            desc = L["Knall's Profile"],
             image = "Interface\\AddOns\\Gladdy\\Images\\BasicProfiles\\Knall1.blp",
             imageWidth = 350,
             imageHeight = 175,
@@ -99,7 +99,7 @@ function XiconProfiles:GetOptions()
         },
         headerProfileKlimp = {
             type = "header",
-            name = "Klimp's " .. L["Profile"],
+            name = L["Klimp's Profile"],
             order = 10,
         },
         klimpProfiles = {
@@ -111,13 +111,13 @@ function XiconProfiles:GetOptions()
             imageWidth = 350,
             imageHeight = 175,
             name = " ",
-            desc = "Klimp's " .. L["Profile"],
+            desc = L["Klimp's Profile"],
             width = "full",
             order = 11,
         },
         headerProfileRukk = {
             type = "header",
-            name = "Rukk1's " .. L["Profile"],
+            name = L["Rukk1's Profile"],
             order = 12,
         },
         rukkProfile = {
@@ -126,7 +126,7 @@ function XiconProfiles:GetOptions()
                 applyProfile(Gladdy:GetRukkProfile())
             end,
             name = " ",
-            desc = "Rukk1's " .. L["Profile"],
+            desc = L["Rukk1's Profile"],
             image = "Interface\\AddOns\\Gladdy\\Images\\BasicProfiles\\Rukk1.blp",
             imageWidth = 350,
             imageHeight = 175,
@@ -135,7 +135,7 @@ function XiconProfiles:GetOptions()
         },
         headerProfileMir = {
             type = "header",
-            name = "Mir's " .. L["Profile"],
+            name = L["Mir's Profile"],
             order = 14,
         },
         mirProfile = {
@@ -144,7 +144,7 @@ function XiconProfiles:GetOptions()
                 applyProfile(Gladdy:GetMirProfile())
             end,
             name = " ",
-            desc = "Mir's " .. L["Profile"],
+            desc = L["Mir's Profile"],
             image = "Interface\\AddOns\\Gladdy\\Images\\BasicProfiles\\Mir1.blp",
             imageWidth = 350,
             imageHeight = 175,
@@ -153,7 +153,7 @@ function XiconProfiles:GetOptions()
         },
         headerProfileMirEdited = {
             type = "header",
-            name = "Mir's " .. L["Profile"] .. " edited",
+            name = L["Mir's Profile edited"],
             order = 16,
         },
         mirProfileEdited = {
@@ -162,7 +162,7 @@ function XiconProfiles:GetOptions()
                 applyProfile(Gladdy:GetMirEditedProfile())
             end,
             name = " ",
-            desc = "Mir's " .. L["Profile"],
+            desc = L["Mir's Profile"],
             image = "Interface\\AddOns\\Gladdy\\Images\\BasicProfiles\\Mir1_edited.blp",
             imageWidth = 350,
             imageHeight = 175,
@@ -171,7 +171,7 @@ function XiconProfiles:GetOptions()
         },
         headerProfileGladius = {
             type = "header",
-            name = "Gladius " .. L["Profile"],
+            name = L["Gladius Profile"],
             order = 18,
         },
         likeGladiusProfile = {
@@ -180,7 +180,7 @@ function XiconProfiles:GetOptions()
                 applyProfile(Gladdy:GetLikeGladius())
             end,
             name = " ",
-            desc = "Gladius default " .. L["Profile"],
+            desc = L["Gladius default Profile"],
             image = "Interface\\AddOns\\Gladdy\\Images\\BasicProfiles\\gladius.blp",
             imageWidth = 350,
             imageHeight = 175,

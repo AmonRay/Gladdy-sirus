@@ -884,6 +884,23 @@ function Diminishings:GetOptions()
 end
 
 function Diminishings:CategoryOptions()
+    local names = {
+        incapacitate = L["DR: Incapacitate"],
+        stun = L["DR: Stuns"],
+        random_stun = L["DR: Random stuns"],
+        random_root = L["DR: Random roots"],
+        root = L["DR: Roots"],
+        disarm = L["DR: Disarms"],
+        fear = L["DR: Fears"],
+        scatter = L["DR: Scatter Shot"],
+        silence = L["DR: Silences"],
+        horror = L["DR: Horrors"],
+        mind_control = L["DR: Mind Control"],
+        cyclone = L["DR: Cyclone"],
+        charge = L["DR: Charge"],
+        opener_stun = L["DR: Opener stuns"],
+        counterattack = L["DR: Counterattack"],
+    }
 	local categories = {
 		checkAll = {
 			order = 1,
@@ -916,7 +933,7 @@ function Diminishings:CategoryOptions()
 	for i,k in ipairs(indexList) do
 		categories[k] = {
 			type = "group",
-			name = L[DRData:GetCategoryName(k)],
+			name = names[k] or DRData:GetCategoryName(k),
 			order = i,
 			icon = Gladdy.db.drCategories[k].icon,
 			args = {

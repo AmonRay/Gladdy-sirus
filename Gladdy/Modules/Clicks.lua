@@ -8,7 +8,6 @@ local tostring = tostring
 local GetBindingKey = GetBindingKey
 local ClearOverrideBindings = ClearOverrideBindings
 local SetOverrideBindingClick = SetOverrideBindingClick
-local MACRO, TARGET, FOCUS, ADDON_DISABLED = MACRO, TARGET, FOCUS, ADDON_DISABLED
 
 local Gladdy = LibStub("Gladdy")
 local L = Gladdy.L
@@ -24,36 +23,40 @@ local Clicks = Gladdy:NewModule("Clicks", nil, {
     attributes = attributes,
 })
 
-BINDING_HEADER_GLADDY = "Gladdy"
-BINDING_NAME_GLADDYBUTTON1_LEFT = L["Left Click Enemy 1"]
-BINDING_NAME_GLADDYBUTTON2_LEFT = L["Left Click Enemy 2"]
-BINDING_NAME_GLADDYBUTTON3_LEFT = L["Left Click Enemy 3"]
-BINDING_NAME_GLADDYBUTTON4_LEFT = L["Left Click Enemy 4"]
-BINDING_NAME_GLADDYBUTTON5_LEFT = L["Left Click Enemy 5"]
+function Clicks:UpdateLocalization()
+    BINDING_HEADER_GLADDY = "Gladdy"
+    BINDING_NAME_GLADDYBUTTON1_LEFT = L["Left Click Enemy 1"]
+    BINDING_NAME_GLADDYBUTTON2_LEFT = L["Left Click Enemy 2"]
+    BINDING_NAME_GLADDYBUTTON3_LEFT = L["Left Click Enemy 3"]
+    BINDING_NAME_GLADDYBUTTON4_LEFT = L["Left Click Enemy 4"]
+    BINDING_NAME_GLADDYBUTTON5_LEFT = L["Left Click Enemy 5"]
 
-BINDING_NAME_GLADDYBUTTON1_RIGHT = L["Right Click Enemy 1"]
-BINDING_NAME_GLADDYBUTTON2_RIGHT = L["Right Click Enemy 2"]
-BINDING_NAME_GLADDYBUTTON3_RIGHT = L["Right Click Enemy 3"]
-BINDING_NAME_GLADDYBUTTON4_RIGHT = L["Right Click Enemy 4"]
-BINDING_NAME_GLADDYBUTTON5_RIGHT = L["Right Click Enemy 5"]
+    BINDING_NAME_GLADDYBUTTON1_RIGHT = L["Right Click Enemy 1"]
+    BINDING_NAME_GLADDYBUTTON2_RIGHT = L["Right Click Enemy 2"]
+    BINDING_NAME_GLADDYBUTTON3_RIGHT = L["Right Click Enemy 3"]
+    BINDING_NAME_GLADDYBUTTON4_RIGHT = L["Right Click Enemy 4"]
+    BINDING_NAME_GLADDYBUTTON5_RIGHT = L["Right Click Enemy 5"]
 
-BINDING_NAME_GLADDYBUTTON1_MIDDLE = L["Middle Click Enemy 1"]
-BINDING_NAME_GLADDYBUTTON2_MIDDLE = L["Middle Click Enemy 2"]
-BINDING_NAME_GLADDYBUTTON3_MIDDLE = L["Middle Click Enemy 3"]
-BINDING_NAME_GLADDYBUTTON4_MIDDLE = L["Middle Click Enemy 4"]
-BINDING_NAME_GLADDYBUTTON5_MIDDLE = L["Middle Click Enemy 5"]
+    BINDING_NAME_GLADDYBUTTON1_MIDDLE = L["Middle Click Enemy 1"]
+    BINDING_NAME_GLADDYBUTTON2_MIDDLE = L["Middle Click Enemy 2"]
+    BINDING_NAME_GLADDYBUTTON3_MIDDLE = L["Middle Click Enemy 3"]
+    BINDING_NAME_GLADDYBUTTON4_MIDDLE = L["Middle Click Enemy 4"]
+    BINDING_NAME_GLADDYBUTTON5_MIDDLE = L["Middle Click Enemy 5"]
 
-BINDING_NAME_GLADDYBUTTON1_BUTTON4 = L["Button4 Click Enemy 1"]
-BINDING_NAME_GLADDYBUTTON2_BUTTON4 = L["Button4 Click Enemy 2"]
-BINDING_NAME_GLADDYBUTTON3_BUTTON4 = L["Button4 Click Enemy 3"]
-BINDING_NAME_GLADDYBUTTON4_BUTTON4 = L["Button4 Click Enemy 4"]
-BINDING_NAME_GLADDYBUTTON5_BUTTON4 = L["Button4 Click Enemy 5"]
+    BINDING_NAME_GLADDYBUTTON1_BUTTON4 = L["Button4 Click Enemy 1"]
+    BINDING_NAME_GLADDYBUTTON2_BUTTON4 = L["Button4 Click Enemy 2"]
+    BINDING_NAME_GLADDYBUTTON3_BUTTON4 = L["Button4 Click Enemy 3"]
+    BINDING_NAME_GLADDYBUTTON4_BUTTON4 = L["Button4 Click Enemy 4"]
+    BINDING_NAME_GLADDYBUTTON5_BUTTON4 = L["Button4 Click Enemy 5"]
 
-BINDING_NAME_GLADDYBUTTON1_BUTTON5 = L["Button5 Click Enemy 1"]
-BINDING_NAME_GLADDYBUTTON2_BUTTON5 = L["Button5 Click Enemy 2"]
-BINDING_NAME_GLADDYBUTTON3_BUTTON5 = L["Button5 Click Enemy 3"]
-BINDING_NAME_GLADDYBUTTON4_BUTTON5 = L["Button5 Click Enemy 4"]
-BINDING_NAME_GLADDYBUTTON5_BUTTON5 = L["Button5 Click Enemy 5"]
+    BINDING_NAME_GLADDYBUTTON1_BUTTON5 = L["Button5 Click Enemy 1"]
+    BINDING_NAME_GLADDYBUTTON2_BUTTON5 = L["Button5 Click Enemy 2"]
+    BINDING_NAME_GLADDYBUTTON3_BUTTON5 = L["Button5 Click Enemy 3"]
+    BINDING_NAME_GLADDYBUTTON4_BUTTON5 = L["Button5 Click Enemy 4"]
+    BINDING_NAME_GLADDYBUTTON5_BUTTON5 = L["Button5 Click Enemy 5"]
+end
+
+Clicks:UpdateLocalization()
 
 function Clicks:Initialize()
 end
@@ -147,11 +150,11 @@ function Clicks:SetupAttribute(button, key, mod, action, spell)
     end
 end
 
-local buttons = { ["1"] = L["Left button"], ["2"] = L["Right button"], ["3"] = L["Middle button"], ["4"] = L["Button 4"], ["5"] = L["Button 5"] }
-local modifiers = { [""] = L["None"], ["*"] = L["All"], ["ctrl-"] = L["CTRL"], ["shift-"] = L["SHIFT"], ["alt-"] = L["ALT"] }
-local clickValues = { ["macro"] = MACRO, ["target"] = TARGET, ["focus"] = FOCUS, ["spell"] = L["Cast Spell"], ["disabled"] = ADDON_DISABLED }
 
 local function SetupAttributeOption(i)
+    local buttons = { ["1"] = L["Left button"], ["2"] = L["Right button"], ["3"] = L["Middle button"], ["4"] = L["Button 4"], ["5"] = L["Button 5"] }
+    local modifiers = { [""] = L["None"], ["*"] = L["All"], ["ctrl-"] = L["CTRL"], ["shift-"] = L["SHIFT"], ["alt-"] = L["ALT"] }
+    local clickValues = { ["macro"] = L["Macro"], ["target"] = L["Target"], ["focus"] = L["Focus"], ["spell"] = L["Cast Spell"], ["disabled"] = L["Disabled"] }
     return {
         type = "group",
         name = Gladdy.dbi.profile.attributes[i].name,
