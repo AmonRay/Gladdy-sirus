@@ -31,6 +31,24 @@ local classSpells = {
     ["DEATHKNIGHT"] = 49576,
 }
 
+local function rangeSpellID(value)
+    if type(value) ~= "string" or not value:match("^%d+$") then return nil end
+    local id = tonumber(value)
+    if not id or id <= 0 or id >= math.huge or id % 1 ~= 0 then return nil end
+    local ok, name = pcall(GetSpellInfo, id)
+    if ok and name then return id end
+end
+
+local function spellHeader(id)
+    local ok, name, _, icon, _, _, maxRange = pcall(GetSpellInfo, id)
+    if not ok or not name then return L["Unknown spell"] .. ": " .. tostring(id) end
+    local text = format("|T%s:20|t %s", icon or "Interface\\Icons\\INV_Misc_QuestionMark", name)
+    if type(maxRange) == "number" and maxRange == maxRange and maxRange >= 0 and maxRange < math.huge then
+        text = text .. format(" - %g %s", maxRange, L["yds"])
+    end
+    return text
+end
+
 local function defaultSpells()
     local defaults = {}
     for _,class in ipairs(Gladdy.CLASSES) do
@@ -343,8 +361,6 @@ function RangeCheck:GetSpells()
     }
     for i,class in ipairs(Gladdy.CLASSES) do
         if ( class == select(2, UnitClass("player")) ) then
-            local name, _, icon, _, _, maxRange = GetSpellInfo(Gladdy.db.rangeCheckDefaultSpells[class].min)
-
             group[class] = {
                 type = "group",
                 name = LOCALIZED_CLASS_NAMES_MALE[class],
@@ -354,8 +370,7 @@ function RangeCheck:GetSpells()
                 args = {
                     headerMin = {
                         type = "header",
-                        name = name and format("|T%s:20|t %s - %d" .. L["yds"], icon, name, maxRange)
-                                or "nil",
+                        name = spellHeader(Gladdy.db.rangeCheckDefaultSpells[class].min),
                         order = 1,
                     },
                     min = {
@@ -363,20 +378,22 @@ function RangeCheck:GetSpells()
                         name = L["Spell ID"],
                         order = 2,
                         width = "full",
-                        pattern = "%d+",
+                        pattern = "^%d+$",
                         validate = function(_, value)
-                            LibStub("AceConfigRegistry-3.0"):NotifyChange("Gladdy")
-                            return type(tonumber(value)) == "number"
+                            return rangeSpellID(value) ~= nil or L["Enter a positive integer spell ID available in this client."]
                         end,
-                        get = function(_)
+                        get = function()
                             return tostring(Gladdy.db.rangeCheckDefaultSpells[class].min)
                         end,
                         set = function(_, value)
-                            Gladdy.db.rangeCheckDefaultSpells[class].min = tonumber(value)
-
-                            local name, _, icon, _, _, maxRange = GetSpellInfo(Gladdy.db.rangeCheckDefaultSpells[class].min)
-                            Gladdy.options.args["Range Check"].args.oorSpells.args[class].args.headerMin.name = name and format("|T%s:20|t %s - %d" .. L["yds"], icon, name, maxRange)
-                                    or "nil"
+                            local id = rangeSpellID(value)
+                            if not id then return end
+                            Gladdy.db.rangeCheckDefaultSpells[class].min = id
+                            local options = Gladdy.options and Gladdy.options.args["Range Check"]
+                            local spells = options and options.args and options.args.oorSpells
+                            local group = spells and spells.args and spells.args[class]
+                            if group then group.args.headerMin.name = spellHeader(id) end
+                            Gladdy:UpdateFrame()
                         end
                     },
                 }

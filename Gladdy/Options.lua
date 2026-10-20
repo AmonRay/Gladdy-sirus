@@ -234,6 +234,17 @@ local function pairsByKeys(t)
     end
 end
 
+local cooldownCircleKeys = {"auraDisableCircle", "cooldownDisableCircle", "trinketDisableCircle", "drDisableCircle", "buffsDisableCircle", "racialDisableCircle"}
+local cooldownAlphaKeys = {"cooldownCooldownAlpha", "drCooldownAlpha", "auraCooldownAlpha", "trinketCooldownAlpha", "buffsCooldownAlpha", "racialCooldownAlpha"}
+
+local function commonValue(keys)
+    local value = Gladdy.db[keys[1]]
+    for i = 2, #keys do
+        if Gladdy.db[keys[i]] ~= value then return value, true end
+    end
+    return value, false
+end
+
 function Gladdy:SetupOptions(refresh)
     local previous = refresh and self.options
     self.options = {
@@ -459,59 +470,48 @@ function Gladdy:SetupOptions(refresh)
                                         type = "toggle",
                                         name = L["No Cooldown Circle"],
                                         order = 9,
-                                        get = function(info)
-                                            local a = Gladdy.db.auraDisableCircle
-                                            local b = Gladdy.db.cooldownDisableCircle
-                                            local c = Gladdy.db.trinketDisableCircle
-                                            local d = Gladdy.db.drDisableCircle
-                                            local e = Gladdy.db.buffsDisableCircle
-                                            local f = Gladdy.db.racialDisableCircle
-                                            if (a == b and a == c and a == d and a == e and a == f) then
-                                                return a
-                                            else
-                                                return ""
-                                            end
+                                        tristate = true,
+                                        desc = function()
+                                            local _, mixed = commonValue(cooldownCircleKeys)
+                                            return mixed and L["Module settings differ. Clicking applies the choice to all modules."]
+                                                or L["Hide cooldown circles for all modules."]
                                         end,
-                                        set = function(info, value)
-                                            Gladdy.db.auraDisableCircle = value
-                                            Gladdy.db.cooldownDisableCircle = value
-                                            Gladdy.db.trinketDisableCircle = value
-                                            Gladdy.db.drDisableCircle = value
-                                            Gladdy.db.buffsDisableCircle = value
-                                            Gladdy.db.racialDisableCircle = value
+                                        get = function()
+                                            local value, mixed = commonValue(cooldownCircleKeys)
+                                            if mixed then return nil end
+                                            return not not value
+                                        end,
+                                        set = function(_, value)
+                                            value = not not value
+                                            for _, key in ipairs(cooldownCircleKeys) do Gladdy.db[key] = value end
                                             Gladdy:UpdateFrame()
                                         end,
-                                        width= "full",
+                                        width = "full",
                                     },
                                     cooldownCircleAlpha = {
                                         type = "range",
-                                        name = L["Cooldown circle alpha"],
+                                        name = function()
+                                            local _, mixed = commonValue(cooldownAlphaKeys)
+                                            return L["Cooldown circle alpha"] .. (mixed and " (" .. L["Mixed values"] .. ")" or "")
+                                        end,
+                                        desc = function()
+                                            local _, mixed = commonValue(cooldownAlphaKeys)
+                                            return mixed and L["Module settings differ. The slider shows the cooldown module value; changing it applies to all modules."]
+                                                or L["Set cooldown circle alpha for all modules."]
+                                        end,
                                         order = 10,
                                         min = 0,
                                         max = 1,
                                         step = 0.1,
-                                        get = function(info)
-                                            local a = Gladdy.db.cooldownCooldownAlpha
-                                            local b = Gladdy.db.drCooldownAlpha
-                                            local c = Gladdy.db.auraCooldownAlpha
-                                            local d = Gladdy.db.trinketCooldownAlpha
-                                            local e = Gladdy.db.buffsCooldownAlpha
-                                            local f = Gladdy.db.racialCooldownAlpha
-                                            if (a == b and a == c and a == d and a == e and a == f) then
-                                                return a
-                                            else
-                                                return ""
-                                            end
+                                        get = function()
+                                            local value = commonValue(cooldownAlphaKeys)
+                                            if type(value) ~= "number" or value ~= value then return 1 end
+                                            return math.max(0, math.min(1, value))
                                         end,
-                                        set = function(info, value)
-                                            Gladdy.db.cooldownCooldownAlpha = value
-                                            Gladdy.db.drCooldownAlpha = value
-                                            Gladdy.db.auraCooldownAlpha = value
-                                            Gladdy.db.trinketCooldownAlpha = value
-                                            Gladdy.db.buffsCooldownAlpha = value
-                                            Gladdy.db.racialCooldownAlpha = value
+                                        set = function(_, value)
+                                            for _, key in ipairs(cooldownAlphaKeys) do Gladdy.db[key] = value end
                                             Gladdy:UpdateFrame()
-                                        end
+                                        end,
                                     },
                                     timerFormat = Gladdy:option({
                                         type = "select",
@@ -880,11 +880,6 @@ function Gladdy:SetupOptions(refresh)
         AceConfigRegistry:RegisterOptionsTable("Gladdy", self.options)
     end
 
-    if Gladdy.db.auraBorderStyle == Gladdy.db.npTotemPlatesBorderStyle then
-        Gladdy.db.auraBorderStyle = "Interface\\AddOns\\Gladdy\\Images\\Border_rounded_blp"
-    end
-
-    Gladdy.db.npTotemPlatesBorderStyle = nil
 
 end
 

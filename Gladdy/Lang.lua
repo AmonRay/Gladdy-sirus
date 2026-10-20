@@ -1452,4 +1452,19 @@ ruRU["Custom Tags:\n\n|cff1ac742[current]|r - Shows current\n\n|cff1ac742[max]|r
 enUS["\n|cff1ac742Cast Spell:|r\nType in the spell name.\nFor example:\n|cff17d1c8Polymorph|r\n\n|cff1ac742Macro:|r\nUse *arena* as placeholder.\nFor example:\n|cff17d1c8/cast [@*arena*] Blind\n/run SendChatMessage(\"Blinding \" .. UnitName(\"*arena*\"), \"PARTY\")|r"] = "\n|cff1ac742Cast Spell:|r\nType in the spell name.\nFor example:\n|cff17d1c8Polymorph|r\n\n|cff1ac742Macro:|r\nUse *arena* as placeholder.\nFor example:\n|cff17d1c8/cast [@*arena*] Blind\n/run SendChatMessage(\"Blinding \" .. UnitName(\"*arena*\"), \"PARTY\")|r"
 ruRU["\n|cff1ac742Cast Spell:|r\nType in the spell name.\nFor example:\n|cff17d1c8Polymorph|r\n\n|cff1ac742Macro:|r\nUse *arena* as placeholder.\nFor example:\n|cff17d1c8/cast [@*arena*] Blind\n/run SendChatMessage(\"Blinding \" .. UnitName(\"*arena*\"), \"PARTY\")|r"] = "\n|cff1ac742Заклинание:|r\nВведите название заклинания.\nНапример:\n|cff17d1c8Превращение|r\n\n|cff1ac742Макрос:|r\nИспользуйте *arena* вместо номера противника.\nНапример:\n|cff17d1c8/cast [@*arena*] Ослепление\n/run SendChatMessage(\"Ослепляю \" .. UnitName(\"*arena*\"), \"PARTY\")|r"
 
+enUS["Module settings differ. Clicking applies the choice to all modules."] = "Module settings differ. Clicking applies the choice to all modules."
+ruRU["Module settings differ. Clicking applies the choice to all modules."] = "Настройки модулей различаются. Щелчок применит выбранное состояние ко всем модулям."
+enUS["Hide cooldown circles for all modules."] = "Hide cooldown circles for all modules."
+ruRU["Hide cooldown circles for all modules."] = "Скрыть круговые индикаторы кулдаунов во всех модулях."
+enUS["Mixed values"] = "Mixed values"
+ruRU["Mixed values"] = "Разные значения"
+enUS["Module settings differ. The slider shows the cooldown module value; changing it applies to all modules."] = "Module settings differ. The slider shows the cooldown module value; changing it applies to all modules."
+ruRU["Module settings differ. The slider shows the cooldown module value; changing it applies to all modules."] = "Настройки модулей различаются. Показано значение модуля кулдаунов; изменение ползунка применится ко всем модулям."
+enUS["Set cooldown circle alpha for all modules."] = "Set cooldown circle alpha for all modules."
+ruRU["Set cooldown circle alpha for all modules."] = "Задать прозрачность круговых индикаторов кулдаунов во всех модулях."
+enUS["Unknown spell"] = "Unknown spell"
+ruRU["Unknown spell"] = "Неизвестное заклинание"
+enUS["Enter a positive integer spell ID available in this client."] = "Enter a positive integer spell ID available in this client."
+ruRU["Enter a positive integer spell ID available in this client."] = "Введите положительный целочисленный ID заклинания, доступного в этом клиенте."
+
 Gladdy:ApplyLanguage(GetLocale())

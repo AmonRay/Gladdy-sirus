@@ -122,5 +122,28 @@ test('Gladdy import-export dialogs reuse the shared stack',function()
     local encoded=deflate:EncodeForPrint(deflate:CompressZlib(ser:Serialize({version_major_num=2,scale=1.2})))
     local decoded=modules['Export Import']:Decode(encoded,false); assert(decoded and decoded.scale==1.2)
 end)
+test('shared tristate checkbox distinguishes mixed values from checked and unchecked',function()
+    local control=gui:Create('CheckBox');control:SetTriState(true)
+    control:SetValue(nil);assert(control:GetValue()==nil and control.check:IsShown())
+    control:ToggleChecked();assert(control:GetValue()==false and not control.check:IsShown())
+    control:SetValue(true);control:ToggleChecked();assert(control:GetValue()==nil)
+    gui:Release(control)
+end)
+test('shared slider accepts numeric representative alpha values including zero',function()
+    local control=gui:Create('Slider');control:SetSliderValues(0,1,0.1)
+    for _,value in ipairs({0,0.5,0.8,1}) do control:SetValue(value);assert(control:GetValue()==value) end
+    gui:Release(control)
+end)
+test('shared AceConfig opens mixed controls without changing their backing values',function()
+    local writes=0;local alpha=0.5
+    local options={type='group',name='Mixed settings',args={
+        circle={type='toggle',name='Circle',tristate=true,get=function() return nil end,set=function() writes=writes+1 end},
+        alpha={type='range',name='Alpha (mixed)',min=0,max=1,step=0.1,get=function() return alpha end,set=function(_,v) writes=writes+1;alpha=v end},
+    }}
+    LibStub('AceConfig-3.0'):RegisterOptionsTable('GladdyMixedControlsTest',options)
+    reg:ValidateOptionsTable(options,'GladdyMixedControlsTest');dialog:Open('GladdyMixedControlsTest')
+    assert(dialog.OpenFrames.GladdyMixedControlsTest and writes==0 and alpha==0.5)
+    dialog:Close('GladdyMixedControlsTest')
+end)
 test('integration reports no swallowed Lua errors',function() assert(#wow.errors==0,table.concat(wow.errors,'\n')) end)
 print('PASS: '..passed..' shared Ace UI tests, ElvUI '..mode..' Gladdy')

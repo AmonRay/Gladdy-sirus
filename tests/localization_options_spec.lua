@@ -150,6 +150,144 @@ for key, fields in pairs(groups) do
         local r, g, b, a = o.get(); assert(r == 0.1 and g == 0.2 and b == 0.3 and a == 0.4)
     end)
 end
+test('options setup preserves matching custom aura and totem borders', function()
+    local style = "Interface\\AddOns\\Gladdy\\Images\\Border_squared_blp.blp"
+    G.db.auraBorderStyle = style; G.db.npTotemPlatesBorderStyle = style
+    build('ruRU')
+    assert(G.db.auraBorderStyle == style and G.db.npTotemPlatesBorderStyle == style)
+    build('enUS'); build('ruRU')
+    assert(G.db.auraBorderStyle == style and G.db.npTotemPlatesBorderStyle == style)
+end)
+test('options setup preserves distinct and disabled borders', function()
+    G.db.auraBorderStyle = 'aura-style'; G.db.npTotemPlatesBorderStyle = 'totem-style'
+    build('ruRU'); assert(G.db.auraBorderStyle == 'aura-style' and G.db.npTotemPlatesBorderStyle == 'totem-style')
+    G.db.npTotemPlatesBorderStyle = 'None'; build('ruRU')
+    assert(G.db.npTotemPlatesBorderStyle == 'None')
+end)
+local circleKeys = {'auraDisableCircle','cooldownDisableCircle','trinketDisableCircle','drDisableCircle','buffsDisableCircle','racialDisableCircle'}
+local alphaKeys = {'cooldownCooldownAlpha','drCooldownAlpha','auraCooldownAlpha','trinketCooldownAlpha','buffsCooldownAlpha','racialCooldownAlpha'}
+test('mixed cooldown circle settings return an indeterminate tristate without modifying the profile', function()
+    local option = findOption('disableCooldownCircle')
+    for _, key in ipairs(circleKeys) do G.db[key] = false end
+    G.db.trinketDisableCircle = true
+    assert(option.tristate and option.get() == nil)
+    assert(option.desc():find('различаются', 1, true))
+    assert(G.db.trinketDisableCircle == true and G.db.auraDisableCircle == false)
+end)
+test('common cooldown circle settings return booleans including all-disabled', function()
+    local option = findOption('disableCooldownCircle')
+    for _, value in ipairs({false, true}) do
+        for _, key in ipairs(circleKeys) do G.db[key] = value end
+        assert(option.get() == value)
+    end
+end)
+test('tristate changes never store nil and can turn all cooldown circles on and off', function()
+    local option = findOption('disableCooldownCircle')
+    for _, value in ipairs({true, false, true}) do
+        option.set(nil, value)
+        for _, key in ipairs(circleKeys) do assert(G.db[key] == value) end
+    end
+    option.set(nil, nil)
+    for _, key in ipairs(circleKeys) do assert(G.db[key] == false) end
+end)
+test('mixed alpha shows a representative numeric value and an explicit mixed label without writing', function()
+    local option = findOption('cooldownCircleAlpha')
+    for _, key in ipairs(alphaKeys) do G.db[key] = 0.5 end
+    G.db.drCooldownAlpha = 0.8
+    assert(option.get() == 0.5 and type(option.get()) == 'number')
+    assert(option.name():find(G.L['Mixed values'], 1, true))
+    assert(option.desc():find('различаются', 1, true))
+    assert(G.db.drCooldownAlpha == 0.8 and G.db.cooldownCooldownAlpha == 0.5)
+end)
+test('alpha applies to every module and removes the mixed label', function()
+    local option = findOption('cooldownCircleAlpha'); option.set(nil, 0.7)
+    for _, key in ipairs(alphaKeys) do assert(G.db[key] == 0.7) end
+    assert(option.get() == 0.7 and option.name() == G.L['Cooldown circle alpha'])
+end)
+test('alpha display handles zero and invalid legacy values without mutating them', function()
+    local option = findOption('cooldownCircleAlpha')
+    G.db.cooldownCooldownAlpha = 0; assert(option.get() == 0)
+    G.db.cooldownCooldownAlpha = 'legacy'; assert(option.get() == 1 and G.db.cooldownCooldownAlpha == 'legacy')
+    G.db.cooldownCooldownAlpha = 0/0; assert(option.get() == 1)
+    G.db.cooldownCooldownAlpha = 2; assert(option.get() == 1 and G.db.cooldownCooldownAlpha == 2)
+    G.db.cooldownCooldownAlpha = 0.5
+end)
+local knownSpells = {
+    [118] = {name = 'Превращение', icon = 'polymorph', range = 30},
+    [133] = {name = 'Огненный шар', icon = 'fireball', range = 40},
+    [900001] = {name = 'Заклинание Sirus'},
+}
+UnitClass = function() return 'Mage', 'MAGE' end
+GetSpellInfo = function(id)
+    if type(id) ~= 'number' or id > 1000000000 then error('invalid spell ID') end
+    local data = knownSpells[id]
+    if data then return data.name, '', data.icon, 0, 0, data.range end
+end
+dofile('Gladdy/Modules/RangeCheck.lua')
+local R = G.modules['Range Check']
+for key, value in pairs(R.defaults) do G.db[key] = G:DeepCopy(value) end
+build('ruRU')
+local function rangeOption() return G.options.args['Range Check'].args.oorSpells.args.MAGE.args.min end
+local function rangeHeader() return G.options.args['Range Check'].args.oorSpells.args.MAGE.args.headerMin.name end
+test('range spell validation rejects invalid numeric forms and missing client spell IDs', function()
+    local option = rangeOption()
+    for _, input in ipairs({'0','-1','1.5','1e3','1e309','NaN','','118junk',' 118','118 ','99999999'}) do
+        assert(option.validate(nil, input) ~= true, input)
+    end
+    assert(option.pattern == '^%d+$')
+end)
+test('range spell validation accepts available positive integer IDs without writing or notifying', function()
+    local notify = LibStub('AceConfigRegistry-3.0').NotifyChange; local calls = 0
+    LibStub('AceConfigRegistry-3.0').NotifyChange = function() calls = calls + 1 end
+    local before = G.db.rangeCheckDefaultSpells.MAGE.min
+    assert(rangeOption().validate(nil, '118') == true and rangeOption().validate(nil, '133') == true)
+    assert(G.db.rangeCheckDefaultSpells.MAGE.min == before and calls == 0)
+    LibStub('AceConfigRegistry-3.0').NotifyChange = notify
+end)
+test('range direct setter preserves current value and header for rejected input', function()
+    local before, header = G.db.rangeCheckDefaultSpells.MAGE.min, rangeHeader()
+    local update = G.UpdateFrame; local calls = 0; G.UpdateFrame = function() calls = calls + 1 end
+    for _, input in ipairs({'0','-1','1.5','1e309','99999999'}) do rangeOption().set(nil, input) end
+    assert(G.db.rangeCheckDefaultSpells.MAGE.min == before and rangeHeader() == header and calls == 0)
+    G.UpdateFrame = update
+end)
+test('range validation contains client API exceptions and numeric overflow', function()
+    assert(rangeOption().validate(nil, string.rep('9', 400)) ~= true)
+    assert(rangeOption().validate(nil, '4000000000') ~= true)
+    assert(rangeOption().validate(nil, {}) ~= true and rangeOption().validate(nil, nil) ~= true)
+end)
+test('range valid changes update the profile header and active display', function()
+    local update = G.UpdateFrame; local calls = 0; G.UpdateFrame = function() calls = calls + 1 end
+    rangeOption().set(nil, '133')
+    assert(G.db.rangeCheckDefaultSpells.MAGE.min == 133 and calls == 1)
+    assert(rangeHeader():find('Огненный шар', 1, true) and rangeHeader():find('40', 1, true))
+    G.UpdateFrame = update
+end)
+test('range header tolerates missing client texture and range values', function()
+    rangeOption().set(nil, '900001')
+    assert(G.db.rangeCheckDefaultSpells.MAGE.min == 900001)
+    assert(rangeHeader():find('Заклинание Sirus', 1, true) and rangeHeader():find('INV_Misc_QuestionMark', 1, true))
+end)
+test('range unknown legacy spell IDs show a readable fallback without resetting the profile', function()
+    G.db.rangeCheckDefaultSpells.MAGE.min = 99999999
+    local options = R:GetSpells()
+    assert(options.MAGE.args.headerMin.name:find(G.L['Unknown spell'], 1, true))
+    assert(G.db.rangeCheckDefaultSpells.MAGE.min == 99999999)
+    G.db.rangeCheckDefaultSpells.MAGE.min = 118
+end)
+test('range setter tolerates an unavailable or partially rebuilt option tree', function()
+    local option, options = rangeOption(), G.options
+    G.options = nil; option.set(nil, '133'); assert(G.db.rangeCheckDefaultSpells.MAGE.min == 133)
+    G.options = {args = {['Range Check'] = {args = {}}}}
+    option.set(nil, '118'); assert(G.db.rangeCheckDefaultSpells.MAGE.min == 118)
+    G.options = options
+end)
+test('range rejected input has a localized validation message in both languages', function()
+    for _, lang in ipairs({'enUS','ruRU'}) do
+        G:ApplyLanguage(lang)
+        assert(rangeOption().validate(nil, '0') == G.L['Enter a positive integer spell ID available in this client.'])
+    end
+end)
 test('localized placeholders accept expected argument types', function()
     for _, lang in ipairs({'enUS', 'ruRU'}) do
         G:ApplyLanguage(lang)
