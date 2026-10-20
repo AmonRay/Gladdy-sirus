@@ -612,6 +612,15 @@ function Auras:RefreshInterruptFilters()
     end
 end
 
+function Auras:UNIT_DEATH(unit)
+    local frame = self.frames[unit]
+    if not frame then return end
+    self:AURA_FADE(unit, frame.track, true)
+    frame.spellID, frame.track = nil, nil
+    self.interrupts[unit] = nil
+    self:RefreshInterrupt(unit)
+end
+
 function Auras:ResetUnit(unit)
     self.interrupts[unit] = nil
     local aura = self.frames[unit]

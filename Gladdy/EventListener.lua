@@ -35,6 +35,15 @@ function EventListener:Initialize()
 	end
 
 	self:RegisterMessage("JOINED_ARENA")
+    self:RegisterMessage("UNIT_DEATH")
+end
+
+function EventListener:UNIT_DEATH(unit)
+    local button = Gladdy.buttons[unit]
+    if not button then return end
+    for _, key in ipairs({"auras", "lastAuras", "auraCache"}) do
+        if button[key] then wipe(button[key]) end
+    end
 end
 
 function EventListener.OnEvent(self, event, ...)

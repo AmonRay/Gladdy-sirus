@@ -421,17 +421,14 @@ function TotemPlates:NameplateTypeValid(self)
 end
 
 function TotemPlates:ToggleTotem(totem, show)
-	if ( show ) then
-		totem:Show()
-		if ( not totem.active ) then
-			totem:SetScript("OnUpdate", TotemPlates.OnUpdate)
-		end
-	else
-		totem:Hide()
-		if ( totem.active ) then
-			totem:SetScript("OnUpdate", nil)
-		end
-	end
+    if show then
+        totem:Show()
+        totem:SetScript("OnUpdate", TotemPlates.OnUpdate)
+    else
+        totem:Hide()
+        totem:SetScript("OnUpdate", nil)
+        totem.active = nil
+    end
 end
 
 function TotemPlates:GetAddonFrame(nameplate)

@@ -77,6 +77,7 @@ end)
 setup();WorldFrame=CreateFrame('Frame','WorldFrame')
 G.defaults={profile={}};G.SMFetch=function() return 'font' end
 G.GetTotemData=function() return {},{totem={id=1}} end
+UnitName = function() return 'totem' end
 dofile('Gladdy/Modules/TotemPlates.lua');local T=G.modules['Totem Plates']
 G.db.npTotemPlatesSize=32;G.db.npTotemPlatesWidthFactor=1;G.db.npTremorFontSize=12
 G.db.npTremorFontXOffset=0;G.db.npTremorFontYOffset=0;G.db.npTotemColors={}
@@ -166,6 +167,45 @@ test('supported Kui and Tidy adapters remain selected when ElvUI nameplates are 
         elvui(false, name); T:Initialize(); assert(T.addon == name)
     end
     IsAddOnLoaded = function() return false end
+end)
+local function showTotem()
+    IsAddOnLoaded = function() return false end; T:Initialize()
+    G.db.npTotems, G.db.npTotemsShowFriendly = true, true
+    G.db.npTotemColors.totem1 = {enabled = true, color = {r = 1, g = 1, b = 1, a = 1}, alpha = 0.6, customText = ''}
+    plate.gladdyTotemFrame.nametext:SetText('totem')
+    T:NAME_PLATE_UNIT_ADDED(plate)
+    return plate.gladdyTotemFrame
+end
+test('totem filter disable and enable restores the highlight callback', function()
+    local totem = showTotem(); assert(totem.active and totem:IsShown() and totem:GetScript('OnUpdate'))
+    G.db.npTotemColors.totem1.enabled = false; T:NAME_PLATE_UNIT_ADDED(plate)
+    assert(not totem.active and not totem:IsShown() and not totem:GetScript('OnUpdate'))
+    G.db.npTotemColors.totem1.enabled = true; T:NAME_PLATE_UNIT_ADDED(plate)
+    assert(totem.active and totem:IsShown() and totem:GetScript('OnUpdate') == T.OnUpdate)
+end)
+test('repeated totem filter cycles reuse the same frame and callback', function()
+    local totem = showTotem(); local count = creations
+    for i = 1, 5 do
+        G.db.npTotemColors.totem1.enabled = false; T:NAME_PLATE_UNIT_ADDED(plate)
+        G.db.npTotemColors.totem1.enabled = true; T:NAME_PLATE_UNIT_ADDED(plate)
+        assert(totem == plate.gladdyTotemFrame and totem:GetScript('OnUpdate') == T.OnUpdate)
+    end
+    assert(creations == count)
+end)
+test('restored totem highlight callback updates its selection texture', function()
+    local totem = showTotem(); G.db.npTotemColors.totem1.enabled = false; T:NAME_PLATE_UNIT_ADDED(plate)
+    G.db.npTotemColors.totem1.enabled = true; T:NAME_PLATE_UNIT_ADDED(plate)
+    local alpha; totem.selectionHighlight.SetAlpha = function(_, value) alpha = value end
+    totem:GetScript('OnUpdate')(totem, 0.1); assert(alpha == 0.25)
+end)
+test('totem removal and reappearance preserve highlight updates', function()
+    local totem = showTotem(); T:NAME_PLATE_UNIT_REMOVED(plate)
+    assert(not totem.active and not totem:GetScript('OnUpdate'))
+    T:NAME_PLATE_UNIT_ADDED(plate); assert(totem.active and totem:GetScript('OnUpdate') == T.OnUpdate)
+end)
+test('hiding a totem clears callbacks even if its active flag was already missing', function()
+    local totem = showTotem(); totem.active = nil; T:ToggleTotem(totem, false)
+    assert(not totem.active and not totem:GetScript('OnUpdate') and not totem:IsShown())
 end)
 test('lifecycle and nameplate guards report no swallowed errors',function() assert(#wow.errors==0,table.concat(wow.errors,'\n')) end)
 print('PASS: '..n..' lifecycle and nameplate tests')

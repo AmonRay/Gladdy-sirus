@@ -530,10 +530,10 @@ function BuffsDebuffs:AURA_GAIN(unit, auraType, spellID, spellName, texture, dur
 
     spellName = LibClassAuras.GetAltName(spellID) or spellName
 
-    local aura = Gladdy:GetImportantAuras()[spellName] and Gladdy.db.auraListDefault[tostring(Gladdy:GetImportantAuras()[spellName].spellID)].enabled
-    if aura and Gladdy.db.buffsShowAuraDebuffs then
-        aura = false
-    end
+    local info = Gladdy:GetImportantAuras()[spellName]
+    local config = info and Gladdy.db.auraListDefault[tostring(info.spellID)]
+    local aura = Gladdy.db.auraEnabled and config and config.enabled and config.track == auraType
+        and not Gladdy.db.buffsShowAuraDebuffs
 
     local auraNames = LibClassAuras.GetSpellNameToId(auraType)
     local spellId
