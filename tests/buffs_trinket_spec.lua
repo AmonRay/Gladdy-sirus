@@ -38,10 +38,13 @@ LibStub = setmetatable({NewLibrary = function(_, name) libs[name] = libs[name] o
     return libs[name]
 end})
 dofile('Gladdy/Gladdy.lua'); dofile('Gladdy/Lang.lua'); dofile('Gladdy/Frame.lua'); dofile('Gladdy/Util.lua')
+CLASS_ICON_TCOORDS = {}
+LOCALIZED_CLASS_NAMES_MALE = setmetatable({}, {__index = function(_, key) return key end})
 SlashCmdList = {}; dofile('Gladdy/Options.lua')
 dofile('Gladdy/Constants_shared.lua'); dofile('Gladdy/Constants_Wrath.lua')
 dofile('Gladdy/Libs/DRList-1.0/DRList-1.0.lua'); dofile('Gladdy/Libs/DRList-1.0/Spells.lua')
 local G = LibStub('Gladdy')
+local getAuras = G.GetAuras
 G.GetAuras = function() return {}, {} end
 G.SMFetch = function() return 'font' end
 G.SetPosition = noop; G.CreateMover = noop
@@ -191,6 +194,72 @@ end)
 test('a ready trinket still uses its configured ready color', function()
     setup(); G.db.trinketColored = true; local frame = T.frames.arena1; local color = trackColor(frame); T:ENEMY_SPOTTED('arena1')
     assert(not frame.active and color[#color][1] == 0 and color[#color][2] == 1)
+end)
+local function filterOptions()
+    G.dbi = {profile = G.db}
+    AceGUIWidgetLSMlists = {font = {}, border = {}, statusbar = {}}
+    return B:GetOptions()
+end
+for _, spec in ipairs({{AURA_TYPE_BUFF, 999001, 'buffList'}, {AURA_TYPE_DEBUFF, 999002, 'debuffList'}}) do
+    test(spec[1] .. ' filter callback immediately hides permanent icons and restores them from snapshots', function()
+        setup(); aura('arena1', spec[1], spec[2], 0, 0); refresh()
+        local options = filterOptions()[spec[3]]; local snapshot = G.buttons.arena1.auras[spec[2]]
+        assert(#B.frames.arena1.auras[spec[1]] == 1)
+        options.set({spec[3], tostring(spec[2])}, false)
+        assert(#B.frames.arena1.auras[spec[1]] == 0 and G.buttons.arena1.auras[spec[2]] == snapshot)
+        options.set({spec[3], tostring(spec[2])}, true)
+        local icon = B.frames.arena1.auras[spec[1]][1]
+        assert(icon and visible(icon) and not icon:GetScript('OnUpdate'))
+    end)
+    test(spec[1] .. ' filter callback preserves timed deadlines and ignores expired effects', function()
+        setup(); aura('arena1', spec[1], spec[2], 30, 130); refresh()
+        local options = filterOptions()[spec[3]]
+        options.set({spec[3], tostring(spec[2])}, false); now = 110
+        options.set({spec[3], tostring(spec[2])}, true)
+        assert(B.frames.arena1.auras[spec[1]][1].endtime == 130)
+        options.set({spec[3], tostring(spec[2])}, false); now = 131
+        options.set({spec[3], tostring(spec[2])}, true)
+        assert(#B.frames.arena1.auras[spec[1]] == 0)
+    end)
+    test(spec[1] .. ' bulk callbacks immediately rebuild icons without changing snapshots', function()
+        setup(); aura('arena1', spec[1], spec[2], 0, 0); refresh(); filterOptions()
+        local key = tostring(spec[2]); local defaults = spec[1] == AURA_TYPE_BUFF and G.defaults.profile.trackedBuffs or G.defaults.profile.trackedDebuffs
+        local old = defaults[key]; defaults[key] = true
+        local lib = LibStub('LibClassAuras-1.0'); lib.GetClassBuffs = function() return {} end; lib.GetClassDebuffs = lib.GetClassBuffs
+        local options = getAuras(G, spec[1])
+        options.uncheckAll.func(); assert(#B.frames.arena1.auras[spec[1]] == 0)
+        options.ckeckAll.func(); assert(#B.frames.arena1.auras[spec[1]] == 1)
+        defaults[key] = old
+    end)
+end
+test('important aura filtering immediately updates exclusion from ordinary buff icons', function()
+    setup(); G.db.buffsShowAuraDebuffs = false
+    local id
+    for _, info in pairs(A.auras) do if info.track == AURA_TYPE_BUFF then id = info.spellID; break end end
+    assert(id)
+    local original = auraLib.GetSpellNameToId
+    auraLib.GetSpellNameToId = function() return {['spell' .. id] = {{id = {id}}}} end
+    G.db.trackedBuffs[tostring(id)] = true
+    G.buttons.arena1.auras[id] = {AURA_TYPE_BUFF, id, 'spell' .. id, 'icon' .. id, 30, 130, 1, 'Magic'}
+    A:AURA_GAIN('arena1', unpack(G.buttons.arena1.auras[id])); refresh()
+    assert(#B.frames.arena1.auras[AURA_TYPE_BUFF] == 0)
+    local options = A:GetAuraOptions(AURA_TYPE_BUFF)[tostring(id)].args
+    options.enabled.set(nil, false)
+    assert(not A.frames.arena1.active and #B.frames.arena1.auras[AURA_TYPE_BUFF] == 1)
+    assert(B.frames.arena1.auras[AURA_TYPE_BUFF][1].endtime == 130)
+    options.enabled.set(nil, true)
+    assert(A.frames.arena1.active and #B.frames.arena1.auras[AURA_TYPE_BUFF] == 0)
+    auraLib.GetSpellNameToId = original
+end)
+test('buff filter refresh updates every existing arena frame', function()
+    setup(); G:CreateButton(2); G.dbi = {profile = G.db}
+    aura('arena1', AURA_TYPE_BUFF, 999001, 30, 130)
+    aura('arena2', AURA_TYPE_BUFF, 999001, 30, 130)
+    B:RefreshFilters(); local options = filterOptions().buffList
+    options.set({'buffList', '999001'}, false)
+    assert(#B.frames.arena1.auras[AURA_TYPE_BUFF] == 0 and #B.frames.arena2.auras[AURA_TYPE_BUFF] == 0)
+    options.set({'buffList', '999001'}, true)
+    assert(B.frames.arena1.auras[AURA_TYPE_BUFF][1].endtime == 130 and B.frames.arena2.auras[AURA_TYPE_BUFF][1].endtime == 130)
 end)
 test('buff and trinket regressions report no swallowed errors', function() assert(#wow.errors == 0, table.concat(wow.errors, '\n')) end)
 print('PASS: ' .. passed .. ' buff and trinket regression tests')

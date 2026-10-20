@@ -209,6 +209,150 @@ test('range configuration refresh preserves simulated range in test mode', funct
     local button = setup(); G.frame.testing = true; RC:Test('arena1'); RC:UpdateFrameOnce()
     assert(RC.test and button.lastState == 1 and not button.range)
 end)
+local function runningDR()
+    setup(); D:AuraGain('arena1', 122, 'mage'); D:AuraFade('arena1', 122, 'mage')
+    local icon = D:FindLastIcon('arena1', 'root')
+    return icon, icon.endTime, D.frames.arena1.tracked.root
+end
+
+test('DR category callback hides and restores the same state immediately', function()
+    local icon, deadline, level = runningDR(); local options = D:CategoryOptions().root.args
+    options.enabled.set(nil, false)
+    assert(not icon:IsShown() and icon.endTime == deadline and D.frames.arena1.tracked.root == level)
+    now = 105; options.enabled.set(nil, true)
+    assert(icon:IsShown() and icon.endTime == deadline and D.frames.arena1.tracked.root == level)
+end)
+test('DR bulk callbacks preserve deadlines and tracked effects', function()
+    local icon, deadline = runningDR(); local options = D:CategoryOptions()
+    options.uncheckAll.func(); assert(not icon:IsShown() and icon.endTime == deadline)
+    options.checkAll.func(); assert(icon:IsShown() and icon.endTime == deadline)
+end)
+test('DR category refresh does not reset overlapping control', function()
+    setup(); D:AuraGain('arena1', 122, 'mage'); D:AuraGain('arena1', 122, 'other')
+    local icon = D:FindLastIcon('arena1', 'root'); local options = D:CategoryOptions().root.args
+    options.enabled.set(nil, false); D:AuraFade('arena1', 122, 'mage')
+    options.enabled.set(nil, true); assert(icon.active and not icon.running)
+    D:AuraFade('arena1', 122, 'other'); assert(icon.running)
+end)
+test('DR callbacks expire hidden timers instead of briefly resurrecting them', function()
+    local icon, deadline = runningDR(); local options = D:CategoryOptions().root.args
+    options.enabled.set(nil, false); now = deadline + 1; options.enabled.set(nil, true)
+    assert(not icon.active and not icon:IsShown() and not D.frames.arena1.tracked.root)
+end)
+test('DR icon callbacks update textures without restarting the timer', function()
+    local icon, deadline = runningDR(); local texture
+    icon.texture.SetTexture = function(_, value) texture = value end
+    local options = D:CategoryOptions().root.args
+    options.icon.set(nil, 'custom'); options.forceIcon.set(nil, true)
+    assert(texture == 'custom' and icon.endTime == deadline)
+    options.icon.set(nil, 'other'); assert(texture == 'other' and icon.endTime == deadline)
+    options.forceIcon.set(nil, false); assert(texture == 'icon122' and icon.endTime == deadline)
+end)
+local auraLib = LibStub('LibClassAuras-1.0')
+auraLib.GetAltName = function() end
+auraLib.GetSpellNameToId = function() return {} end
+local function importantSetup()
+    local button = setup(); local entries = {}
+    for _, info in pairs(A.auras) do
+        if info.track == AURA_TYPE_DEBUFF then entries[#entries + 1] = info end
+    end
+    table.sort(entries, function(a,b) return a.spellID < b.spellID end)
+    local first, second = entries[1].spellID, entries[2].spellID
+    local function add(id, duration, expiration, priority)
+        local name = GetSpellInfo(id); local info = A.auras[name]
+        local config = G.db.auraListDefault[tostring(info.spellID)]
+        config.enabled, config.priority = true, priority or 10
+        button.auras[id] = {info.track, id, name, 'icon' .. id, duration, expiration, 1, 'Magic'}
+        A:AURA_GAIN('arena1', unpack(button.auras[id]))
+        return A:GetAuraOptions(info.track)[tostring(info.spellID)].args
+    end
+    return button, first, second, add
+end
+test('important aura enabled callback hides immediately and restores the original deadline', function()
+    local button, first, second, add = importantSetup(); local options = add(first, 30, 130)
+    local frame = A.frames.arena1
+    options.enabled.set(nil, false); assert(not frame.active and button.auras[first])
+    now = 107; options.enabled.set(nil, true)
+    assert(frame.active and frame.spellID == first and frame.endTime == 130 and frame.timeLeft == 23)
+end)
+test('important aura priority callbacks immediately select a different saved aura', function()
+    local button, first, second, add = importantSetup()
+    local low = add(first, 30, 130, 10); local high = add(second, 20, 120, 20)
+    local frame = A.frames.arena1; assert(frame.spellID == second)
+    low.priority.set(nil, 30); assert(frame.spellID == first and frame.priority == 30 and frame.endTime == 130)
+    low.priority.set(nil, 5); assert(frame.spellID == second and frame.priority == 20 and frame.endTime == 120)
+    high.enabled.set(nil, false); assert(frame.spellID == first and frame.endTime == 130)
+end)
+test('important aura bulk callbacks hide and restore current snapshots', function()
+    local button, first, second, add = importantSetup(); add(first, 30, 130)
+    local options = A:GetAuraOptions(AURA_TYPE_DEBUFF)
+    options.uncheckAll.func(); assert(not A.frames.arena1.active)
+    now = 106; options.ckeckAll.func(); assert(A.frames.arena1.active and A.frames.arena1.endTime == 130)
+end)
+test('important aura callbacks do not restore removed or expired snapshots', function()
+    local button, first, second, add = importantSetup(); local options = add(first, 30, 130)
+    options.enabled.set(nil, false); now = 131; options.enabled.set(nil, true); assert(not A.frames.arena1.active)
+    now = 100; options = add(first, 30, 130); button.auras[first] = nil
+    options.priority.set(nil, 40); assert(not A.frames.arena1.active)
+end)
+test('important aura callbacks respect stealth without retaining a disabled icon', function()
+    local button, first, second, add = importantSetup(); local options = add(first, 30, 130)
+    button.stealthed = true; options.enabled.set(nil, false); assert(not A.frames.arena1.active)
+    options.enabled.set(nil, true); assert(A.frames.arena1.active and A.frames.arena1.endTime == 130)
+end)
+test('important aura callbacks leave interrupt state untouched', function()
+    local button, first, second, add = importantSetup(); local options = add(first, 30, 130)
+    local interrupt = A.frames.arena1.interruptFrame
+    interrupt.active, interrupt.endTime, interrupt.priority = true, 111, 50
+    options.priority.set(nil, 20)
+    assert(interrupt.active and interrupt.endTime == 111 and interrupt.priority == 50)
+end)
+for _, id in ipairs({8178, 50461}) do
+    test('special aura ' .. id .. ' retains its deadline through filter and live refreshes', function()
+        local button, first, second, add = importantSetup(); local options = add(id, 0, 0, 40)
+        local frame = A.frames.arena1; local deadline = frame.endTime
+        assert(deadline == 100 + G.db.specialSpells[id])
+        now = 104; options.priority.set(nil, 45); assert(frame.endTime == deadline)
+        options.enabled.set(nil, false); now = 107; options.enabled.set(nil, true)
+        assert(frame.endTime == deadline)
+        A:AURA_GAIN('arena1', unpack(button.auras[id])); assert(frame.endTime == deadline)
+        now = deadline + 1; options.priority.set(nil, 30); assert(not frame.active)
+    end)
+end
+test('hidden special auras retain their initial deadline before becoming highest priority', function()
+    local button, first, second, add = importantSetup(); add(first, 60, 160, 50)
+    local options = add(8178, 0, 0, 10); assert(A.frames.arena1.spellID == first)
+    now = 110; options.priority.set(nil, 50)
+    if A.frames.arena1.spellID ~= 8178 then
+        A:GetAuraOptions(AURA_TYPE_DEBUFF)[tostring(first)].args.enabled.set(nil, false)
+    end
+    assert(A.frames.arena1.spellID == 8178 and A.frames.arena1.endTime == 145)
+end)
+test('removed special aura is observed with a new deadline when reapplied', function()
+    local button, first, second, add = importantSetup(); add(8178, 0, 0, 40)
+    button.auras[8178] = nil; A:RefreshFilters(); assert(not A.frames.arena1.active)
+    now = 110; add(8178, 0, 0, 40); assert(A.frames.arena1.endTime == 155)
+end)
+test('DR category callbacks refresh all arena frames without resetting individual deadlines', function()
+    local first, deadline = runningDR(); G:CreateButton(2)
+    now = 105; D:AuraGain('arena2', 122, 'mage'); D:AuraFade('arena2', 122, 'mage')
+    local second = D:FindLastIcon('arena2', 'root'); local secondDeadline = second.endTime
+    local options = D:CategoryOptions().root.args
+    options.enabled.set(nil, false); assert(not first:IsShown() and not second:IsShown())
+    options.enabled.set(nil, true)
+    assert(first:IsShown() and second:IsShown() and first.endTime == deadline and second.endTime == secondDeadline)
+end)
+test('important aura callbacks refresh all arena units without rescanning UnitAura', function()
+    local button, first, second, add = importantSetup(); local options = add(first, 30, 130)
+    G:CreateButton(2); G.buttons.arena2.auras[first] = copy(button.auras[first])
+    G.buttons.arena2.auras[first][6] = 135
+    A:AURA_GAIN('arena2', unpack(G.buttons.arena2.auras[first]))
+    local original = UnitAura; UnitAura = function() error('unexpected scan') end
+    options.enabled.set(nil, false); assert(not A.frames.arena1.active and not A.frames.arena2.active)
+    options.enabled.set(nil, true)
+    assert(A.frames.arena1.endTime == 130 and A.frames.arena2.endTime == 135)
+    UnitAura = original
+end)
 test('module toggle regressions report no swallowed errors', function()
     assert(#wow.errors == 0, table.concat(wow.errors, '\n'))
 end)

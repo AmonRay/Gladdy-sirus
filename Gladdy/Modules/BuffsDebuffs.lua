@@ -139,6 +139,10 @@ function BuffsDebuffs:UpdateFrameOnce()
     for unit in pairs(self.frames) do self:RefreshUnit(unit) end
 end
 
+function BuffsDebuffs:RefreshFilters()
+    for unit in pairs(self.frames or {}) do self:RefreshUnit(unit) end
+end
+
 function BuffsDebuffs:UpdateVisibility(unit)
     local frame = self.frames[unit]
     if not frame then return end
@@ -1205,6 +1209,7 @@ function BuffsDebuffs:GetOptions()
 			set = function(info, state)
 				local optionKey = info[#info]
 				Gladdy.dbi.profile.trackedDebuffs[optionKey] = state
+                self:RefreshFilters()
 			end,
 			get = function(info)
 				local optionKey = info[#info]
@@ -1221,6 +1226,7 @@ function BuffsDebuffs:GetOptions()
 			set = function(info, state)
 				local optionKey = info[#info]
 				Gladdy.dbi.profile.trackedBuffs[optionKey] = state
+                self:RefreshFilters()
 			end,
 			get = function(info)
 				local optionKey = info[#info]

@@ -352,6 +352,7 @@ function Diminishings:PrepareIcon(unit, lastIcon, drCat, spellID)
 	local drFrame = self.frames[unit]
 
 	lastIcon.dr = drCat
+    lastIcon.spellID = spellID
 	lastIcon.diminishing = drFrame.tracked[drCat]
 	if Gladdy.db.drBorderColorsEnabled then
 		lastIcon.border:SetVertexColor(getDiminishColor(lastIcon.diminishing))
@@ -385,7 +386,7 @@ function Diminishings:ExpireIcon(icon)
     icon.drFrame.tracked[icon.dr] = nil
     icon.drFrame.effects[icon.dr] = nil
     icon.active, icon.running, icon.endTime = false, false, nil
-    icon.dr, icon.diminishing, icon.timeLeft = nil, 1, 0
+    icon.dr, icon.diminishing, icon.timeLeft, icon.spellID = nil, 1, 0, nil
     icon.texture:SetTexture("")
     icon.timeText:SetText("")
     icon.cooldown:Hide()
@@ -883,6 +884,23 @@ function Diminishings:GetOptions()
 	}
 end
 
+function Diminishings:RefreshCategories()
+    for unit, frame in pairs(self.frames or {}) do
+        for i = 1, 16 do
+            local icon = frame["icon" .. i]
+            local category = icon.dr and Gladdy.db.drCategories[icon.dr]
+            if icon.active and category then
+                if icon.running and Gladdy:CooldownRemaining(icon) <= 0 then
+                    self:ExpireIcon(icon)
+                else
+                    icon.texture:SetTexture(category.forceIcon and category.icon or select(3, GetSpellInfo(icon.spellID)))
+                end
+            end
+        end
+        self:Positionate(unit)
+    end
+end
+
 function Diminishings:CategoryOptions()
     local names = {
         incapacitate = L["DR: Incapacitate"],
@@ -911,6 +929,7 @@ function Diminishings:CategoryOptions()
 				for k,_ in pairs(defaultCategories()) do
 					Gladdy.db.drCategories[k].enabled = true
 				end
+                self:RefreshCategories()
 			end,
 		},
 		uncheckAll = {
@@ -922,6 +941,7 @@ function Diminishings:CategoryOptions()
 				for k,_ in pairs(defaultCategories()) do
 					Gladdy.db.drCategories[k].enabled = false
 				end
+                self:RefreshCategories()
 			end,
 		},
 	}
@@ -946,6 +966,7 @@ function Diminishings:CategoryOptions()
 					end,
 					set = function(_, value)
 						Gladdy.db.drCategories[k].enabled = value
+                        self:RefreshCategories()
 					end,
 				},
 				forceIcon = {
@@ -957,6 +978,7 @@ function Diminishings:CategoryOptions()
 					end,
 					set = function(_, value)
 						Gladdy.db.drCategories[k].forceIcon = value
+                        self:RefreshCategories()
 					end,
 				},
 				icon = {
@@ -970,7 +992,9 @@ function Diminishings:CategoryOptions()
 					end,
 					set = function(_, value)
 						Gladdy.db.drCategories[k].icon = value
-						Gladdy.options.args.Diminishings.args.categories.args[k].icon = value
+						local options = Gladdy.options and Gladdy.options.args.Diminishings
+                        if options then options.args.categories.args[k].icon = value end
+                        self:RefreshCategories()
 					end,
 				}
 			}

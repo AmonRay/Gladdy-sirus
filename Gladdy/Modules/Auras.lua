@@ -369,6 +369,53 @@ function Auras:JOINED_ARENA()
 	end
 end
 
+function Auras:GetAuraEndTime(unit, spellID, duration, expirationTime)
+    local specialDuration = Gladdy.db.specialSpells[spellID]
+    if not specialDuration then return expirationTime end
+    local button = Gladdy.buttons[unit]
+    local aura = button and button.auras and button.auras[spellID]
+    if not aura then return GetTime() + specialDuration end
+    if aura.importantExpiration ~= expirationTime or aura.importantDuration ~= duration or not aura.importantEndTime then
+        aura.importantExpiration = expirationTime
+        aura.importantDuration = duration
+        aura.importantEndTime = GetTime() + specialDuration
+    end
+    return aura.importantEndTime
+end
+
+function Auras:RefreshUnit(unit)
+    local frame, button = self.frames[unit], Gladdy.buttons[unit]
+    if not frame or not button then return end
+    if Gladdy.frame and Gladdy.frame.testing then
+        self:AURA_FADE(unit, frame.track, true)
+        if Gladdy.db.auraEnabled then self:Test(unit) end
+        return
+    end
+    local selected, priority
+    if Gladdy.db.auraEnabled then
+        for _, aura in pairs(button.auras or {}) do
+            local info = self.auras[aura[3]]
+            local config = info and Gladdy.db.auraListDefault[tostring(info.spellID)]
+            if config and config.enabled and config.track == aura[1] then
+                local endTime = self:GetAuraEndTime(unit, aura[2], aura[5], aura[6])
+                local permanent = aura[5] == 0 and not Gladdy.db.specialSpells[aura[2]]
+                if (permanent or endTime > GetTime()) and (not selected or config.priority > priority
+                        or config.priority == priority and aura[2] == frame.spellID) then
+                    selected, priority = aura, config.priority
+                end
+            end
+        end
+    end
+    self:AURA_FADE(unit, frame.track, true)
+    if selected then self:AURA_GAIN(unit, unpack(selected)) end
+end
+
+function Auras:RefreshFilters()
+    for unit in pairs(self.frames or {}) do self:RefreshUnit(unit) end
+    local buffs = Gladdy.modules["Buffs and Debuffs"]
+    if buffs then buffs:RefreshFilters() end
+end
+
 function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, expirationTime, count, debuffType)
 	if not Gladdy.db.auraEnabled then return end
 
@@ -378,6 +425,7 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 	local auraInfo = self.auras[spellName]
 	if not auraInfo then return end
 
+    local endTime = self:GetAuraEndTime(unit, spellID, duration, expirationTime)
 	local spellIDStr = tostring(auraInfo.spellID)
 	local auraConfig = Gladdy.db.auraListDefault[spellIDStr]
 	if not auraConfig or not auraConfig.enabled or auraConfig.track ~= auraType then
@@ -389,7 +437,7 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 	end
 
 	auraFrame.startTime = expirationTime - duration
-	auraFrame.endTime = expirationTime
+	auraFrame.endTime = endTime
 	auraFrame.name = spellName
 	auraFrame.spellID = spellID
 	auraFrame.priority = auraConfig.priority
@@ -418,8 +466,7 @@ function Auras:AURA_GAIN(unit, auraType, spellID, spellName, icon, duration, exp
 
 	local specialSpells = Gladdy.db.specialSpells
 	if specialSpells[spellID] then
-		auraFrame.timeLeft = specialSpells[spellID]
-        auraFrame.endTime = GetTime() + auraFrame.timeLeft
+        auraFrame.timeLeft = endTime - GetTime()
 	else
 		auraFrame.timeLeft = expirationTime - GetTime()
 	end
@@ -1052,6 +1099,7 @@ function Auras:GetAuraOptions(auraType)
 				for k,_ in pairs(defaultSpells(auraType)) do
 					Gladdy.db.auraListDefault[k].enabled = true
 				end
+                self:RefreshFilters()
 			end,
 		},
 		uncheckAll = {
@@ -1063,6 +1111,7 @@ function Auras:GetAuraOptions(auraType)
 				for k,_ in pairs(defaultSpells(auraType)) do
 					Gladdy.db.auraListDefault[k].enabled = false
 				end
+                self:RefreshFilters()
 			end,
 		},
 	}
@@ -1095,6 +1144,7 @@ function Auras:GetAuraOptions(auraType)
 							}
 						end
 						Gladdy.db.auraListDefault[tostring(k)].enabled = value
+                        self:RefreshFilters()
 					end,
 					get = function()
 						if not Gladdy.db.auraListDefault[tostring(k)] then
@@ -1134,6 +1184,7 @@ function Auras:GetAuraOptions(auraType)
 							}
 						end
 						Gladdy.db.auraListDefault[tostring(k)].priority = value
+                        self:RefreshFilters()
 					end,
 					width = "full",
 				}

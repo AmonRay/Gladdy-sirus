@@ -904,6 +904,8 @@ function Gladdy:GetAuras(auraType)
                         Gladdy.dbi.profile.trackedBuffs[k] = true
                     end
                 end
+                local module = Gladdy.modules["Buffs and Debuffs"]
+                if module then module:RefreshFilters() end
             end,
         },
         uncheckAll = {
@@ -921,6 +923,8 @@ function Gladdy:GetAuras(auraType)
                         Gladdy.dbi.profile.trackedBuffs[k] = false
                     end
                 end
+                local module = Gladdy.modules["Buffs and Debuffs"]
+                if module then module:RefreshFilters() end
             end,
         },
         druid = {
